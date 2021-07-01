@@ -1,0 +1,39 @@
+allprojects {
+    apply plugin: 'java'
+    apply plugin: 'maven-publish'
+
+    group 'io.ran'
+
+    jar {
+        manifest {
+            attributes(
+                    'Implementation-Title': project.name,
+                    'Implementation-Version': project.version,
+                    'Implementation-Vendor-Id': project.group,
+                    'Implementation-Vendor': 'Persequor ApS',
+                    'Created-By': "Gradle $project.gradle.gradleVersion"
+            )
+        }
+    }
+
+    publishing {
+        repositories {
+            maven {
+                name = "GitHubPackages"
+                url = uri("https://maven.pkg.github.com/persequor-com/ran")
+                credentials {
+                    username = System.getenv("GITHUB_ACTOR")
+                    password = System.getenv("GITHUB_TOKEN")
+                }
+            }
+        }
+        publications {
+            gpr(MavenPublication) {
+                from(components.java)
+            }
+        }
+    }
+
+    sourceCompatibility = '1.8'
+
+}

@@ -1,0 +1,21 @@
+plugins {
+    id 'java'
+}
+
+description = 'automapper-core'
+
+repositories {
+    mavenCentral()
+}
+
+
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testCompile group: 'com.google.inject', name: 'guice', version: '4.2.3'
+    compile 'javax.inject:javax.inject:1'
+    compile group: 'org.ow2.asm', name: 'asm', version: '9.1'
+    compile group: 'org.ow2.asm', name: 'asm-util', version: '9.1'
+    compile 'cglib:cglib:3.3.0'
+
+}
