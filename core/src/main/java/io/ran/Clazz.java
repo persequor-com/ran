@@ -271,11 +271,15 @@ public class Clazz<T> {
 
 			property.setOn(this);
 			property.getAnnotations().addFrom(field);
-			if (!Modifier.isTransient(field.getModifiers())) {
+			if (isPropertyField(field)) {
 				fields.add(property);
 			}
 		}
 		return fields;
+	}
+
+	public static boolean isPropertyField(Field field) {
+		return !Modifier.isTransient(field.getModifiers());// || field.getAnnotation(Relation.class) == null;
 	}
 
 	public List<Field> getFields() {
@@ -359,9 +363,6 @@ public class Clazz<T> {
 			Relation relation = field.getAnnotation(Relation.class);
 
 			if (relation != null) {
-				if (!Modifier.isTransient(field.getModifiers())) {
-					throw new RuntimeException("Relation fields must be marked as transient, this wasn't: "+clazz.getName()+"."+field.getName());
-				}
 				Token token = Token.camelHump(field.getName());
 				Token idToken = Token.camelHump(field.getName()+"Id");
 				boolean isCollection = field.getType().isAssignableFrom(Collection.class) || field.getType().isAssignableFrom(List.class);

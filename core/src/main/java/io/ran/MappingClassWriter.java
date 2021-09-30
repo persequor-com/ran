@@ -54,7 +54,7 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 				Token column = Token.camelHump(field.getName());
 				Method setter = aClass.getMethod("set" + column.javaGetter(), field.getType());
 				MethodSignature setterInfo = new MethodSignature(setter);
-				if (Modifier.isTransient(field.getModifiers())) {
+				if (!Clazz.isPropertyField(field)) {
 					Relation resolver = field.getAnnotation(Relation.class);
 					if (resolver != null) {
 						fields.add(column.snake_case());
@@ -164,7 +164,7 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 				MethodSignature getterInfo = new MethodSignature(fieldMethod);
 				Method fieldMethodSetter = aClass.getMethod("set" + column.javaGetter(), field.getType());
 				MethodSignature setterInfo = new MethodSignature(fieldMethodSetter);
-				if (!Modifier.isTransient(field.getModifiers())) {
+				if (Clazz.isPropertyField(field)) {
 					ce.objectLoad(3);
 					ce.load(2);
 					ce.push(Token.camelHump(field.getName()).snake_case());
@@ -242,7 +242,7 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 
 				Token column = Token.camelHump(field.getName());
 				Method fieldMethod = aClass.getMethod((field.getType().isPrimitive() && field.getType().equals(boolean.class) ? "is":"get") + column.javaGetter());
-				if (!Modifier.isTransient(field.getModifiers())) {
+				if (Clazz.isPropertyField(field)) {
 					gvce.load(3);
 					fields.add(Token.camelHump(field.getName()).snake_case());
 					gvce.push(Token.camelHump(field.getName()).snake_case());
@@ -301,7 +301,7 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 			for (Field field : aClass.getDeclaredFields()) {
 				Token column = Token.camelHump(field.getName());
 				Method fieldMethod = aClass.getMethod((field.getType().isPrimitive() && field.getType().equals(boolean.class) ? "is":"get") + column.javaGetter());
-				if (Modifier.isTransient(field.getModifiers())) {
+				if (!Clazz.isPropertyField(field)) {
 					Relation resolver = field.getAnnotation(Relation.class);
 					if (resolver != null) {
 
