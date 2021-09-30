@@ -279,7 +279,7 @@ public class Clazz<T> {
 	}
 
 	public static boolean isPropertyField(Field field) {
-		return !Modifier.isTransient(field.getModifiers());// || field.getAnnotation(Relation.class) == null;
+		return !Modifier.isTransient(field.getModifiers()) && field.getAnnotation(Relation.class) == null;
 	}
 
 	public List<Field> getFields() {

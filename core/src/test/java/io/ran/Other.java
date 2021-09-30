@@ -7,7 +7,7 @@ import java.util.UUID;
 public class Other {
 	private UUID id;
 	@Relation(collectionElementType = TestClass.class)
-	private transient List<TestClass> testClasses;
+	private List<TestClass> testClasses;
 	private MyEnum myEnum;
 
 	public UUID getId() {

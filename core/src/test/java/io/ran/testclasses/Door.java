@@ -9,7 +9,7 @@ public class Door {
 	private String id;
 	private String carId;
 	@Relation()
-	private transient Car car;
+	private Car car;
 
 	public String getId() {
 		return id;

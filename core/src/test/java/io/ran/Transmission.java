@@ -8,7 +8,8 @@ import java.util.UUID;
 public class Transmission {
 	private UUID id;
 	private String carId;
-	private transient Car car;
+	@Relation
+	private Car car;
 
 	public UUID getId() {
 		return id;

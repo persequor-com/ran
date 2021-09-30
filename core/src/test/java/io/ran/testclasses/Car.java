@@ -25,13 +25,13 @@ public class Car {
 	private Boolean canBeSoldInEu;
 	private boolean theBoolean;
 	@Relation
-	private transient Engine engine;
+	private Engine engine;
 	@Relation(collectionElementType = Door.class)
-	private transient List<Door> doors;
+	private List<Door> doors;
 	@Relation(collectionElementType = CarEngineOilReading.class, fields = {"id", "engine_id"})
-	private transient List<CarEngineOilReading> oilReadings;
+	private List<CarEngineOilReading> oilReadings;
 	@Relation(fields = "id", relationFields = "on")
-	private transient HeadLights headLights;
+	private HeadLights headLights;
 
 	public String getId() {
 		return id;

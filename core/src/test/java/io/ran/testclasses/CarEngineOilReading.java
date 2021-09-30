@@ -15,9 +15,9 @@ public class CarEngineOilReading {
 	private UUID engineId;
 	private double reading;
 	@Relation
-	private transient Engine engine;
+	private Engine engine;
 	@Relation
-	private transient Car car;
+	private Car car;
 
 	public String getCarId() {
 		return carId;

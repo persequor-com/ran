@@ -31,7 +31,7 @@ public class TestClass {
 
 	private List<String> aList = new ArrayList<>();
 	@Relation()
-	private transient Other other;
+	private Other other;
 
 	public String getId() {
 		return id;

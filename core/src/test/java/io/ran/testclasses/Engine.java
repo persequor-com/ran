@@ -17,7 +17,7 @@ public class Engine {
 	private UUID id;
 	private Brand brand;
 	@Relation(collectionElementType = Car.class)
-	private transient Collection<Car> cars;
+	private Collection<Car> cars;
 
 	public UUID getId() {
 		return id;
