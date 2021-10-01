@@ -292,7 +292,7 @@ public class Clazz<T> {
 		return fields;
 	}
 
-	private static RelationDescriber describeRelation(Clazz<?> from, Token token, List<String> fields, List<String> relationFields, Clazz<?> relation, Clazz<?> collectionType, Clazz<?> via) {
+	private static RelationDescriber describeRelation(Clazz<?> from, Relation relationAnnotation, Token token, List<String> fields, List<String> relationFields, Clazz<?> relation, Clazz<?> collectionType, Clazz<?> via) {
 		RelationDescriber relationDescriber;
 		Property.PropertyList properties = from.getProperties();
 
@@ -314,19 +314,19 @@ public class Clazz<T> {
 		}
 
 		if (collectionType != null) {
-			relationDescriber = RelationDescriber.describer(from, token, relation, selfKeys, relationKeys, RelationType.OneToMany, collectionType);
+			relationDescriber = RelationDescriber.describer(from, relationAnnotation, token, relation, selfKeys, relationKeys, RelationType.OneToMany, collectionType);
 
 		} else {
-			relationDescriber = RelationDescriber.describer(from, token, relation, selfKeys, relationKeys, RelationType.OneToOne, null);
-
+			relationDescriber = RelationDescriber.describer(from, relationAnnotation, token, relation, selfKeys, relationKeys, RelationType.OneToOne, null);
 		}
+
 		if (via.clazz != None.class) {
 			List<RelationDescriber> viaRelations = via.getRelations();
 			Optional<RelationDescriber> fromRelation = viaRelations.stream().filter(r -> r.getToClass().clazz.equals(from.clazz)).findFirst();
 			Optional<RelationDescriber> toRelation = viaRelations.stream().filter(r -> r.getToClass().clazz.equals(relation.clazz)).findFirst();
 
 			relationDescriber.getVia().add(RelationDescriber
-					.describer(from, token, via, fromRelation.map(RelationDescriber::getToKeys)
+					.describer(from, relationAnnotation, token, via, fromRelation.map(RelationDescriber::getToKeys)
 					.orElse(from.getKeys().getPrimary())
 				, fromRelation
 					.map(RelationDescriber::getFromKeys)
@@ -337,7 +337,7 @@ public class Clazz<T> {
 					.orElse(null)));
 
 			relationDescriber.getVia().add(RelationDescriber
-					.describer(via, token, relation, toRelation.map(RelationDescriber::getFromKeys)
+					.describer(via, relationAnnotation, token, relation, toRelation.map(RelationDescriber::getFromKeys)
 					.orElse(via
 						.getKeys()
 						.getPrimary()
@@ -368,7 +368,7 @@ public class Clazz<T> {
 				boolean isCollection = field.getType().isAssignableFrom(Collection.class) || field.getType().isAssignableFrom(List.class);
 
 
-				describers.add(describeRelation(this, token, Arrays.asList(relation.fields()), Arrays.asList(relation.relationFields()), isCollection ? Clazz.of(field).generics.get(0) : Clazz.of(field), isCollection ? Clazz.of(field) : null, Clazz.of(relation.via())));
+				describers.add(describeRelation(this, relation, token, Arrays.asList(relation.fields()), Arrays.asList(relation.relationFields()), isCollection ? Clazz.of(field).generics.get(0) : Clazz.of(field), isCollection ? Clazz.of(field) : null, Clazz.of(relation.via())));
 			}
 		}
 		return describers;

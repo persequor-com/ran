@@ -15,6 +15,7 @@ public class RelationDescriber {
 	private KeySet toKeys;
 	private RelationType type;
 	private RelationDescriberList via;
+	private Relation relationAnnotation;
 
 	private RelationDescriber() {}
 
@@ -22,9 +23,10 @@ public class RelationDescriber {
 		return new RelationDescriberList(fromClass);
 	}
 
-	public static RelationDescriber describer(Clazz fromClass, Token field, Clazz<?> toClass, KeySet fromKeys, KeySet toKeys, RelationType type, Clazz collectionType) {
+	public static RelationDescriber describer(Clazz fromClass, Relation relationAnnotation, Token field, Clazz<?> toClass, KeySet fromKeys, KeySet toKeys, RelationType type, Clazz collectionType) {
 
 		RelationDescriber desc = new RelationDescriber();
+		desc.relationAnnotation = relationAnnotation;
 		desc.collectionType = collectionType;
 		desc.fromClass = fromClass;
 		desc.field = field;
@@ -69,7 +71,11 @@ public class RelationDescriber {
 	}
 
 	public RelationDescriber inverse() {
-		return RelationDescriber.describer(toClass, null, fromClass, toKeys, fromKeys, null, null);
+		return RelationDescriber.describer(toClass, null, null, fromClass, toKeys, fromKeys, null, null);
+	}
+
+	public Relation getRelationAnnotation() {
+		return relationAnnotation;
 	}
 
 	public static class RelationDescriberList extends ArrayList<RelationDescriber> {
