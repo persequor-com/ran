@@ -66,6 +66,10 @@ public class RelationDescriber {
 		return collectionType;
 	}
 
+	public boolean isCollectionRelation() {
+		return collectionType != null;
+	}
+
 	public List<RelationDescriber> getVia() {
 		return via;
 	}
