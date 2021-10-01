@@ -12,4 +12,5 @@ public @interface Relation {
 	Class<?> via() default None.class;
 	String[] fields() default {};
 	String[] relationFields() default {};
+	boolean autoSave() default false;
 }
