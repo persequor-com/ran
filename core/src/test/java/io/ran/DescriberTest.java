@@ -1,5 +1,6 @@
 package io.ran;
 
+import io.ran.testclasses.Brand;
 import io.ran.testclasses.Car;
 import io.ran.testclasses.Door;
 import io.ran.testclasses.Engine;
@@ -126,5 +127,34 @@ public class DescriberTest {
 		engineMapping._setRelation(describer.relations().get(0), Arrays.asList(car));
 
 		assertSame(car, engine.getCars().stream().findFirst().get());
+	}
+
+	@Test
+	public void getRelation() throws Throwable {
+		TypeDescriber<Car> describer = TypeDescriberImpl.getTypeDescriber(Car.class);
+		Car car = factory.get(Car.class);
+		Mapping carMapping = (Mapping)car;
+
+		Object relation = carMapping._getRelation(describer.relations().get(0));
+		assertNull(relation);
+
+		Engine engine = new Engine();
+		engine.setId(UUID.randomUUID());
+		car.setEngine(engine);
+		relation = carMapping._getRelation(describer.relations().get(0));
+		assertSame(engine, relation);
+	}
+
+	@Test
+	public void isChanged() throws Throwable {
+		TypeDescriber<Car> describer = TypeDescriberImpl.getTypeDescriber(Car.class);
+		Car car = factory.get(Car.class);
+		Mapping carMapping = (Mapping)car;
+
+		assertFalse(carMapping._isChanged());
+
+		car.setBrand(Brand.Porsche);
+
+		assertTrue(carMapping._isChanged());
 	}
 }

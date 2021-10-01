@@ -15,5 +15,8 @@ public interface Mapping {
 	CompoundKey _getKey();
 	CompoundKey _getKey(Object obj);
 	void _setRelation(RelationDescriber relationDescriber, Object value);
+	Object _getRelation(RelationDescriber relationDescriber);
+
+	boolean _isChanged();
 	TypeDescriber _getDescriber();
 }

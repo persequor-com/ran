@@ -53,6 +53,14 @@ public class Token {
 		return new SnakeCaseToken(tokenString).toToken();
 	}
 
+	public static Token javaMethod(String tokenString) {
+		if (tokenString.substring(0,1).equals(tokenString.substring(0,1).toLowerCase())) {
+			return camelHump(tokenString);
+		} else {
+			return CamelCase(tokenString);
+		}
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;

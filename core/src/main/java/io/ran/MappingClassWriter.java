@@ -7,7 +7,6 @@ import org.objectweb.asm.Opcodes;
 import javax.inject.Inject;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,10 +14,19 @@ import java.util.Collection;
 import java.util.List;
 
 public class MappingClassWriter extends AutoMapperClassWriter {
+	Clazz mapperClazz;
 	public MappingClassWriter(Class clazz) {
 		super(clazz);
 		postFix = "Mapper";
+		mapperClazz = Clazz.of(this.clazz.getInternalName()+postFix);
 		visit(Opcodes.V1_8, Access.Public.getOpCode(), this.clazz.getInternalName()+postFix, this.clazz.generics.isEmpty() ? null : this.clazz.getSignature(), this.clazz.getInternalName(), new String[]{Clazz.of(Mapping.class).getInternalName()});
+		field(Access.Private, "_changed", Clazz.of(boolean.class), false);
+
+		MethodWriter w = method(Access.Public, new MethodSignature(mapperClazz, "_isChanged", Clazz.of(boolean.class)));
+		w.load(0);
+		w.getField(mapperClazz, "_changed", Clazz.of(boolean.class));
+		w.returnPrimitive(Clazz.of(boolean.class));
+		w.end();
 
 		Arrays.asList(clazz.getConstructors()).forEach(c -> {
 			MethodWriter mw = method(Access.of(c.getModifiers()), new MethodSignature(c));
@@ -40,6 +48,91 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 		createHydrator();
 		createKeyGetter();
 		createSetRelation();
+		createGetRelation();
+		createSetterWrappers();
+	}
+
+	private void createSetterWrappers() {
+		try {
+
+
+
+			for (Method method : aClass.getMethods()) {
+				if (!method.getName().startsWith("set")) {
+					continue;
+				}
+				Token column = Token.javaMethod(method.getName().substring(3));
+				Field field = ((Clazz<?>)Clazz.of(aClass)).getFields().stream().filter(f -> f.getName().equals(column.camelHump())).findFirst().orElseThrow(() -> new RuntimeException("Could not find field with name: "+column.camelHump()+" on "+aClass.getName()));
+				if (Clazz.isPropertyField(field)) {
+					MethodWriter w = method(Access.Public, new MethodSignature(method));
+					w.load(0);
+					w.push(Boolean.TRUE);
+					w.putfield(mapperClazz, "_changed", Clazz.of(boolean.class));
+					w.load(0);
+					w.load(1, Clazz.of(method.getParameters()[0].getType()));
+					w.invokeSuper(new MethodSignature(method));
+					w.returnNothing();
+					w.end();
+				}
+			}
+		} catch (Exception e) {
+			throw  new RuntimeException(e);
+		}
+
+	}
+
+	private void createGetRelation() {
+		try {
+			MethodWriter ce = method(Access.Public, new MethodSignature(Mapping.class.getMethod("_getRelation", RelationDescriber.class)));
+			ce.load(1);
+			ce.invoke(new MethodSignature(RelationDescriber.class.getMethod("getField")));
+			ce.invoke(new MethodSignature(Token.class.getMethod("snake_case")));
+			ce.objectStore(3);
+			List<String> fields = new ArrayList<>();
+			for (Field field : aClass.getDeclaredFields()) {
+				Token column = Token.camelHump(field.getName());
+				Method getter = aClass.getMethod((field.getType().isPrimitive() && field.getType().equals(boolean.class) ? "is":"get") + column.javaGetter());
+
+				if (!Clazz.isPropertyField(field)) {
+					Relation resolver = field.getAnnotation(Relation.class);
+					if (resolver != null) {
+						fields.add(column.snake_case());
+						ce.load(3);
+						ce.push(column.snake_case());
+						ce.invoke(new MethodSignature(String.class.getMethod("equals", Object.class)));
+
+						ce.ifThen(c -> {
+							ce.load(0);
+							ce.invokeSuper(new MethodSignature(getter));
+							ce.ifNonNull(c2 -> {
+								ce.load(0);
+								ce.invokeSuper(new MethodSignature(getter));
+								ce.cast(Clazz.of(field));
+								ce.returnObject();
+							});
+							ce.nullConst();
+							ce.returnObject();
+						});
+					}
+				}
+			}
+			//void _getRelation(RelationDescriber relationDescriber, Object value);
+			ce.throwException(Clazz.of(RuntimeException.class), mw -> {
+				mw.newInstance(Clazz.of(StringBuilder.class));
+				mw.dup();
+				mw.invoke(new MethodSignature(StringBuilder.class.getConstructor()));
+				mw.push("Could not find field: ");
+				mw.invoke(StringBuilder.class.getMethod("append", String.class));
+				mw.load(3);
+				mw.invoke(StringBuilder.class.getMethod("append", String.class));
+				mw.push(". Must be one of: "+String.join(", ",fields));
+				mw.invoke(StringBuilder.class.getMethod("append", String.class));
+				mw.invoke(StringBuilder.class.getMethod("toString"));
+			});
+			ce.end();
+		} catch (Exception exception) {
+			throw new RuntimeException(exception);
+		}
 	}
 
 	private void createSetRelation() {
@@ -315,7 +408,7 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 						{
 							ce.load(0);
 							ce.invokeSuper(sig);
-							ce.ifNonNull(c -> {
+							ce.ifNull(c -> {
 								c.load(0);
 								c.load(0);
 								c.getField(getSelf(), "_resolver", Clazz.of(Resolver.class));

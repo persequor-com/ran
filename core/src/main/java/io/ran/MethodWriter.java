@@ -29,6 +29,14 @@ public class MethodWriter {
 		mv.visitVarInsn(Opcodes.ALOAD, arg);
 	}
 
+	public void load(int arg, Clazz type) {
+		if (type.isPrimitive()) {
+			mv.visitVarInsn(Opcodes.ILOAD + type.getPrimitiveOffset(), arg);
+		} else {
+			load(arg);
+		}
+	}
+
 	public void invoke(Method method) {
 		invoke(new MethodSignature(method));
 	}
@@ -80,6 +88,13 @@ public class MethodWriter {
 
 
 	public <E extends Throwable> void ifNonNull(ThrowingConsumer<MethodWriter, E> o) throws E {
+		Label endif = new Label();
+		mv.visitJumpInsn(Opcodes.IFNULL,endif);
+		o.accept(this);
+		mv.visitLabel(endif);
+	}
+
+	public <E extends Throwable> void ifNull(ThrowingConsumer<MethodWriter, E> o) throws E {
 		Label endif = new Label();
 		mv.visitJumpInsn(Opcodes.IFNONNULL,endif);
 		o.accept(this);
