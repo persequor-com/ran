@@ -5,6 +5,10 @@
  */
 package io.ran;
 
+import io.ran.testclasses.Bike;
+import io.ran.testclasses.BikeGear;
+import io.ran.testclasses.BikeType;
+import io.ran.testclasses.BikeWheel;
 import io.ran.testclasses.Brand;
 import io.ran.testclasses.Car;
 import io.ran.testclasses.Door;
@@ -147,5 +151,45 @@ public class AutoMapperTest {
 
 		assertEquals("reg", r2.getReg());
 		assertEquals("sup", r2.getSup());
+	}
+
+	@Test
+	public void compoundKey() throws Throwable {
+		Class<Bike> bikeClass = AutoMapper.get(Bike.class);
+		Bike bike = bikeClass.newInstance();
+		Mapping bikeMapping = (Mapping)bike;
+		bike.setId("my id");
+		CompoundKey bikeKey = bikeMapping._getKey();
+		assertEquals(1, bikeKey.getValues().size());
+		assertEquals("my id", bikeKey.getValue(Token.get("id")));
+
+		Class<BikeWheel> bikeWheelClass = AutoMapper.get(BikeWheel.class);
+		BikeWheel bikeWheel = bikeWheelClass.newInstance();
+		Mapping bikeWheelMapping = (Mapping)bikeWheel;
+		bikeWheel.setSize(20);
+		bikeWheel.setBikeType(BikeType.Mountain);
+		CompoundKey wheelKey = bikeWheelMapping._getKey();
+		assertEquals(2, wheelKey.getValues().size());
+		assertEquals(20, wheelKey.getValue(Token.get("size")));
+		assertEquals(BikeType.Mountain, wheelKey.getValue(Token.get("bikeType")));
+
+		Class<BikeGear> bikeGearClass  = AutoMapper.get(BikeGear.class);
+		BikeGear bikeGear = bikeGearClass.newInstance();
+		Mapping bikeGearMapping = (Mapping)bikeGear;
+		bikeGear.setGearNum(20);
+		CompoundKey bikeGearKey = bikeGearMapping._getKey();
+		assertEquals(1, bikeGearKey.getValues().size());
+		assertEquals(20, bikeGearKey.getValue(Token.get("gearNum")));
+	}
+
+	@Test
+	public void compoundKeyRelation_typeDescriber() throws Throwable {
+		TypeDescriber<Bike> typeDescriber = TypeDescriberImpl.getTypeDescriber(Bike.class);
+		RelationDescriber gearsRelation = typeDescriber.relations().get("gears");
+		assertEquals(2,gearsRelation.getVia().size());
+		assertEquals("id",gearsRelation.getVia().get(0).getFromKeys().get(0).getToken().snake_case());
+		assertEquals("bike_id",gearsRelation.getVia().get(0).getToKeys().get(0).getToken().snake_case());
+		assertEquals("gear_num",gearsRelation.getVia().get(1).getFromKeys().get(0).getToken().snake_case());
+		assertEquals("gear_num",gearsRelation.getVia().get(1).getToKeys().get(0).getToken().snake_case());
 	}
 }

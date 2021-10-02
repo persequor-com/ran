@@ -203,10 +203,13 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 				try {
 					ce.objectLoad(2);
 					ce.push(field.getProperty().getToken().snake_case());
-					ce.push(field.getProperty().getType());
+					ce.push(field.getProperty().getType().getBoxed());
 					ce.load(1);
 					ce.cast(clazz);
 					ce.invoke(new MethodSignature(aClass.getMethod("get" + field.getProperty().getToken().javaGetter())));
+					if (field.getProperty().getType().isPrimitive() || field.getProperty().getType().clazz.isEnum()) {
+						ce.box(field.getProperty().getType().getBoxed());
+					}
 					ce.invoke(new MethodSignature(CompoundKey.class.getMethod("add", String.class, Class.class, Object.class)));
 				} catch (Exception e) {
 					throw new RuntimeException(e);
