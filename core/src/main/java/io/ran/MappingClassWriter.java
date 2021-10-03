@@ -245,7 +245,7 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 
 			ce = method(Access.Public, new MethodSignature(Mapping.class.getMethod("hydrate", Object.class, ObjectMapHydrator.class)));
 			ce.load(1);
-			ce.cast(clazz);
+			ce.cast(mapperClazz);
 			ce.objectStore(3);
 
 			cec = method(Access.Public, new MethodSignature(Mapping.class.getMethod("columnize", Object.class, ObjectMapColumnizer.class)));
@@ -301,7 +301,8 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 						cec.invoke(ObjectMapColumnizer.class.getMethod("set", Token.class, fieldClazz.clazz));
 					}
 
-					ce.invoke(setterInfo);
+
+					ce.invokeSuper(setterInfo);
 				}
 			}
 			ce.returnNothing();

@@ -61,6 +61,7 @@ public class AutoMapperTest {
 		assertEquals("My id", car.getId());
 		assertEquals(now, car.getConstructionDate());
 		assertEquals(Double.valueOf(4.4), car.getCrashRating());
+		assertFalse(carMapping._isChanged());
 	}
 
 	@Test
@@ -191,5 +192,13 @@ public class AutoMapperTest {
 		assertEquals("bike_id",gearsRelation.getVia().get(0).getToKeys().get(0).getToken().snake_case());
 		assertEquals("gear_num",gearsRelation.getVia().get(1).getFromKeys().get(0).getToken().snake_case());
 		assertEquals("gear_num",gearsRelation.getVia().get(1).getToKeys().get(0).getToken().snake_case());
+
+		RelationDescriber wheelRelation = typeDescriber.relations().get("front_wheel");
+		assertEquals(2, wheelRelation.getFromKeys().size());
+		assertEquals("bike_type", wheelRelation.getFromKeys().get(0).getToken().snake_case());
+		assertEquals("wheel_size", wheelRelation.getFromKeys().get(1).getToken().snake_case());
+		assertEquals(2, wheelRelation.getToKeys().size());
+		assertEquals("bike_type", wheelRelation.getToKeys().get(0).getToken().snake_case());
+		assertEquals("size", wheelRelation.getToKeys().get(1).getToken().snake_case());
 	}
 }
