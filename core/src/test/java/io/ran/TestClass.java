@@ -1,5 +1,6 @@
 package io.ran;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -28,6 +29,7 @@ public class TestClass {
 	private Boolean aBooleanObject;
 	@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 	private Double crashRating;
+	private LocalDateTime localDateTime;
 
 	private List<String> aList = new ArrayList<>();
 	@Relation()
@@ -203,4 +205,11 @@ public class TestClass {
 		this.aList = aList;
 	}
 
+	public LocalDateTime getLocalDateTime() {
+		return localDateTime;
+	}
+
+	public void setLocalDateTime(LocalDateTime localDateTime) {
+		this.localDateTime = localDateTime;
+	}
 }

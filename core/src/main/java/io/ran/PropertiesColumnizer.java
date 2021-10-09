@@ -3,6 +3,7 @@ package io.ran;
 import io.ran.token.Token;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,6 +40,11 @@ public class PropertiesColumnizer implements ObjectMapColumnizer {
 
 	@Override
 	public void set(Token key, ZonedDateTime value) {
+		setInternal(key, value);
+	}
+
+	@Override
+	public void set(Token key, LocalDateTime value) {
 		setInternal(key, value);
 	}
 

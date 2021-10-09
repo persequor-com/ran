@@ -9,6 +9,7 @@ import io.ran.token.Token;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.UUID;
@@ -18,6 +19,7 @@ public interface ObjectMapHydrator {
 	Character getCharacter(Token key);
 	ZonedDateTime getZonedDateTime(Token key);
 	Instant getInstant(Token key);
+	LocalDateTime getLocalDateTime(Token key);
 	Integer getInteger(Token key);
 	Short getShort(Token key);
 	Long getLong(Token key);
