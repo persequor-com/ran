@@ -14,7 +14,7 @@ public class BikeGearBike {
 	private int gearNum;
 	@Relation
 	private Bike bike;
-	@Relation
+	@Relation(relationFields = "gearNum", fields = "gearNum")
 	private BikeGear bikeGear;
 
 	public String getBikeId() {

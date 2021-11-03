@@ -75,7 +75,8 @@ public class ClazzTest {
 		List<RelationDescriber> relations = Clazz.of(ClassWithRelationAndOtherKey.class).getRelations();
 		assertEquals(relations.get(0).getFromKeys().size(), relations.get(0).getToKeys().size());
 		assertEquals(1, relations.get(0).getToKeys().size());
-		assertEquals("id", relations.get(0).getToKeys().get(0).getToken().snake_case());
+		assertEquals("class_with_relation_and_other_key_id", relations.get(0).getToKeys().get(0).getToken().snake_case());
+		assertEquals("id", relations.get(0).getFromKeys().get(0).getToken().snake_case());
 	}
 
 
@@ -188,9 +189,9 @@ public class ClazzTest {
 		@PrimaryKey
 		private int id;
 		private String otherKey;
-		private int classWithRelationandOttherKeyId;
+		private int classWithRelationAndOtherKeyId;
 		@Relation
-		private ClassWithRelationAndOtherKey classWithRelationandOttherKey;
+		private ClassWithRelationAndOtherKey classWithRelationAndOtherKey;
 
 		public int getId() {
 			return id;
@@ -200,20 +201,28 @@ public class ClazzTest {
 			this.id = id;
 		}
 
-		public int getClassWithRelationandOttherKeyId() {
-			return classWithRelationandOttherKeyId;
+		public String getOtherKey() {
+			return otherKey;
 		}
 
-		public void setClassWithRelationandOttherKeyId(int classWithRelationandOttherKeyId) {
-			this.classWithRelationandOttherKeyId = classWithRelationandOttherKeyId;
+		public void setOtherKey(String otherKey) {
+			this.otherKey = otherKey;
 		}
 
-		public ClassWithRelationAndOtherKey getClassWithRelationandOttherKey() {
-			return classWithRelationandOttherKey;
+		public int getClassWithRelationAndOtherKeyId() {
+			return classWithRelationAndOtherKeyId;
 		}
 
-		public void setClassWithRelationandOttherKey(ClassWithRelationAndOtherKey classWithRelationandOttherKey) {
-			this.classWithRelationandOttherKey = classWithRelationandOttherKey;
+		public void setClassWithRelationAndOtherKeyId(int classWithRelationAndOtherKeyId) {
+			this.classWithRelationAndOtherKeyId = classWithRelationAndOtherKeyId;
+		}
+
+		public ClassWithRelationAndOtherKey getClassWithRelationAndOtherKey() {
+			return classWithRelationAndOtherKey;
+		}
+
+		public void setClassWithRelationAndOtherKey(ClassWithRelationAndOtherKey classWithRelationAndOtherKey) {
+			this.classWithRelationAndOtherKey = classWithRelationAndOtherKey;
 		}
 	}
 

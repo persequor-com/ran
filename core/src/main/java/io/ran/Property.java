@@ -167,15 +167,10 @@ public class Property<T> {
 						keySet.parts.clear();
 						keySet.add(ownProperty.get());
 						return keySet;
-					} else if (otherProperty.getToken().equals(Token.CamelCase(get(0).getOn().clazz.getSimpleName() + "Id")) && keys.size() == 1) {
+					} else if (otherProperty.getToken().equals(Token.CamelCase(get(0).getOn().clazz.getSimpleName() + "Id")) && keys.getPrimary().size() == 1) {
 						keySet.parts.clear();
 						keySet.add(keys.getPrimary());
 						return keySet;
-					} else if (contains(otherProperty.getToken())) {
-						Property<?> property = get(otherProperty.getToken());
-						if (otherProperty.isPrimaryKey() || property.isPrimaryKey()) {
-							keySet.add(property);
-						}
 					}
 				} catch (NullPointerException exception) {
 					throw new RuntimeException("unable to automatically map relation from " + otherProperty.getOn().clazz.getName() + " to " + get(0).getOn().clazz.getName(), exception);

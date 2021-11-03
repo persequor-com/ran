@@ -6,22 +6,6 @@ import static org.junit.Assert.*;
 
 public class PropertyTest {
 	@Test
-	public void mapProperties_singleToMultiKey() {
-		KeySet actual = Clazz.of(SingleKey.class).getProperties().mapProperties(Clazz.of(MultiKey.class).getProperties());
-
-		assertEquals(1, actual.size());
-		assertEquals("id", actual.get(0).getToken().snake_case());
-	}
-
-	@Test
-	public void mapProperties_multiToSingleKey() {
-		KeySet actual = Clazz.of(MultiKey.class).getProperties().mapProperties(Clazz.of(SingleKey.class).getProperties());
-
-		assertEquals(1, actual.size());
-		assertEquals("id", actual.get(0).getToken().snake_case());
-	}
-
-	@Test
 	public void mapProperties_typeNameKeyFrom() {
 		KeySet actual = Clazz.of(TypeNameKey.class).getProperties().mapProperties(Clazz.of(SingleKey.class).getProperties());
 
