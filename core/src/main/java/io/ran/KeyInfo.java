@@ -28,4 +28,8 @@ public class KeyInfo {
 	public String getMapKey() {
 		return Boolean.toString(primary)+name;
 	}
+
+	public String getName() {
+		return name;
+	}
 }

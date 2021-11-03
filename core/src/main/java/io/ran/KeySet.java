@@ -12,6 +12,7 @@ import java.util.stream.Stream;
 
 public class KeySet {
 	private boolean primary;
+	private String name;
 	TreeSet<Field> parts = new TreeSet<>(Comparator.comparing(Field::getOrder));
 
 	public KeySet(List<Field> fields) {
@@ -40,14 +41,21 @@ public class KeySet {
 	}
 
 	public KeySet add(Property<?> property) {
-		return add(property, parts.size());
+		return add(property, null, parts.size());
 	}
 
 	public void forEach(Consumer<Field> action) {
 		parts.forEach(action);
 	}
 
-	public KeySet add(Property<?> property, int order) {
+	public KeySet add(Property<?> property, String name, int order) {
+		if (this.name != null && name != null && !this.name.equals(name)) {
+			throw new RuntimeException("Adding a key part with name: "+name+" to a key with name: "+this.name+" is invalid");
+		}
+		if (name != null) {
+			this.name = name;
+		}
+
 		Field field = new Field(property, order == -1 ? parts.size() : order);
 		if (parts.contains(field)) {
 			throw new RuntimeException(order+" position was already used in key. Ensure your key orders are unique.");
@@ -80,8 +88,12 @@ public class KeySet {
 		if (keyInfo.isPrimary()) {
 			primary = true;
 		}
-		add(keyInfo.getProperty(), keyInfo.order());
+		add(keyInfo.getProperty(), keyInfo.getName(), keyInfo.order());
 		return this;
+	}
+
+	public String getName() {
+		return name;
 	}
 
 	public  boolean isPrimary() {
