@@ -48,6 +48,10 @@ public class KeySet {
 		parts.forEach(action);
 	}
 
+	public KeySet add(Property<?> property, int order) {
+		return add(property, null, order);
+	}
+
 	public KeySet add(Property<?> property, String name, int order) {
 		if (this.name != null && name != null && !this.name.equals(name)) {
 			throw new RuntimeException("Adding a key part with name: "+name+" to a key with name: "+this.name+" is invalid");
