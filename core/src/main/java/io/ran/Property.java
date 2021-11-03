@@ -173,7 +173,7 @@ public class Property<T> {
 						return keySet;
 					} else if (contains(otherProperty.getToken())) {
 						Property<?> property = get(otherProperty.getToken());
-						if (otherProperty.isKey() || property.isKey()) {
+						if (otherProperty.isPrimaryKey() || property.isPrimaryKey()) {
 							keySet.add(property);
 						}
 					}
@@ -202,6 +202,10 @@ public class Property<T> {
 
 	private boolean isKey() {
 		return !keys.isEmpty();
+	}
+
+	private boolean isPrimaryKey() {
+		return keys.stream().anyMatch(ki -> ki.isPrimary());
 	}
 
 	public static class PropertyValue<T> {

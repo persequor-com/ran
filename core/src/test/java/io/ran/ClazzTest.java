@@ -70,6 +70,16 @@ public class ClazzTest {
 		assertTrue(properties.stream().anyMatch(p -> p.getToken().equals(Token.of("sup"))));
 	}
 
+	@Test
+	public void classWithRelationAndOtherKey() {
+		List<RelationDescriber> relations = Clazz.of(ClassWithRelationAndOtherKey.class).getRelations();
+		assertEquals(relations.get(0).getFromKeys().size(), relations.get(0).getToKeys().size());
+		assertEquals(1, relations.get(0).getToKeys().size());
+		assertEquals("id", relations.get(0).getToKeys().get(0).getToken().snake_case());
+	}
+
+
+
 	public static class RelationFrom {
 		@PrimaryKey
 		private int id;
@@ -141,6 +151,72 @@ public class ClazzTest {
 		}
 	}
 
+	public static class ClassWithRelationAndOtherKey {
+		@PrimaryKey
+		private int id;
+		@Key(name = "otherKey")
+		private String otherKey;
+		@Relation(collectionElementType = ClassWithRelationAndOtherKeyRelationTo.class)
+		private transient List<ClassWithRelationAndOtherKeyRelationTo> to;
+
+		public int getId() {
+			return id;
+		}
+
+		public void setId(int id) {
+			this.id = id;
+		}
+
+		public List<ClassWithRelationAndOtherKeyRelationTo> getTo() {
+			return to;
+		}
+
+		public void setTo(List<ClassWithRelationAndOtherKeyRelationTo> to) {
+			this.to = to;
+		}
+
+		public String getOtherKey() {
+			return otherKey;
+		}
+
+		public void setOtherKey(String otherKey) {
+			this.otherKey = otherKey;
+		}
+	}
+
+	public static class ClassWithRelationAndOtherKeyRelationTo {
+		@PrimaryKey
+		private int id;
+		private String otherKey;
+		private int classWithRelationandOttherKeyId;
+		@Relation
+		private ClassWithRelationAndOtherKey classWithRelationandOttherKey;
+
+		public int getId() {
+			return id;
+		}
+
+		public void setId(int id) {
+			this.id = id;
+		}
+
+		public int getClassWithRelationandOttherKeyId() {
+			return classWithRelationandOttherKeyId;
+		}
+
+		public void setClassWithRelationandOttherKeyId(int classWithRelationandOttherKeyId) {
+			this.classWithRelationandOttherKeyId = classWithRelationandOttherKeyId;
+		}
+
+		public ClassWithRelationAndOtherKey getClassWithRelationandOttherKey() {
+			return classWithRelationandOttherKey;
+		}
+
+		public void setClassWithRelationandOttherKey(ClassWithRelationAndOtherKey classWithRelationandOttherKey) {
+			this.classWithRelationandOttherKey = classWithRelationandOttherKey;
+		}
+	}
+
 	public static class DescribedRelationVia {
 		@PrimaryKey
 		private int cat;
@@ -155,7 +231,6 @@ public class ClazzTest {
 	}
 
 	public static class RelationTo {
-		@PrimaryKey
 		private int id;
 
 		public int getId() {
