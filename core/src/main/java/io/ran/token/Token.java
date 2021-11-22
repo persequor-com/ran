@@ -20,6 +20,9 @@ public class Token {
 	}
 
 	static public Token get(String anyFormat) {
+		if (anyFormat.toLowerCase().contains(" ")) {
+			return humanReadable(anyFormat);
+		}
 		if (anyFormat.substring(0,1).toUpperCase().equals(anyFormat.substring(0,1))) {
 			return CamelCase(anyFormat);
 		}
@@ -59,6 +62,10 @@ public class Token {
 		} else {
 			return CamelCase(tokenString);
 		}
+	}
+
+	public static Token humanReadable(String tokenString) {
+		return new HumanReadableToken(tokenString).toToken();
 	}
 
 	@Override
@@ -117,6 +124,10 @@ public class Token {
 		} else {
 			return CamelBack();
 		}
+	}
+
+	public String humanReadable() {
+		return toString(HumanReadableToken.class);
 	}
 
 	public boolean endsWith(String id) {

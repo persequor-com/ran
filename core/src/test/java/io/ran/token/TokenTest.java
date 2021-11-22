@@ -14,9 +14,10 @@ public class TokenTest {
 	public void happyPath_toString() {
 		Token token = Token.of("my","parts");
 		assertEquals("{my}{parts}", token.toString());
-		assertEquals("MyParts", token.toString(CamelCaseToken.class));
-		assertEquals("myParts", token.toString(CamelHumpToken.class));
-		assertEquals("my_parts", token.toString(SnakeCaseToken.class));
+		assertEquals("MyParts", token.CamelBack());
+		assertEquals("myParts", token.camelHump());
+		assertEquals("my_parts", token.snake_case());
+		assertEquals("My parts", token.humanReadable());
 	}
 
 	@Test
@@ -24,9 +25,11 @@ public class TokenTest {
 		Token camelHump = Token.get("myParts");
 		Token camelCase = Token.get("MyParts");
 		Token snakeCase = Token.get("my_parts");
+		Token humanReadable = Token.get("My parts");
 		assertEquals(camelCase, camelHump);
 		assertEquals(camelCase, snakeCase);
 		assertEquals(camelHump, snakeCase);
+		assertEquals(humanReadable, snakeCase);
 	}
 
 	@Test
