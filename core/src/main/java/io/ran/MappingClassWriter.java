@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 public class MappingClassWriter extends AutoMapperClassWriter {
 	Clazz mapperClazz;
@@ -195,29 +196,37 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 
 			MethodWriter ce = method(Access.Public, new MethodSignature(Mapping.class.getMethod("_getKey", Object.class)));
 
-			KeySet primaryKey = clazz.getKeys().getPrimary();
-			ce.defineVar(Clazz.of(CompoundKey.class));
-			ce.invoke(new MethodSignature(CompoundKey.class.getMethod("get")));
-			ce.objectStore(2);
-			primaryKey.forEach(field -> {
-				try {
-					ce.objectLoad(2);
-					ce.push(field.getProperty().getToken().snake_case());
-					ce.push(field.getProperty().getType().getBoxed());
-					ce.load(1);
-					ce.cast(clazz);
-					ce.invoke(new MethodSignature(aClass.getMethod("get" + field.getProperty().getToken().javaGetter())));
-					if (field.getProperty().getType().isPrimitive() || field.getProperty().getType().clazz.isEnum()) {
-						ce.box(field.getProperty().getType().getBoxed());
+			Optional<KeySet> optional = clazz.getKeys().getPrimaryOptionally();
+			if (optional.isPresent()) {
+				KeySet primaryKey = optional.get();
+				ce.defineVar(Clazz.of(CompoundKey.class));
+				ce.invoke(new MethodSignature(CompoundKey.class.getMethod("get")));
+				ce.objectStore(2);
+				primaryKey.forEach(field -> {
+					try {
+						ce.objectLoad(2);
+						ce.push(field.getProperty().getToken().snake_case());
+						ce.push(field.getProperty().getType().getBoxed());
+						ce.load(1);
+						ce.cast(clazz);
+						ce.invoke(new MethodSignature(aClass.getMethod("get" + field.getProperty().getToken().javaGetter())));
+						if (field.getProperty().getType().isPrimitive() || field.getProperty().getType().clazz.isEnum()) {
+							ce.box(field.getProperty().getType().getBoxed());
+						}
+						ce.invoke(new MethodSignature(CompoundKey.class.getMethod("add", String.class, Class.class, Object.class)));
+					} catch (Exception e) {
+						throw new RuntimeException(e);
 					}
-					ce.invoke(new MethodSignature(CompoundKey.class.getMethod("add", String.class, Class.class, Object.class)));
-				} catch (Exception e) {
-					throw new RuntimeException(e);
-				}
-			});
-			ce.objectLoad(2);
-			ce.returnObject();
-			ce.end();
+				});
+				ce.objectLoad(2);
+				ce.returnObject();
+				ce.end();
+
+			} else {
+				ce.invoke(CompoundKey.class.getMethod("get"));
+				ce.returnObject();
+			}
+
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -225,13 +234,7 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 
 	private void createHydrator() {
 		try {
-			MethodWriter ce = method(Access.Public, new MethodSignature(Mapping.class.getMethod("hydrate", ObjectMapHydrator.class)));
-			ce.load(0);
-			ce.load(0);
-			ce.load(1);
-			ce.invoke(new MethodSignature(Mapping.class.getMethod("hydrate", Object.class, ObjectMapHydrator.class)));
-			ce.returnNothing();
-			ce.end();
+			MethodWriter ce1 = method(Access.Public, new MethodSignature(Mapping.class.getMethod("hydrate", ObjectMapHydrator.class)));
 
 			MethodWriter cec = method(Access.Public, new MethodSignature(Mapping.class.getMethod("columnize", ObjectMapColumnizer.class)));
 			cec.load(0);
@@ -243,10 +246,15 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 			cec.end();
 
 
-			ce = method(Access.Public, new MethodSignature(Mapping.class.getMethod("hydrate", Object.class, ObjectMapHydrator.class)));
+			MethodWriter ce = method(Access.Public, new MethodSignature(Mapping.class.getMethod("hydrate", Object.class, ObjectMapHydrator.class)));
 			ce.load(1);
-			ce.cast(mapperClazz);
+			ce.cast(clazz);
 			ce.objectStore(3);
+
+			ce1.load(0);
+			ce1.cast(mapperClazz);
+			ce1.objectStore(3);
+
 
 			cec = method(Access.Public, new MethodSignature(Mapping.class.getMethod("columnize", Object.class, ObjectMapColumnizer.class)));
 			cec.load(1);
@@ -266,6 +274,11 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 					ce.push(Token.camelHump(field.getName()).snake_case());
 					ce.invoke(Token.class.getMethod("snake_case", String.class));
 
+					ce1.objectLoad(3);
+					ce1.load(1);
+					ce1.push(Token.camelHump(field.getName()).snake_case());
+					ce1.invoke(Token.class.getMethod("snake_case", String.class));
+
 					cec.objectLoad(3);
 					cec.load(2);
 					cec.push(Token.camelHump(field.getName()).snake_case());
@@ -279,11 +292,17 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 						ce.invoke(ObjectMapHydrator.class.getMethod("getEnum", Token.class, Class.class));
 						ce.cast(Clazz.of(field));
 
+						ce1.push(Clazz.of(field));
+						ce1.invoke(ObjectMapHydrator.class.getMethod("getEnum", Token.class, Class.class));
+						ce1.cast(Clazz.of(field));
+
 						cec.invoke(ObjectMapColumnizer.class.getMethod("set", Token.class, Enum.class));
 					} else if (fieldClazz.isPrimitive() || fieldClazz.isBoxedPrimitive()) {
 						ce.invoke(ObjectMapHydrator.class.getMethod("get"+fieldClazz.getBoxed().getSimpleName(), Token.class));
+						ce1.invoke(ObjectMapHydrator.class.getMethod("get"+fieldClazz.getBoxed().getSimpleName(), Token.class));
 						if (fieldMethodSetter.getParameterTypes()[0].isPrimitive()) {
 							ce.unbox(fieldClazz);
+							ce1.unbox(fieldClazz);
 						}
 						if (fieldMethod.getReturnType().isPrimitive()) {
 							cec.box(fieldClazz);
@@ -294,17 +313,24 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 						ce.push(fieldClazz);
 						ce.invoke(ObjectMapHydrator.class.getMethod("getCollection", Token.class, Class.class, Class.class));
 
+						ce1.push(fieldClazz.generics.get(0));
+						ce1.push(fieldClazz);
+						ce1.invoke(ObjectMapHydrator.class.getMethod("getCollection", Token.class, Class.class, Class.class));
+
 						cec.cast(Clazz.of(Collection.class));
 						cec.invoke(ObjectMapColumnizer.class.getMethod("set", Token.class, Collection.class));
 					} else {
 						ce.invoke(ObjectMapHydrator.class.getMethod("get" + fieldClazz.getSimpleName(), Token.class));
+						ce1.invoke(ObjectMapHydrator.class.getMethod("get" + fieldClazz.getSimpleName(), Token.class));
 						cec.invoke(ObjectMapColumnizer.class.getMethod("set", Token.class, fieldClazz.clazz));
 					}
 
-
-					ce.invokeSuper(setterInfo);
+					ce1.invokeSuper(setterInfo);
+					ce.invoke(setterInfo);
 				}
 			}
+			ce1.returnNothing();
+			ce1.end();
 			ce.returnNothing();
 			ce.end();
 			cec.returnNothing();

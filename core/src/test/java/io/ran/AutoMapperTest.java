@@ -14,6 +14,7 @@ import io.ran.testclasses.Car;
 import io.ran.testclasses.Door;
 import io.ran.testclasses.Engine;
 import io.ran.testclasses.ObjectMap;
+import io.ran.testclasses.ObjectWithoutPrimaryKey;
 import io.ran.testclasses.Regular;
 import io.ran.testclasses.WithCollections;
 import io.ran.token.Token;
@@ -200,5 +201,11 @@ public class AutoMapperTest {
 		assertEquals(2, wheelRelation.getToKeys().size());
 		assertEquals("bike_type", wheelRelation.getToKeys().get(0).getToken().snake_case());
 		assertEquals("size", wheelRelation.getToKeys().get(1).getToken().snake_case());
+	}
+
+	@Test
+	public void objectWithoutPrimaryKey() throws Throwable {
+		// This test should not fail with an error saying there is no primary key
+		TypeDescriberImpl.getTypeDescriber(ObjectWithoutPrimaryKey.class);
 	}
 }

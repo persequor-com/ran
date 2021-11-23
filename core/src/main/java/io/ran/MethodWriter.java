@@ -109,6 +109,37 @@ public class MethodWriter {
 		mv.visitLabel(endif);
 	}
 
+	public <E extends Throwable> void ifElse(ThrowingConsumer<MethodWriter, E> t, ThrowingConsumer<MethodWriter, E> f) throws E {
+//		push(false);
+		Label endif = new Label();
+		mv.visitJumpInsn(Opcodes.IFEQ,endif);
+		t.accept(this);
+		mv.visitLabel(endif);
+	}
+
+	public <E extends Throwable> void ifSame(ThrowingConsumer<MethodWriter, E> i, ThrowingConsumer<MethodWriter, E> e) throws E {
+		Label endif = new Label();
+		Label elseBlock = new Label();
+		mv.visitJumpInsn(Opcodes.IF_ACMPEQ,elseBlock);
+		i.accept(this);
+		mv.visitJumpInsn(Opcodes.GOTO,endif);
+		mv.visitLabel(elseBlock);
+		e.accept(this);
+		mv.visitLabel(endif);
+	}
+
+	public <E extends Throwable> void ifInstanceOf(Clazz clazz, ThrowingConsumer<MethodWriter, E> i, ThrowingConsumer<MethodWriter, E> e) throws E {
+		Label endif = new Label();
+		Label elseBlock = new Label();
+		mv.visitTypeInsn(Opcodes.INSTANCEOF, clazz.getInternalName());
+		mv.visitJumpInsn(Opcodes.IFEQ,elseBlock);
+		i.accept(this);
+		mv.visitJumpInsn(Opcodes.GOTO,endif);
+		mv.visitLabel(elseBlock);
+		e.accept(this);
+		mv.visitLabel(endif);
+	}
+
 	public void cast(Clazz<?> of) {
 		mv.visitTypeInsn(Opcodes.CHECKCAST, of.getInternalName());
 	}
@@ -127,6 +158,14 @@ public class MethodWriter {
 		}
 		mv.visitVarInsn(Opcodes.ASTORE, pos);
 	}
+
+	public void iStore(int pos) {
+		if (locals <= pos) {
+			locals = pos+1;
+		}
+		mv.visitVarInsn(Opcodes.ISTORE, pos);
+	}
+
 
 	public void objectLoad(int pos) {
 		mv.visitVarInsn(Opcodes.ALOAD, pos);
