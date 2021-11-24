@@ -11,6 +11,7 @@ import io.ran.token.Token;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.Collection;
@@ -36,6 +37,11 @@ public class ObjectMap extends HashMap<Token, Object> implements ObjectMapHydrat
 
 	@Override
 	public void set(Token key, LocalDateTime value) {
+		put(key, value);
+	}
+
+	@Override
+	public void set(Token key, LocalDate value) {
 		put(key, value);
 	}
 
@@ -117,6 +123,11 @@ public class ObjectMap extends HashMap<Token, Object> implements ObjectMapHydrat
 	@Override
 	public LocalDateTime getLocalDateTime(Token key) {
 		return (LocalDateTime) get(key);
+	}
+
+	@Override
+	public LocalDate getLocalDate(Token key) {
+		return (LocalDate) get(key);
 	}
 
 	@Override

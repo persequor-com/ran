@@ -25,7 +25,7 @@ public class MappingHelperTest {
 		ObjectMap map = new ObjectMap();
 		mappingHelper.columnize(car, map);
 
-		assertEquals("my id", map.getString(Token.of("id")));
+		assertEquals("my id", map.get(Token.of("id")));
 	}
 
 	@Test
@@ -35,7 +35,7 @@ public class MappingHelperTest {
 		ObjectMap map = new ObjectMap();
 		mappingHelper.columnize(car, map);
 
-		assertEquals("my id", map.getString(Token.of("id")));
+		assertEquals("my id", map.get(Token.of("id")));
 	}
 
 	@Test

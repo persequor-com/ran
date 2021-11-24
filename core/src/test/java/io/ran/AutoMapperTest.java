@@ -205,7 +205,6 @@ public class AutoMapperTest {
 
 	@Test
 	public void objectWithoutPrimaryKey() throws Throwable {
-		// This test should not fail with an error saying there is no primary key
 		TypeDescriberImpl.getTypeDescriber(ObjectWithoutPrimaryKey.class);
 	}
 }
