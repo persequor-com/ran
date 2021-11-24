@@ -41,6 +41,11 @@ public class ObjectMap extends HashMap<Token, Object> implements ObjectMapHydrat
 	}
 
 	@Override
+	public void set(Token key, Instant value) {
+		put(key, value);
+	}
+
+	@Override
 	public void set(Token key, LocalDate value) {
 		put(key, value);
 	}

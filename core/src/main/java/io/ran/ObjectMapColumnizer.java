@@ -8,6 +8,7 @@ package io.ran;
 import io.ran.token.Token;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
@@ -19,6 +20,7 @@ public interface ObjectMapColumnizer {
 	void set(Token key, Character value);
 	void set(Token key, ZonedDateTime value);
 	void set(Token key, LocalDateTime value);
+	void set(Token key, Instant value);
 	void set(Token key, LocalDate value);
 	void set(Token key, Integer value);
 	void set(Token key, Short value);
