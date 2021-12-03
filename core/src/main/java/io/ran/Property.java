@@ -240,16 +240,21 @@ public class Property<T> {
 	}
 
 	public static class PropertyValueList<T> extends ArrayList<PropertyValue<T>> {
+		private Property<T> property;
 		public PropertyValueList() {
-
 		}
 
 		public PropertyValueList(Property<T> property, Collection<T> list) {
 			super(list.stream().map(property::value).collect(Collectors.toList()));
+			this.property = property;
 		}
 
 		public PropertyValue get(Token token) {
 			return stream().filter(pv -> pv.getProperty().getToken().equals(token)).map(pv -> (PropertyValue)pv).findFirst().get();
+		}
+
+		public Property<T> getProperty() {
+			return property;
 		}
 	}
 }
