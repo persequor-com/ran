@@ -17,6 +17,8 @@ import java.util.stream.Collectors;
 
 public class Clazz<T> {
 
+	private static final String COVERAGE_FIELD_PATTERN = "__\\$.*\\$__";
+
 	public static Clazz of(Type type) {
 		if (type instanceof ParameterizedType) {
 			ParameterizedType parameterizedType = ((ParameterizedType) type);
@@ -256,7 +258,9 @@ public class Clazz<T> {
 		Property.PropertyList fields = Property.list();
 
 		for (Field field : getFields()) {
-
+			if(field.getName().matches(COVERAGE_FIELD_PATTERN)) {
+				continue;
+			}
 			Token token = Token.camelHump(field.getName());
 			Clazz<?> fieldType = Clazz.of(field);
 			Property<?> property = Property.get(token,fieldType);

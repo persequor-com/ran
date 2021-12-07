@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class MappingClassWriter extends AutoMapperClassWriter {
+	private static final String COVERAGE_FIELD_PATTERN = "__\\$.*\\$__";
 	Clazz mapperClazz;
 	public MappingClassWriter(Class clazz) {
 		super(clazz);
@@ -91,6 +92,9 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 			ce.objectStore(3);
 			List<String> fields = new ArrayList<>();
 			for (Field field : aClass.getDeclaredFields()) {
+				if(field.getName().matches(COVERAGE_FIELD_PATTERN)) {
+					continue;
+				}
 				Token column = Token.camelHump(field.getName());
 				Method getter = aClass.getMethod((field.getType().isPrimitive() && field.getType().equals(boolean.class) ? "is":"get") + column.javaGetter());
 
@@ -145,6 +149,9 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 			ce.objectStore(3);
 			List<String> fields = new ArrayList<>();
 			for (Field field : aClass.getDeclaredFields()) {
+				if(field.getName().matches(COVERAGE_FIELD_PATTERN)) {
+					continue;
+				}
 				Token column = Token.camelHump(field.getName());
 				Method setter = aClass.getMethod("set" + column.javaGetter(), field.getType());
 				MethodSignature setterInfo = new MethodSignature(setter);
@@ -262,6 +269,9 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 			cec.objectStore(3);
 
 			for (Field field : (List<Field>)clazz.getFields()) {
+				if(field.getName().matches(COVERAGE_FIELD_PATTERN)) {
+					continue;
+				}
 				Clazz<?> fieldClazz = Clazz.of(field);
 				Token column = Token.camelHump(field.getName());
 				Method fieldMethod = aClass.getMethod((field.getType().isPrimitive() && field.getType().equals(boolean.class) ? "is":"get") + column.javaGetter());
@@ -362,7 +372,9 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 			List<String> fields = new ArrayList<>();
 
 			for (Field field : aClass.getDeclaredFields()) {
-
+				if(field.getName().matches(COVERAGE_FIELD_PATTERN)) {
+					continue;
+				}
 				Token column = Token.camelHump(field.getName());
 				Method fieldMethod = aClass.getMethod((field.getType().isPrimitive() && field.getType().equals(boolean.class) ? "is":"get") + column.javaGetter());
 				if (Clazz.isPropertyField(field)) {
@@ -422,6 +434,9 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 			}
 
 			for (Field field : aClass.getDeclaredFields()) {
+				if(field.getName().matches(COVERAGE_FIELD_PATTERN)) {
+					continue;
+				}
 				Token column = Token.camelHump(field.getName());
 				Method fieldMethod = aClass.getMethod((field.getType().isPrimitive() && field.getType().equals(boolean.class) ? "is":"get") + column.javaGetter());
 				if (!Clazz.isPropertyField(field)) {
