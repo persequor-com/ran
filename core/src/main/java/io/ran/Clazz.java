@@ -284,6 +284,10 @@ public class Clazz<T> {
 		return fields;
 	}
 
+	public List<ClazzMethod> methods() {
+		return Arrays.stream(clazz.getMethods()).map(ClazzMethod::new).collect(Collectors.toList());
+	}
+
 	public static boolean isPropertyField(Field field) {
 		return CamelHumpToken.is(field.getName()) && !Modifier.isTransient(field.getModifiers()) && field.getAnnotation(Relation.class) == null;
 	}
