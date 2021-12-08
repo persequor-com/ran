@@ -1,5 +1,6 @@
 package io.ran;
 
+import io.ran.token.CamelHumpToken;
 import io.ran.token.Token;
 
 import java.lang.reflect.Field;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Clazz<T> {
 
@@ -258,7 +260,7 @@ public class Clazz<T> {
 		Property.PropertyList fields = Property.list();
 
 		for (Field field : getFields()) {
-			if(field.getName().matches(COVERAGE_FIELD_PATTERN)) {
+			if(!isPropertyField(field)) {
 				continue;
 			}
 			Token token = Token.camelHump(field.getName());
@@ -283,8 +285,14 @@ public class Clazz<T> {
 	}
 
 	public static boolean isPropertyField(Field field) {
-		return !Modifier.isTransient(field.getModifiers()) && field.getAnnotation(Relation.class) == null;
+		return CamelHumpToken.is(field.getName()) && !Modifier.isTransient(field.getModifiers()) && field.getAnnotation(Relation.class) == null;
 	}
+
+	public static boolean isRelationField(Field field) {
+		return CamelHumpToken.is(field.getName()) && field.getAnnotation(Relation.class) != null;
+	}
+
+
 
 	public List<Field> getFields() {
 		List<Field> fields = new ArrayList<>();
@@ -294,6 +302,19 @@ public class Clazz<T> {
 			working = working.getSuperclass();
 		}
 		return fields;
+	}
+
+	public List<Field> getRelationFields() {
+		return getFields().stream().filter(Clazz::isRelationField).collect(Collectors.toList());
+	}
+
+	public List<Field> getPropertyFields() {
+		return getFields().stream().filter(Clazz::isPropertyField).collect(Collectors.toList());
+	}
+
+
+	public List<Field> getDeclaredPropertyFields() {
+		return Stream.of(clazz.getDeclaredFields()).filter(Clazz::isPropertyField).collect(Collectors.toList());
 	}
 
 	private static RelationDescriber describeRelation(Clazz<?> from, Relation relationAnnotation, Token token, List<String> fields, List<String> relationFields, Clazz<?> relation, Clazz<?> collectionType, Clazz<?> via) {
@@ -407,4 +428,5 @@ public class Clazz<T> {
 			}
 		};
 	}
+
 }

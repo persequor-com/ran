@@ -1,6 +1,7 @@
 package io.ran;
 
 
+import io.ran.token.CamelHumpToken;
 import io.ran.token.Token;
 import org.objectweb.asm.Opcodes;
 
@@ -15,7 +16,6 @@ import java.util.List;
 import java.util.Optional;
 
 public class MappingClassWriter extends AutoMapperClassWriter {
-	private static final String COVERAGE_FIELD_PATTERN = "__\\$.*\\$__";
 	Clazz mapperClazz;
 	public MappingClassWriter(Class clazz) {
 		super(clazz);
@@ -56,9 +56,6 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 
 	private void createSetterWrappers() {
 		try {
-
-
-
 			for (Method method : aClass.getMethods()) {
 				if (!method.getName().startsWith("set")) {
 					continue;
@@ -91,35 +88,30 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 			ce.invoke(new MethodSignature(Token.class.getMethod("snake_case")));
 			ce.objectStore(3);
 			List<String> fields = new ArrayList<>();
-			for (Field field : aClass.getDeclaredFields()) {
-				if(field.getName().matches(COVERAGE_FIELD_PATTERN)) {
-					continue;
-				}
+			for (Field field : clazz.getRelationFields()) {
 				Token column = Token.camelHump(field.getName());
-				Method getter = aClass.getMethod((field.getType().isPrimitive() && field.getType().equals(boolean.class) ? "is":"get") + column.javaGetter());
+				Method getter = getGetter(field, column);
+				Relation resolver = field.getAnnotation(Relation.class);
+				if (resolver != null) {
+					fields.add(column.snake_case());
+					ce.load(3);
+					ce.push(column.snake_case());
+					ce.invoke(new MethodSignature(String.class.getMethod("equals", Object.class)));
 
-				if (!Clazz.isPropertyField(field)) {
-					Relation resolver = field.getAnnotation(Relation.class);
-					if (resolver != null) {
-						fields.add(column.snake_case());
-						ce.load(3);
-						ce.push(column.snake_case());
-						ce.invoke(new MethodSignature(String.class.getMethod("equals", Object.class)));
-
-						ce.ifThen(c -> {
+					ce.ifThen(c -> {
+						ce.load(0);
+						ce.invokeSuper(new MethodSignature(getter));
+						ce.ifNonNull(c2 -> {
 							ce.load(0);
 							ce.invokeSuper(new MethodSignature(getter));
-							ce.ifNonNull(c2 -> {
-								ce.load(0);
-								ce.invokeSuper(new MethodSignature(getter));
-								ce.cast(Clazz.of(field));
-								ce.returnObject();
-							});
-							ce.nullConst();
+							ce.cast(Clazz.of(field));
 							ce.returnObject();
 						});
-					}
+						ce.nullConst();
+						ce.returnObject();
+					});
 				}
+
 			}
 			//void _getRelation(RelationDescriber relationDescriber, Object value);
 			ce.throwException(Clazz.of(RuntimeException.class), mw -> {
@@ -148,30 +140,26 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 			ce.invoke(new MethodSignature(Token.class.getMethod("snake_case")));
 			ce.objectStore(3);
 			List<String> fields = new ArrayList<>();
-			for (Field field : aClass.getDeclaredFields()) {
-				if(field.getName().matches(COVERAGE_FIELD_PATTERN)) {
-					continue;
-				}
+			for (Field field : clazz.getRelationFields()) {
 				Token column = Token.camelHump(field.getName());
-				Method setter = aClass.getMethod("set" + column.javaGetter(), field.getType());
+				Method setter = getSetter(field);
 				MethodSignature setterInfo = new MethodSignature(setter);
-				if (!Clazz.isPropertyField(field)) {
-					Relation resolver = field.getAnnotation(Relation.class);
-					if (resolver != null) {
-						fields.add(column.snake_case());
-						ce.load(3);
-						ce.push(column.snake_case());
-						ce.invoke(new MethodSignature(String.class.getMethod("equals", Object.class)));
+				Relation resolver = field.getAnnotation(Relation.class);
+				if (resolver != null) {
+					fields.add(column.snake_case());
+					ce.load(3);
+					ce.push(column.snake_case());
+					ce.invoke(new MethodSignature(String.class.getMethod("equals", Object.class)));
 
-						ce.ifThen(c -> {
-							ce.load(0);
-							ce.load(2);
-							ce.cast(Clazz.of(field));
-							ce.invoke(setterInfo);
-							ce.returnNothing();
-						});
-					}
+					ce.ifThen(c -> {
+						ce.load(0);
+						ce.load(2);
+						ce.cast(Clazz.of(field));
+						ce.invoke(setterInfo);
+						ce.returnNothing();
+					});
 				}
+
 			}
 			//void _setRelation(RelationDescriber relationDescriber, Object value);
 			ce.throwException(Clazz.of(RuntimeException.class), mw -> {
@@ -268,76 +256,72 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 			cec.cast(clazz);
 			cec.objectStore(3);
 
-			for (Field field : (List<Field>)clazz.getFields()) {
-				if(field.getName().matches(COVERAGE_FIELD_PATTERN)) {
-					continue;
-				}
+			for (Field field : clazz.getPropertyFields()) {
 				Clazz<?> fieldClazz = Clazz.of(field);
 				Token column = Token.camelHump(field.getName());
-				Method fieldMethod = aClass.getMethod((field.getType().isPrimitive() && field.getType().equals(boolean.class) ? "is":"get") + column.javaGetter());
+				Method fieldMethod = getGetter(field, column);
 				MethodSignature getterInfo = new MethodSignature(fieldMethod);
-				Method fieldMethodSetter = aClass.getMethod("set" + column.javaGetter(), field.getType());
+				Method fieldMethodSetter = getSetter(field);
 				MethodSignature setterInfo = new MethodSignature(fieldMethodSetter);
-				if (Clazz.isPropertyField(field)) {
-					ce.objectLoad(3);
-					ce.load(2);
-					ce.push(Token.camelHump(field.getName()).snake_case());
-					ce.invoke(Token.class.getMethod("snake_case", String.class));
+				ce.objectLoad(3);
+				ce.load(2);
+				ce.push(Token.camelHump(field.getName()).snake_case());
+				ce.invoke(Token.class.getMethod("snake_case", String.class));
 
-					ce1.objectLoad(3);
-					ce1.load(1);
-					ce1.push(Token.camelHump(field.getName()).snake_case());
-					ce1.invoke(Token.class.getMethod("snake_case", String.class));
+				ce1.objectLoad(3);
+				ce1.load(1);
+				ce1.push(Token.camelHump(field.getName()).snake_case());
+				ce1.invoke(Token.class.getMethod("snake_case", String.class));
 
-					cec.objectLoad(3);
-					cec.load(2);
-					cec.push(Token.camelHump(field.getName()).snake_case());
-					cec.invoke(Token.class.getMethod("snake_case", String.class));
-					cec.load(1);
-					cec.cast(clazz);
-					cec.invoke(getterInfo);
+				cec.objectLoad(3);
+				cec.load(2);
+				cec.push(Token.camelHump(field.getName()).snake_case());
+				cec.invoke(Token.class.getMethod("snake_case", String.class));
+				cec.load(1);
+				cec.cast(clazz);
+				cec.invoke(getterInfo);
 
-					if (field.getType().isEnum()) {
-						ce.push(Clazz.of(field));
-						ce.invoke(ObjectMapHydrator.class.getMethod("getEnum", Token.class, Class.class));
-						ce.cast(Clazz.of(field));
+				if (field.getType().isEnum()) {
+					ce.push(Clazz.of(field));
+					ce.invoke(ObjectMapHydrator.class.getMethod("getEnum", Token.class, Class.class));
+					ce.cast(Clazz.of(field));
 
-						ce1.push(Clazz.of(field));
-						ce1.invoke(ObjectMapHydrator.class.getMethod("getEnum", Token.class, Class.class));
-						ce1.cast(Clazz.of(field));
+					ce1.push(Clazz.of(field));
+					ce1.invoke(ObjectMapHydrator.class.getMethod("getEnum", Token.class, Class.class));
+					ce1.cast(Clazz.of(field));
 
-						cec.invoke(ObjectMapColumnizer.class.getMethod("set", Token.class, Enum.class));
-					} else if (fieldClazz.isPrimitive() || fieldClazz.isBoxedPrimitive()) {
-						ce.invoke(ObjectMapHydrator.class.getMethod("get"+fieldClazz.getBoxed().getSimpleName(), Token.class));
-						ce1.invoke(ObjectMapHydrator.class.getMethod("get"+fieldClazz.getBoxed().getSimpleName(), Token.class));
-						if (fieldMethodSetter.getParameterTypes()[0].isPrimitive()) {
-							ce.unbox(fieldClazz);
-							ce1.unbox(fieldClazz);
-						}
-						if (fieldMethod.getReturnType().isPrimitive()) {
-							cec.box(fieldClazz);
-						}
-						cec.invoke(new MethodSignature(ObjectMapColumnizer.class.getMethod("set", Token.class, fieldClazz.getBoxed().clazz)));
-					} else if (Collection.class.isAssignableFrom(field.getType())) {
-						ce.push(fieldClazz.generics.get(0));
-						ce.push(fieldClazz);
-						ce.invoke(ObjectMapHydrator.class.getMethod("getCollection", Token.class, Class.class, Class.class));
-
-						ce1.push(fieldClazz.generics.get(0));
-						ce1.push(fieldClazz);
-						ce1.invoke(ObjectMapHydrator.class.getMethod("getCollection", Token.class, Class.class, Class.class));
-
-						cec.cast(Clazz.of(Collection.class));
-						cec.invoke(ObjectMapColumnizer.class.getMethod("set", Token.class, Collection.class));
-					} else {
-						ce.invoke(ObjectMapHydrator.class.getMethod("get" + fieldClazz.getSimpleName(), Token.class));
-						ce1.invoke(ObjectMapHydrator.class.getMethod("get" + fieldClazz.getSimpleName(), Token.class));
-						cec.invoke(ObjectMapColumnizer.class.getMethod("set", Token.class, fieldClazz.clazz));
+					cec.invoke(ObjectMapColumnizer.class.getMethod("set", Token.class, Enum.class));
+				} else if (fieldClazz.isPrimitive() || fieldClazz.isBoxedPrimitive()) {
+					ce.invoke(ObjectMapHydrator.class.getMethod("get"+fieldClazz.getBoxed().getSimpleName(), Token.class));
+					ce1.invoke(ObjectMapHydrator.class.getMethod("get"+fieldClazz.getBoxed().getSimpleName(), Token.class));
+					if (fieldMethodSetter.getParameterTypes()[0].isPrimitive()) {
+						ce.unbox(fieldClazz);
+						ce1.unbox(fieldClazz);
 					}
+					if (fieldMethod.getReturnType().isPrimitive()) {
+						cec.box(fieldClazz);
+					}
+					cec.invoke(new MethodSignature(ObjectMapColumnizer.class.getMethod("set", Token.class, fieldClazz.getBoxed().clazz)));
+				} else if (Collection.class.isAssignableFrom(field.getType())) {
+					ce.push(fieldClazz.generics.get(0));
+					ce.push(fieldClazz);
+					ce.invoke(ObjectMapHydrator.class.getMethod("getCollection", Token.class, Class.class, Class.class));
 
-					ce1.invokeSuper(setterInfo);
-					ce.invoke(setterInfo);
+					ce1.push(fieldClazz.generics.get(0));
+					ce1.push(fieldClazz);
+					ce1.invoke(ObjectMapHydrator.class.getMethod("getCollection", Token.class, Class.class, Class.class));
+
+					cec.cast(Clazz.of(Collection.class));
+					cec.invoke(ObjectMapColumnizer.class.getMethod("set", Token.class, Collection.class));
+				} else {
+					ce.invoke(ObjectMapHydrator.class.getMethod("get" + fieldClazz.getSimpleName(), Token.class));
+					ce1.invoke(ObjectMapHydrator.class.getMethod("get" + fieldClazz.getSimpleName(), Token.class));
+					cec.invoke(ObjectMapColumnizer.class.getMethod("set", Token.class, fieldClazz.clazz));
 				}
+
+				ce1.invokeSuper(setterInfo);
+				ce.invoke(setterInfo);
+
 			}
 			ce1.returnNothing();
 			ce1.end();
@@ -348,6 +332,14 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 		} catch (Exception e) {
 			throw  new RuntimeException(e);
 		}
+	}
+
+	private Method getSetter(Field field) throws NoSuchMethodException {
+		return aClass.getMethod("set" + Token.camelHump(field.getName()).javaGetter(), field.getType());
+	}
+
+	private Method getGetter(Field field, Token column) throws NoSuchMethodException {
+		return aClass.getMethod((field.getType().isPrimitive() && field.getType().equals(boolean.class) ? "is" : "get") + column.javaGetter());
 	}
 
 	private void createGetValue() {
@@ -371,26 +363,21 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 
 			List<String> fields = new ArrayList<>();
 
-			for (Field field : aClass.getDeclaredFields()) {
-				if(field.getName().matches(COVERAGE_FIELD_PATTERN)) {
-					continue;
-				}
+			for (Field field : clazz.getPropertyFields()) {
 				Token column = Token.camelHump(field.getName());
-				Method fieldMethod = aClass.getMethod((field.getType().isPrimitive() && field.getType().equals(boolean.class) ? "is":"get") + column.javaGetter());
-				if (Clazz.isPropertyField(field)) {
-					gvce.load(3);
-					fields.add(Token.camelHump(field.getName()).snake_case());
-					gvce.push(Token.camelHump(field.getName()).snake_case());
-					gvce.invoke(String.class.getMethod("equals", Object.class));
-					gvce.ifThen(c -> {
-						gvce.load(4);
-						gvce.invoke(fieldMethod);
-						if (field.getType().isPrimitive()) {
-							gvce.box(Clazz.of(field));
-						}
-						gvce.returnObject();
-					});
-				}
+				Method fieldMethod = getGetter(field, column);
+				gvce.load(3);
+				fields.add(Token.camelHump(field.getName()).snake_case());
+				gvce.push(Token.camelHump(field.getName()).snake_case());
+				gvce.invoke(String.class.getMethod("equals", Object.class));
+				gvce.ifThen(c -> {
+					gvce.load(4);
+					gvce.invoke(fieldMethod);
+					if (field.getType().isPrimitive()) {
+						gvce.box(Clazz.of(field));
+					}
+					gvce.returnObject();
+				});
 			}
 			{
 
@@ -433,51 +420,47 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 				mv.end();
 			}
 
-			for (Field field : aClass.getDeclaredFields()) {
-				if(field.getName().matches(COVERAGE_FIELD_PATTERN)) {
-					continue;
-				}
+			for (Field field : clazz.getRelationFields()) {
 				Token column = Token.camelHump(field.getName());
-				Method fieldMethod = aClass.getMethod((field.getType().isPrimitive() && field.getType().equals(boolean.class) ? "is":"get") + column.javaGetter());
-				if (!Clazz.isPropertyField(field)) {
-					Relation resolver = field.getAnnotation(Relation.class);
-					if (resolver != null) {
+				Method fieldMethod = getGetter(field, column);
+				Relation resolver = field.getAnnotation(Relation.class);
+				if (resolver != null) {
 
 
-						Method fieldMethodSetter = aClass.getMethod("set" + column.CamelBack(), field.getType());
-						boolean isCollection = Collection.class.isAssignableFrom(field.getType());
-						String fieldName = column.camelHump();
-						Class<?> elementType = isCollection ? resolver.collectionElementType() : field.getType();
-						MethodSignature sig = new MethodSignature(fieldMethod);
-						MethodWriter ce = method(Access.of(fieldMethod.getModifiers()), sig);
-						{
+					Method fieldMethodSetter = aClass.getMethod("set" + column.CamelBack(), field.getType());
+					boolean isCollection = Collection.class.isAssignableFrom(field.getType());
+					String fieldName = column.camelHump();
+					Class<?> elementType = isCollection ? resolver.collectionElementType() : field.getType();
+					MethodSignature sig = new MethodSignature(fieldMethod);
+					MethodWriter ce = method(Access.of(fieldMethod.getModifiers()), sig);
+					{
+						ce.load(0);
+						ce.invokeSuper(sig);
+						ce.ifNull(c -> {
+							c.load(0);
+							c.load(0);
+							c.getField(getSelf(), "_resolver", Clazz.of(Resolver.class));
+							MethodSignature resolverMethod = null;
+							if (isCollection) {
+								resolverMethod = new MethodSignature(Clazz.ofClasses(Resolver.class,aClass, elementType) ,"getCollection", Clazz.of(Collection.class), Clazz.of(Class.class), Clazz.of(String.class), Clazz.of(Object.class));
+							} else {
+								resolverMethod = new MethodSignature(Clazz.of(Resolver.class) ,"get" , Clazz.of(Object.class),Clazz.of(Class.class), Clazz.of(String.class), Clazz.of(Object.class));
+							}
+							ce.push(clazz);
+							ce.push(Token.camelHump(fieldName).snake_case());
 							ce.load(0);
-							ce.invokeSuper(sig);
-							ce.ifNull(c -> {
-								c.load(0);
-								c.load(0);
-								c.getField(getSelf(), "_resolver", Clazz.of(Resolver.class));
-								MethodSignature resolverMethod = null;
-								if (isCollection) {
-									resolverMethod = new MethodSignature(Clazz.ofClasses(Resolver.class,aClass, elementType) ,"getCollection", Clazz.of(Collection.class), Clazz.of(Class.class), Clazz.of(String.class), Clazz.of(Object.class));
-								} else {
-									resolverMethod = new MethodSignature(Clazz.of(Resolver.class) ,"get" , Clazz.of(Object.class),Clazz.of(Class.class), Clazz.of(String.class), Clazz.of(Object.class));
-								}
-								ce.push(clazz);
-								ce.push(Token.camelHump(fieldName).snake_case());
-								ce.load(0);
-								ce.invoke(resolverMethod);
-								ce.cast(Clazz.of(field));
-								ce.invoke(fieldMethodSetter);
-							});
+							ce.invoke(resolverMethod);
+							ce.cast(Clazz.of(field));
+							ce.invoke(fieldMethodSetter);
+						});
 
-							ce.load(0);
-							ce.invokeSuper(sig);
-							ce.returnObject();
-							ce.end();
-						}
+						ce.load(0);
+						ce.invokeSuper(sig);
+						ce.returnObject();
+						ce.end();
 					}
 				}
+
 			}
 
 		} catch (Exception e) {

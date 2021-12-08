@@ -5,8 +5,8 @@ import org.objectweb.asm.ClassWriter;
 public class AutoMapperClassWriter extends ClassWriter {
 	protected String name;
 	protected String shortName;
-	protected Class aClass;
-	protected Clazz clazz;
+	protected Class<?> aClass;
+	protected Clazz<?> clazz;
 	protected String postFix;
 
 	public AutoMapperClassWriter(Class aClass) {

@@ -24,9 +24,13 @@ public class CamelHumpToken extends TokenType {
 		super(token);
 	}
 
+	public static boolean is(String tokenString) {
+		return tokenString.substring(0,1).equals(tokenString.substring(0,1).toLowerCase());
+	}
+
 	@Override
 	protected void parseString(String tokenString) {
-		if (!tokenString.substring(0,1).equals(tokenString.substring(0,1).toLowerCase())) {
+		if (!is(tokenString)) {
 			throw new InvalidTokenException(tokenString+" does not match camelHumpNotation. It should start with lowercase");
 		}
 		Matcher matcher = pattern.matcher(tokenString);
