@@ -13,7 +13,6 @@ import io.ran.testclasses.Brand;
 import io.ran.testclasses.Car;
 import io.ran.testclasses.Door;
 import io.ran.testclasses.Engine;
-import io.ran.testclasses.ObjectMap;
 import io.ran.testclasses.ObjectWithoutPrimaryKey;
 import io.ran.testclasses.Regular;
 import io.ran.testclasses.WithCollections;

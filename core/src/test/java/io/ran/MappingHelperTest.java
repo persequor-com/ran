@@ -1,7 +1,6 @@
 package io.ran;
 
 import io.ran.testclasses.Car;
-import io.ran.testclasses.ObjectMap;
 import io.ran.token.Token;
 import org.junit.Before;
 import org.junit.Test;

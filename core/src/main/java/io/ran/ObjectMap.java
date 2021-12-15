@@ -3,7 +3,7 @@
  * Proprietary and confidential
  * Written by Persequor Development Team <partnersupport@persequor.com>, 
  */
-package io.ran.testclasses;
+package io.ran;
 
 import io.ran.ObjectMapColumnizer;
 import io.ran.ObjectMapHydrator;
