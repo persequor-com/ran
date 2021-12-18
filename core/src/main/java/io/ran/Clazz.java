@@ -297,7 +297,7 @@ public class Clazz<T> {
 	public List<Field> getFields() {
 		List<Field> fields = new ArrayList<>();
 		Class working = clazz;
-		while(working != Object.class) {
+		while(working != null && working != Object.class) {
 			fields.addAll(Arrays.asList(working.getDeclaredFields()));
 			working = working.getSuperclass();
 		}
