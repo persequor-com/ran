@@ -304,6 +304,16 @@ public class Clazz<T> {
 		return fields;
 	}
 
+	public List<Method> getMethods() {
+		List<Method> methods = new ArrayList<>();
+		Class working = clazz;
+		while(working != null && working != Object.class) {
+			methods.addAll(Arrays.asList(working.getDeclaredMethods()));
+			working = working.getSuperclass();
+		}
+		return methods;
+	}
+
 	public List<Field> getRelationFields() {
 		return getFields().stream().filter(Clazz::isRelationField).collect(Collectors.toList());
 	}
