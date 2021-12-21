@@ -106,6 +106,11 @@ public class PropertiesColumnizer implements ObjectMapColumnizer {
 	}
 
 	@Override
+	public void set(Token key, byte[] value) {
+		setInternal(key, value);
+	}
+
+	@Override
 	public void set(Token key, Enum<?> value) {
 		setInternal(key, value);
 	}

@@ -281,7 +281,15 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 				cec.cast(clazz);
 				cec.invoke(getterInfo);
 
-				if (field.getType().isEnum()) {
+				if (field.getType() == byte[].class) {
+					ce.invoke(ObjectMapHydrator.class.getMethod("getBytes", Token.class));
+					ce.cast(Clazz.of(field));
+
+					ce1.invoke(ObjectMapHydrator.class.getMethod("getBytes", Token.class));
+					ce1.cast(Clazz.of(field));
+
+					cec.invoke(ObjectMapColumnizer.class.getMethod("set", Token.class, byte[].class));
+				} else if (field.getType().isEnum()) {
 					ce.push(Clazz.of(field));
 					ce.invoke(ObjectMapHydrator.class.getMethod("getEnum", Token.class, Class.class));
 					ce.cast(Clazz.of(field));

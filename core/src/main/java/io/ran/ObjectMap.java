@@ -96,6 +96,11 @@ public class ObjectMap extends HashMap<Token, Object> implements ObjectMapHydrat
 	}
 
 	@Override
+	public void set(Token key, byte[] value) {
+		put(key, value);
+	}
+
+	@Override
 	public void set(Token key, Enum<?> value) {
 		put(key, value);
 	}
@@ -178,6 +183,11 @@ public class ObjectMap extends HashMap<Token, Object> implements ObjectMapHydrat
 	@Override
 	public Byte getByte(Token key) {
 		return (Byte)get(key);
+	}
+
+	@Override
+	public byte[] getBytes(Token key) {
+		return (byte[]) get(key);
 	}
 
 	@Override

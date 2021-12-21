@@ -15,6 +15,7 @@ import io.ran.testclasses.Door;
 import io.ran.testclasses.Engine;
 import io.ran.testclasses.ObjectWithoutPrimaryKey;
 import io.ran.testclasses.Regular;
+import io.ran.testclasses.WithBinaryField;
 import io.ran.testclasses.WithCollections;
 import io.ran.token.Token;
 import org.junit.Before;
@@ -205,5 +206,23 @@ public class AutoMapperTest {
 	@Test
 	public void objectWithoutPrimaryKey() throws Throwable {
 		TypeDescriberImpl.getTypeDescriber(ObjectWithoutPrimaryKey.class);
+	}
+
+
+	@Test
+	public void binaryData() throws IllegalAccessException, InstantiationException {
+		ObjectMap map = new ObjectMap();
+
+		WithBinaryField withBinaryField = helper.factory.get(WithBinaryField.class);
+		withBinaryField.setUuid(UUID.randomUUID());
+		withBinaryField.setBytes(UUID.randomUUID().toString().getBytes());
+		Mapping mapping = (Mapping)withBinaryField;
+		mapping.columnize(map);
+
+		WithBinaryField withBinaryFieldHydrated = helper.factory.get(WithBinaryField.class);
+		mapping.hydrate(withBinaryFieldHydrated, map);
+
+		assertEquals(withBinaryField.getUuid(), withBinaryFieldHydrated.getUuid());
+		assertEquals(withBinaryField.getBytes(), withBinaryFieldHydrated.getBytes());
 	}
 }

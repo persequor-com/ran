@@ -31,6 +31,7 @@ public interface ObjectMapColumnizer {
 	void set(Token key, Float value);
 	void set(Token key, Boolean value);
 	void set(Token key, Byte value);
+	void set(Token key, byte[] value);
 	void set(Token key, Enum<?> value);
 	void set(Token key, Collection<?> value);
 }

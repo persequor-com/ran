@@ -31,6 +31,7 @@ public interface ObjectMapHydrator {
 	Float getFloat(Token key);
 	Boolean getBoolean(Token key);
 	Byte getByte(Token key);
+	byte[] getBytes(Token key);
 	<T extends Enum<T>> T getEnum(Token key, Class<T> enumType);
 	<T> Collection<T> getCollection(Token key, Class<T> elementType, Class<? extends Collection<T>> collectionType);
 }

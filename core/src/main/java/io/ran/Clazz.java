@@ -118,12 +118,18 @@ public class Clazz<T> {
 		if (isPrimitive()) {
 			return Primitives.get(clazz).getDescriptor();
 		}
+		if (clazz == byte[].class) {
+			return "[B";
+		}
 		return "L"+getInternalName()+";";
 	}
 
 	public String getSignature() {
 		if (isPrimitive()) {
 			return Primitives.get(clazz).getDescriptor();
+		}
+		if (clazz == byte[].class) {
+			return "[B";
 		}
 		return "L"+getInternalName()+(generics.isEmpty()?"":"<"+(generics.stream().map(Clazz::getSignature).collect(Collectors.joining()))+">")+";";
 	}
