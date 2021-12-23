@@ -1,5 +1,6 @@
 package io.ran;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -42,6 +43,14 @@ public abstract class CrudRepositoryTestDoubleBase<T, K> implements CrudReposito
 	public CrudRepository.CrudUpdateResult deleteById(K k) {
 		T existing = getStore(modelType).remove(k);
 		return () -> existing != null ? 1 : 0;
+	}
+
+	@Override
+	public CrudRepository.CrudUpdateResult deleteByIds(Collection<K> k) {
+		return () -> k
+				.stream()
+				.mapToInt(element -> getStore(modelType).remove(element) != null ? 1 : 0)
+				.sum();
 	}
 
 	@Override
