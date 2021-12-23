@@ -5,6 +5,7 @@
  */
 package io.ran;
 
+import java.util.Collection;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -15,6 +16,7 @@ public interface CrudRepository<T, K> {
 	Optional<T> get(K id);
 	Stream<T> getAll();
 	CrudUpdateResult deleteById(K id);
+	CrudUpdateResult deleteByIds(Collection<K> id);
 	CrudUpdateResult save(T t);
 
 	interface InlineQuery<T, Q extends InlineQuery<T, Q>> {
