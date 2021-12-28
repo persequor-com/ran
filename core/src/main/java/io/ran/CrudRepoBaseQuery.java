@@ -52,6 +52,20 @@ public abstract class CrudRepoBaseQuery<T, Z extends InlineQuery<T, Z>> implemen
 	}
 
 	@Override
+	public <X extends Comparable<X>> Z gte(Function<T, X> field, X value) {
+		field.apply(instance);
+		this.gte(queryWrapper.getCurrentProperty().value(value));
+		return (Z)this;
+	}
+
+	@Override
+	public <X extends Comparable<X>> Z gte(BiConsumer<T, X> field, X value) {
+		field.accept(instance, null);
+		this.gte(queryWrapper.getCurrentProperty().value(value));
+		return (Z)this;
+	}
+
+	@Override
 	public <X extends Comparable<X>> Z lt(Function<T, X> field, X value) {
 		field.apply(instance);
 		this.lt(queryWrapper.getCurrentProperty().value(value));
@@ -62,6 +76,20 @@ public abstract class CrudRepoBaseQuery<T, Z extends InlineQuery<T, Z>> implemen
 	public <X extends Comparable<X>> Z lt(BiConsumer<T, X> field, X value) {
 		field.accept(instance, null);
 		this.lt(queryWrapper.getCurrentProperty().value(value));
+		return (Z)this;
+	}
+
+	@Override
+	public <X extends Comparable<X>> Z lte(Function<T, X> field, X value) {
+		field.apply(instance);
+		this.lte(queryWrapper.getCurrentProperty().value(value));
+		return (Z)this;
+	}
+
+	@Override
+	public <X extends Comparable<X>> Z lte(BiConsumer<T, X> field, X value) {
+		field.accept(instance, null);
+		this.lte(queryWrapper.getCurrentProperty().value(value));
 		return (Z)this;
 	}
 

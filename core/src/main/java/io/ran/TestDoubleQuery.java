@@ -46,11 +46,33 @@ public abstract class TestDoubleQuery<T, Z extends CrudRepository.InlineQuery<T,
 		return (Z)this;
 	}
 
+	public Z gte(Property.PropertyValue<?> propertyValue) {
+		filters.add(t -> {
+			Object actualValue = getValue(propertyValue.getProperty(), t);
+			if (actualValue instanceof Comparable) {
+				return ((Comparable) actualValue).compareTo(propertyValue.getValue()) >= 0;
+			}
+			return false;
+		});
+		return (Z)this;
+	}
+
 	public Z lt(Property.PropertyValue<?> propertyValue) {
 		filters.add(t -> {
 			Object actualValue = getValue(propertyValue.getProperty(), t);
 			if (actualValue instanceof Comparable) {
 				return ((Comparable) actualValue).compareTo(propertyValue.getValue()) < 0;
+			}
+			return false;
+		});
+		return (Z)this;
+	}
+
+	public Z lte(Property.PropertyValue<?> propertyValue) {
+		filters.add(t -> {
+			Object actualValue = getValue(propertyValue.getProperty(), t);
+			if (actualValue instanceof Comparable) {
+				return ((Comparable) actualValue).compareTo(propertyValue.getValue()) <= 0;
 			}
 			return false;
 		});

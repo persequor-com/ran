@@ -26,6 +26,10 @@ public interface CrudRepository<T, K> {
 		<X extends Comparable<X>> Q gt(BiConsumer<T, X> field, X value);
 		<X extends Comparable<X>> Q lt(Function<T, X> field,  X value);
 		<X extends Comparable<X>> Q lt(BiConsumer<T, X> field,  X value);
+		<X extends Comparable<X>> Q gte(Function<T, X> field, X value);
+		<X extends Comparable<X>> Q gte(BiConsumer<T, X> field, X value);
+		<X extends Comparable<X>> Q lte(Function<T, X> field,  X value);
+		<X extends Comparable<X>> Q lte(BiConsumer<T, X> field,  X value);
 		<X> Q isNull(Function<T, X> field);
 		<X> Q isNull(BiConsumer<T, X> field);
 		<X> Q withEager(Function<T, X> field);
@@ -37,7 +41,9 @@ public interface CrudRepository<T, K> {
 
 		Q eq(Property.PropertyValue<?> property);
 		Q gt(Property.PropertyValue<?> property);
+		Q gte(Property.PropertyValue<?> property);
 		Q lt(Property.PropertyValue<?> property);
+		Q lte(Property.PropertyValue<?> property);
 		Q isNull(Property<?> property);
 		Q withEager(RelationDescriber relation);
 

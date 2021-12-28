@@ -95,6 +95,16 @@ public class CrudRepoBaseQueryTest {
 		}
 
 		@Override
+		public TestRepoQuery<T> gte(Property.PropertyValue<?> property) {
+			return null;
+		}
+
+		@Override
+		public TestRepoQuery<T> lte(Property.PropertyValue<?> property) {
+			return null;
+		}
+
+		@Override
 		public TestRepoQuery<T> isNull(Property<?> property) {
 			return null;
 		}
@@ -163,7 +173,17 @@ public class CrudRepoBaseQueryTest {
 		}
 
 		@Override
+		public TestRepoQueryCar gte(Property.PropertyValue<?> property) {
+			return null;
+		}
+
+		@Override
 		public TestRepoQueryCar lt(Property.PropertyValue<?> property) {
+			return null;
+		}
+
+		@Override
+		public TestRepoQueryCar lte(Property.PropertyValue<?> property) {
 			return null;
 		}
 
