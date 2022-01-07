@@ -1,6 +1,8 @@
 package io.ran;
 
 import javax.inject.Inject;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class MappingHelper {
 	private GenericFactory genericFactory;
@@ -40,5 +42,19 @@ public class MappingHelper {
 		} else {
 			return ((Mapping)genericFactory.get(obj.getClass()))._getValue(obj, property);
 		}
+	}
+
+	public <T> ClazzMethod getMethod(Class<T> tClass, Function<T, ?> methodReference) {
+		TypeDescriberImpl.getTypeDescriber(tClass);
+		T queryInstance = genericFactory.getQueryInstance(tClass);
+		methodReference.apply(queryInstance);
+		return ((QueryWrapper)queryInstance).getCurrentMethod();
+	}
+
+	public <T> ClazzMethod getMethod(Class<T> tClass, Consumer<T> methodReference) {
+		TypeDescriberImpl.getTypeDescriber(tClass);
+		T queryInstance = genericFactory.getQueryInstance(tClass);
+		methodReference.accept(queryInstance);
+		return ((QueryWrapper)queryInstance).getCurrentMethod();
 	}
 }

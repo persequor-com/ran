@@ -1,5 +1,6 @@
 package io.ran;
 
+import javax.management.remote.JMXServerErrorException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -14,6 +15,7 @@ public class TypeDescriberImpl<T> implements TypeDescriber<T> {
 	private RelationDescriber.RelationDescriberList relations = null;
 	private Annotations annotations = new Annotations();
 	private List<KeySet> indexes;
+	private List<ClazzMethod> methods;
 
 	private TypeDescriberImpl(Clazz<T> clazz) {
 		this.clazz = clazz;
@@ -59,6 +61,22 @@ public class TypeDescriberImpl<T> implements TypeDescriber<T> {
 			}
 		}
 		return fields;
+	}
+
+	@Override
+	public List<ClazzMethod> methods() {
+		if (methods == null) {
+			synchronized (this) {
+				if (methods == null) {
+					methods = clazz.methods();
+				}
+			}
+		}
+		return methods;
+	}
+
+	public ClazzMethod method(String methodToken) {
+		return methods().stream().filter(cm -> cm.matches(methodToken)).findFirst().orElseThrow(() -> new RuntimeException("Could not find method bytoken "+methodToken+" on "+clazz.clazz.getName()));
 	}
 
 	@Override

@@ -4,7 +4,11 @@ import io.ran.testclasses.Regular;
 import io.ran.token.Token;
 import org.junit.Test;
 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.*;
 
@@ -79,6 +83,75 @@ public class ClazzTest {
 		assertEquals("id", relations.get(0).getFromKeys().get(0).getToken().snake_case());
 	}
 
+
+	@Test
+	public void clazzWithGenericArgumentInParentClass() {
+		Clazz<?> clazz = Clazz.of(GenericImpl.class);
+		assertEquals(Clazz.of(String.class), clazz.getSuper().generics.get(0));
+		ClazzMethod method = clazz.methods().stream().filter(m -> m.getName().equals("method")).findFirst().get();
+		assertEquals(Clazz.of(Object.class), method.parameters().get(0).getClazz());
+		assertEquals(Clazz.of(String.class), method.parameters().get(0).getGenericClazz());
+	}
+
+	@Test
+	public void clazzWithGenericArgumentInInterface() {
+		Clazz<?> clazz = Clazz.of(GenericImpl.class);
+		assertEquals(Clazz.of(String.class), clazz.getSuper().generics.get(0));
+		ClazzMethod method = clazz.methods().stream().filter(m -> m.getName().equals("method")).findFirst().get();
+		assertEquals(Clazz.of(Object.class), method.parameters().get(0).getClazz());
+		assertEquals(Clazz.of(String.class), method.parameters().get(0).getGenericClazz());
+	}
+
+	@Test
+	public void classWithGenericArgument() {
+		Clazz<?> clazz = Clazz.of(GenericClass.class);
+		assertEquals(0, clazz.generics.size());
+		ClazzMethod method = clazz.methods().stream().filter(m -> m.getName().equals("method")).findFirst().get();
+		assertEquals(Clazz.of(Object.class), method.parameters().get(0).getClazz());
+		assertNull(method.parameters().get(0).getGenericClazz());
+	}
+
+	@Test
+	public void interfaceWithGenericArgument() {
+		Clazz<?> clazz = Clazz.of(GenericInterface.class);
+		assertEquals(0, clazz.generics.size());
+		ClazzMethod method = clazz.methods().stream().filter(m -> m.getName().equals("method")).findFirst().get();
+		assertEquals(Clazz.of(Object.class), method.parameters().get(0).getClazz());
+		assertNull(method.parameters().get(0).getGenericClazz());
+	}
+
+	@Test
+	public void interfaceWithGenericArgumentOnParentInterface() {
+		Clazz<?> clazz = Clazz.of(NonGenericInterface.class);
+		assertEquals(0, clazz.generics.size());
+		ClazzMethod method = clazz.methods().stream().filter(m -> m.getName().equals("method")).findFirst().get();
+		assertEquals(1, clazz.methods().size());
+		assertEquals(Clazz.of(String.class).clazz, method.parameters().get(0).getGenericClazz().clazz);
+	}
+
+	@Test
+	public void interfaceWithGenericArgumentOnParentParentInterface() {
+		Clazz<?> clazz = Clazz.of(NonGenericInterface2.class);
+		assertEquals(0, clazz.generics.size());
+		ClazzMethod method = clazz.methods().stream().filter(m -> m.getName().equals("method")).findFirst().get();
+		assertEquals(1, clazz.methods().size());
+		assertEquals(Clazz.of(String.class).clazz, method.parameters().get(0).getGenericClazz().clazz);
+	}
+
+	@Test
+	public void interfaceWithGenericArgumentAndExplicitImplementation() {
+		Clazz<?> clazz = Clazz.of(NonGenericInterfaceExplicit.class);
+		assertEquals(0, clazz.generics.size());
+		assertEquals(1, clazz.methods().size());
+		ClazzMethod method = clazz.methods().find("method", String.class).orElseThrow(RuntimeException::new);
+		assertEquals(Clazz.of(String.class).clazz, method.parameters().get(0).getBestEffortClazz().clazz);
+	}
+
+	@Test
+	public void forClassWithMethodsOfDifferentVisiblity() {
+		Clazz<?> clazz = Clazz.of(ClassWithMethodsOfDifferentVisiblity.class);
+		assertEquals(4, clazz.methods().size());
+	}
 
 
 	public static class RelationFrom {
@@ -248,6 +321,62 @@ public class ClazzTest {
 
 		public void setId(int id) {
 			this.id = id;
+		}
+	}
+
+	public static class GenericClass<T> {
+		public void method(T t) {
+
+		}
+	}
+
+	public static class GenericImpl extends GenericClass<String> {
+
+	}
+
+	public interface GenericInterface<T> {
+		void method(T t);
+	}
+
+	public static class GenericInterfaceImpl implements GenericInterface<String> {
+		@Override
+		public void method(String s) {
+
+		}
+	}
+
+	public interface NonGenericInterface extends GenericInterface<String> {
+		// This can be left empty, since method(T) is now method(String)
+	}
+	public interface NonGenericInterface2 extends NonGenericInterface {
+		// This one is tricky because the method is declared deeper
+	}
+	public interface NonGenericInterfaceExplicit extends GenericInterface<String> {
+		void method(String myString);
+	}
+
+	public class Muh implements NonGenericInterfaceExplicit {
+		@Override
+		public void method(String myString) {
+
+		}
+	}
+
+	public class ClassWithMethodsOfDifferentVisiblity {
+		private void privateMethod() {
+
+		}
+
+		protected void protectedMethod() {
+
+		}
+
+		void packagePrivateMethod() {
+
+		}
+
+		public void publicMethod() {
+
 		}
 	}
 }

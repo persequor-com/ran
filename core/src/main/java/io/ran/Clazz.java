@@ -8,10 +8,14 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -24,8 +28,9 @@ public class Clazz<T> {
 	public static Clazz of(Type type) {
 		if (type instanceof ParameterizedType) {
 			ParameterizedType parameterizedType = ((ParameterizedType) type);
-			List<Clazz> muh = Arrays.asList(parameterizedType.getActualTypeArguments()).stream().map(Clazz::of).collect(Collectors.toList());
-			return Clazz.ofClazzes((Class)parameterizedType.getOwnerType(), muh);
+			List<Clazz> genericClasses = Arrays.asList(parameterizedType.getActualTypeArguments()).stream().map(Clazz::of).collect(Collectors.toList());
+
+			return Clazz.ofClazzes((Class)((ParameterizedType) type).getRawType(), genericClasses);
 		} else if (type instanceof Class) {
 			return Clazz.of((Class)type);
 		}
@@ -90,7 +95,10 @@ public class Clazz<T> {
 		return Clazz.of(Primitives.get(clazz).getPrimitive());
 	}
 
-	public Clazz getSuper() {
+	public Clazz<?> getSuper() {
+		if (clazz.getGenericSuperclass() != null) {
+			return Clazz.of(clazz.getGenericSuperclass());
+		}
 		return Clazz.of(clazz.getSuperclass());
 	}
 
@@ -113,6 +121,7 @@ public class Clazz<T> {
 	public String className;
 	public Class<T> clazz;
 	public List<Clazz<?>> generics = new ArrayList<>();
+	public Map<String,Clazz<?>> genericMap = new HashMap<>();
 
 	public String getDescriptor() {
 		if (isPrimitive()) {
@@ -178,6 +187,14 @@ public class Clazz<T> {
 				this.className = "void";
 			}
 			this.generics.addAll(generics);
+			if (!generics.isEmpty()) {
+				TypeVariable<? extends Class<?>>[] typeVariables = clazz.getTypeParameters();
+				if (typeVariables.length == generics.size()) {
+					for (int i = 0; i < generics.size(); i++) {
+						genericMap.put(typeVariables[i].getName(), generics.get(i));
+					}
+				}
+			}
 		}
 	}
 
@@ -288,6 +305,24 @@ public class Clazz<T> {
 			}
 		}
 		return fields;
+	}
+
+	public ClazzMethodList methods() {
+		Map<Method, ClazzMethod> result = new LinkedHashMap();
+		Clazz working = this;
+		do {
+			if (clazz.isInterface()) {
+				Arrays.stream(working.clazz.getMethods()).filter(m -> !m.isBridge()).forEach(m -> {
+					result.put(m, new ClazzMethod(this, m));
+				});
+			} else {
+				Arrays.stream(working.clazz.getDeclaredMethods()).filter(m -> !m.isBridge()).forEach(m -> {
+					result.put(m, new ClazzMethod(this, m));
+				});
+			}
+			working = working.getSuper();
+		} while(working.clazz != null && !Object.class.equals(working.clazz));
+		return new ClazzMethodList(result.values());
 	}
 
 	public static boolean isPropertyField(Field field) {
@@ -435,4 +470,27 @@ public class Clazz<T> {
 		};
 	}
 
+	Clazz<?> findGenericSuper(Class<?> ofClazz) {
+		if (clazz.equals(Object.class)) {
+			return null;
+		}
+		if (clazz.equals(ofClazz)) {
+			return this;
+		}
+		Clazz<?> s;
+		Clazz<?> sup = getSuper();
+		if (sup != null && sup.clazz != null) {
+			s = sup.findGenericSuper(ofClazz);
+			if (s != null) {
+				return s;
+			}
+		}
+		for (Type i : Arrays.asList(clazz.getGenericInterfaces())) {
+			s = Clazz.of(i).findGenericSuper(ofClazz);
+			if (s != null) {
+				return s;
+			}
+		}
+		return null;
+	}
 }
