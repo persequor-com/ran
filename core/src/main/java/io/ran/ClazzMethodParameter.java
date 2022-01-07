@@ -38,4 +38,8 @@ public class ClazzMethodParameter {
 	public Clazz getGenericClazz() {
 		return genericClazz;
 	}
+
+	public Clazz getBestEffortClazz() {
+		return genericClazz != null ? genericClazz : clazz;
+	}
 }

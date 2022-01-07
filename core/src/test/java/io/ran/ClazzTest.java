@@ -5,6 +5,7 @@ import io.ran.token.Token;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.junit.Assert.*;
@@ -116,6 +117,36 @@ public class ClazzTest {
 		assertEquals(Clazz.of(Object.class), method.parameters().get(0).getClazz());
 		assertNull(method.parameters().get(0).getGenericClazz());
 	}
+
+	@Test
+	public void interfaceWithGenericArgumentOnParentInterface() {
+		Clazz<?> clazz = Clazz.of(NonGenericInterface.class);
+		assertEquals(0, clazz.generics.size());
+		ClazzMethod method = clazz.methods().stream().filter(m -> m.getName().equals("method")).findFirst().get();
+		assertEquals(1, clazz.methods().size());
+		assertEquals(Clazz.of(String.class).clazz, method.parameters().get(0).getGenericClazz().clazz);
+	}
+
+	@Test
+	public void interfaceWithGenericArgumentOnParentParentInterface() {
+		Clazz<?> clazz = Clazz.of(NonGenericInterface2.class);
+		assertEquals(0, clazz.generics.size());
+		ClazzMethod method = clazz.methods().stream().filter(m -> m.getName().equals("method")).findFirst().get();
+		assertEquals(1, clazz.methods().size());
+		assertEquals(Clazz.of(String.class).clazz, method.parameters().get(0).getGenericClazz().clazz);
+	}
+
+	@Test
+	public void interfaceWithGenericArgumentAndExplicitImplementation() {
+		Clazz<?> clazz = Clazz.of(NonGenericInterfaceExplicit.class);
+		assertEquals(0, clazz.generics.size());
+		assertEquals(2, clazz.methods().size());
+		ClazzMethod method = clazz.methods().find("method", String.class).orElseThrow(RuntimeException::new);
+		assertEquals(Clazz.of(String.class).clazz, method.parameters().get(0).getBestEffortClazz().clazz);
+		method = clazz.methods().find("method", Object.class).orElseThrow(RuntimeException::new);
+		assertEquals(Clazz.of(Object.class).clazz, method.parameters().get(0).getBestEffortClazz().clazz);
+	}
+
 
 	public static class RelationFrom {
 		@PrimaryKey
@@ -306,5 +337,15 @@ public class ClazzTest {
 		public void method(String s) {
 
 		}
+	}
+
+	public interface NonGenericInterface extends GenericInterface<String> {
+		// This can be left empty, since method(T) is now method(String)
+	}
+	public interface NonGenericInterface2 extends NonGenericInterface {
+		// This one is tricky because the method is declared deeper
+	}
+	public interface NonGenericInterfaceExplicit extends GenericInterface<String> {
+		void method(String myString);
 	}
 }

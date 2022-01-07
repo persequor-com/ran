@@ -301,7 +301,7 @@ public class Clazz<T> {
 		return fields;
 	}
 
-	public List<ClazzMethod> methods() {
+	public ClazzMethodList methods() {
 		Map<Method, ClazzMethod> result = new LinkedHashMap();
 		Clazz working = this;
 		do {
@@ -310,7 +310,7 @@ public class Clazz<T> {
 			});
 			working = working.getSuper();
 		} while(working.clazz != null && !Object.class.equals(working.clazz));
-		return result.values().stream().collect(Collectors.toList());
+		return new ClazzMethodList(result.values());
 	}
 
 	public static boolean isPropertyField(Field field) {
@@ -465,13 +465,16 @@ public class Clazz<T> {
 		if (clazz.equals(ofClazz)) {
 			return this;
 		}
-		Clazz<?> s = getSuper().findGenericSuper(ofClazz);
-		if (s != null) {
-			return s;
+		Clazz<?> s;
+		Clazz<?> sup = getSuper();
+		if (sup != null && sup.clazz != null) {
+			s = sup.findGenericSuper(ofClazz);
+			if (s != null) {
+				return s;
+			}
 		}
 		for (Type i : Arrays.asList(clazz.getGenericInterfaces())) {
-			Class<?> ic = (Class<?>) i;
-			s = Clazz.of(ic).findGenericSuper(ofClazz);
+			s = Clazz.of(i).findGenericSuper(ofClazz);
 			if (s != null) {
 				return s;
 			}
