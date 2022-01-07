@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -301,7 +302,15 @@ public class Clazz<T> {
 	}
 
 	public List<ClazzMethod> methods() {
-		return Arrays.stream(clazz.getMethods()).map(m -> new ClazzMethod(this, m)).collect(Collectors.toList());
+		Map<Method, ClazzMethod> result = new LinkedHashMap();
+		Clazz working = this;
+		do {
+			Arrays.stream(clazz.getMethods()).forEach(m -> {
+				result.put(m, new ClazzMethod(this, m));
+			});
+			working = working.getSuper();
+		} while(working.clazz != null && !Object.class.equals(working.clazz));
+		return result.values().stream().collect(Collectors.toList());
 	}
 
 	public static boolean isPropertyField(Field field) {

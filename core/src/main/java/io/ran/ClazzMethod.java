@@ -3,6 +3,7 @@ package io.ran;
 import javax.inject.Named;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -45,5 +46,33 @@ public class ClazzMethod {
 
 	public Method getMethod() {
 		return method;
+	}
+
+	public boolean isAbstract() {
+		return Modifier.isAbstract(method.getModifiers());
+	}
+
+	public boolean isFinal() {
+		return Modifier.isFinal(method.getModifiers());
+	}
+
+	public boolean isPrivate() {
+		return Modifier.isPrivate(method.getModifiers());
+	}
+
+	public boolean isProtected() {
+		return Modifier.isProtected(method.getModifiers());
+	}
+
+	public boolean isPublic() {
+		return Modifier.isPublic(method.getModifiers());
+	}
+
+	public boolean isStatic() {
+		return Modifier.isStatic(method.getModifiers());
+	}
+
+	public boolean isSynchronized() {
+		return Modifier.isSynchronized(method.getModifiers());
 	}
 }
