@@ -4,6 +4,8 @@ import io.ran.testclasses.Regular;
 import io.ran.token.Token;
 import org.junit.Test;
 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -140,11 +142,15 @@ public class ClazzTest {
 	public void interfaceWithGenericArgumentAndExplicitImplementation() {
 		Clazz<?> clazz = Clazz.of(NonGenericInterfaceExplicit.class);
 		assertEquals(0, clazz.generics.size());
-		assertEquals(2, clazz.methods().size());
+		assertEquals(1, clazz.methods().size());
 		ClazzMethod method = clazz.methods().find("method", String.class).orElseThrow(RuntimeException::new);
 		assertEquals(Clazz.of(String.class).clazz, method.parameters().get(0).getBestEffortClazz().clazz);
-		method = clazz.methods().find("method", Object.class).orElseThrow(RuntimeException::new);
-		assertEquals(Clazz.of(Object.class).clazz, method.parameters().get(0).getBestEffortClazz().clazz);
+	}
+
+	@Test
+	public void forClassWithMethodsOfDifferentVisiblity() {
+		Clazz<?> clazz = Clazz.of(ClassWithMethodsOfDifferentVisiblity.class);
+		assertEquals(4, clazz.methods().size());
 	}
 
 
@@ -347,5 +353,30 @@ public class ClazzTest {
 	}
 	public interface NonGenericInterfaceExplicit extends GenericInterface<String> {
 		void method(String myString);
+	}
+
+	public class Muh implements NonGenericInterfaceExplicit {
+		@Override
+		public void method(String myString) {
+
+		}
+	}
+
+	public class ClassWithMethodsOfDifferentVisiblity {
+		private void privateMethod() {
+
+		}
+
+		protected void protectedMethod() {
+
+		}
+
+		void packagePrivateMethod() {
+
+		}
+
+		public void publicMethod() {
+
+		}
 	}
 }

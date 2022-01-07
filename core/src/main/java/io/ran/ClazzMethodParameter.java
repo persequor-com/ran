@@ -13,7 +13,6 @@ public class ClazzMethodParameter {
 		this.name = p.getName();
 		if (p.getParameterizedType() instanceof TypeVariable) {
 			Class<?> declaringClass = method.getDeclaringClass();
-//			TypeVariable[] typeParameters = declaringClass.getTypeParameters();
 			Clazz<?> genericSuper = actualClass.findGenericSuper(declaringClass);
 
 			this.genericClazz = genericSuper.genericMap.get(p.getParameterizedType().getTypeName());

@@ -305,9 +305,15 @@ public class Clazz<T> {
 		Map<Method, ClazzMethod> result = new LinkedHashMap();
 		Clazz working = this;
 		do {
-			Arrays.stream(clazz.getMethods()).forEach(m -> {
-				result.put(m, new ClazzMethod(this, m));
-			});
+			if (clazz.isInterface()) {
+				Arrays.stream(working.clazz.getMethods()).filter(m -> !m.isBridge()).forEach(m -> {
+					result.put(m, new ClazzMethod(this, m));
+				});
+			} else {
+				Arrays.stream(working.clazz.getDeclaredMethods()).filter(m -> !m.isBridge()).forEach(m -> {
+					result.put(m, new ClazzMethod(this, m));
+				});
+			}
 			working = working.getSuper();
 		} while(working.clazz != null && !Object.class.equals(working.clazz));
 		return new ClazzMethodList(result.values());
