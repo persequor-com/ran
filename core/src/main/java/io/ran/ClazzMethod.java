@@ -15,12 +15,12 @@ public class ClazzMethod {
 	private final Method method;
 	private final String methodToken;
 
-	public ClazzMethod(Method method) {
+	public ClazzMethod(Clazz<?> actualClass,Method method) {
 		this.method = method;
 		this.name = method.getName();
 		this.methodToken = method.toString();
 		this.annotations = Arrays.asList(method.getAnnotations());
-		parameters = Stream.of(method.getParameters()).map(ClazzMethodParameter::new).collect(Collectors.toList());
+		parameters = Stream.of(method.getParameters()).map(p -> new ClazzMethodParameter(actualClass,method, p)).collect(Collectors.toList());
 	}
 
 	public String getName() {

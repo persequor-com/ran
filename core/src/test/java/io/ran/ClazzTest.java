@@ -5,6 +5,7 @@ import io.ran.token.Token;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.*;
 
@@ -80,6 +81,41 @@ public class ClazzTest {
 	}
 
 
+	@Test
+	public void clazzWithGenericArgumentInParentClass() {
+		Clazz<?> clazz = Clazz.of(GenericImpl.class);
+		assertEquals(Clazz.of(String.class), clazz.getSuper().generics.get(0));
+		ClazzMethod method = clazz.methods().stream().filter(m -> m.getName().equals("method")).findFirst().get();
+		assertEquals(Clazz.of(Object.class), method.parameters().get(0).getClazz());
+		assertEquals(Clazz.of(String.class), method.parameters().get(0).getGenericClazz());
+	}
+
+	@Test
+	public void clazzWithGenericArgumentInInterface() {
+		Clazz<?> clazz = Clazz.of(GenericImpl.class);
+		assertEquals(Clazz.of(String.class), clazz.getSuper().generics.get(0));
+		ClazzMethod method = clazz.methods().stream().filter(m -> m.getName().equals("method")).findFirst().get();
+		assertEquals(Clazz.of(Object.class), method.parameters().get(0).getClazz());
+		assertEquals(Clazz.of(String.class), method.parameters().get(0).getGenericClazz());
+	}
+
+	@Test
+	public void classWithGenericArgument() {
+		Clazz<?> clazz = Clazz.of(GenericClass.class);
+		assertEquals(0, clazz.generics.size());
+		ClazzMethod method = clazz.methods().stream().filter(m -> m.getName().equals("method")).findFirst().get();
+		assertEquals(Clazz.of(Object.class), method.parameters().get(0).getClazz());
+		assertNull(method.parameters().get(0).getGenericClazz());
+	}
+
+	@Test
+	public void interfaceWithGenericArgument() {
+		Clazz<?> clazz = Clazz.of(GenericInterface.class);
+		assertEquals(0, clazz.generics.size());
+		ClazzMethod method = clazz.methods().stream().filter(m -> m.getName().equals("method")).findFirst().get();
+		assertEquals(Clazz.of(Object.class), method.parameters().get(0).getClazz());
+		assertNull(method.parameters().get(0).getGenericClazz());
+	}
 
 	public static class RelationFrom {
 		@PrimaryKey
@@ -248,6 +284,27 @@ public class ClazzTest {
 
 		public void setId(int id) {
 			this.id = id;
+		}
+	}
+
+	public static class GenericClass<T> {
+		public void method(T t) {
+
+		}
+	}
+
+	public static class GenericImpl extends GenericClass<String> {
+
+	}
+
+	public interface GenericInterface<T> {
+		void method(T t);
+	}
+
+	public static class GenericInterfaceImpl implements GenericInterface<String> {
+		@Override
+		public void method(String s) {
+
 		}
 	}
 }
