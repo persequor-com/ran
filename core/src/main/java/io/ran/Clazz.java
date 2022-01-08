@@ -493,4 +493,16 @@ public class Clazz<T> {
 		}
 		return null;
 	}
+
+	public boolean is(Clazz<?> clazz) {
+		return this.clazz.equals(clazz);
+	}
+
+	public boolean declaresMethod(ClazzMethod cm) {
+		return methods().find(cm).filter(m -> m.getDeclaringClazz().is(this)).isPresent();
+	}
+
+	public boolean isVoid() {
+		return clazz.equals(Void.class) || clazz.equals(void.class);
+	}
 }

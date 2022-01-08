@@ -75,4 +75,20 @@ public class ClazzMethod {
 	public boolean isSynchronized() {
 		return Modifier.isSynchronized(method.getModifiers());
 	}
+
+	public Clazz<?> getReturnType() {
+		return Clazz.of(method.getReturnType());
+	}
+
+	public Clazz<?> getDeclaringClazz() {
+		return Clazz.of(method.getDeclaringClass());
+	}
+
+	public MethodSignature getSignature() {
+		return new MethodSignature(method);
+	}
+
+	public Access getAccess() {
+		return Access.of(method.getModifiers());
+	}
 }

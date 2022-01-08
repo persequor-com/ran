@@ -41,5 +41,10 @@ public class GuiceHelper {
 			return (DbResolver<DbType>) injector.getInstance(Key.get(clazz.getType()));
 		}
 
+		@Override
+		public <T> T wrapped(Class<T> aClass) {
+			return injector.getInstance(aClass);
+		}
+
 	}
 }
