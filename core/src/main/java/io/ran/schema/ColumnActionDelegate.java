@@ -1,5 +1,5 @@
 package io.ran.schema;
 
 public interface ColumnActionDelegate {
-	String execute(TableActionType t, ColumnAction ca);
+	String execute(TableAction table, ColumnAction ca);
 }

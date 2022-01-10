@@ -12,10 +12,10 @@ public class IndexAction {
 	private String name;
 	private boolean isPrimary = false;
 	private List<Token> fields = new ArrayList<>();
-	private BiFunction<TableActionType, IndexAction, String> action;
+	private BiFunction<TableAction, IndexAction, String> action;
 	private HashMap<String, Object> properties = new HashMap<>();
 
-	public IndexAction(String name, List<Token> fields, boolean isPrimary, BiFunction<TableActionType, IndexAction, String> action) {
+	public IndexAction(String name, List<Token> fields, boolean isPrimary, BiFunction<TableAction, IndexAction, String> action) {
 		this.name = name;
 		this.fields = fields;
 		this.isPrimary = isPrimary;
@@ -34,7 +34,7 @@ public class IndexAction {
 		return fields;
 	}
 
-	public BiFunction<TableActionType, IndexAction, String> getAction() {
+	public BiFunction<TableAction, IndexAction, String> getAction() {
 		return action;
 	}
 

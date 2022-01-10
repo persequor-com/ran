@@ -45,8 +45,12 @@ public class TableAction {
 
 	public List<String> getActions() {
 		List<String> tableActions = new ArrayList<>();
-		getColumns().stream().map(ca -> ca.getColumnAction().apply(type,ca)).forEach(tableActions::add);
-		getIndexActions().stream().map(ia -> ia.getAction().apply(type, ia)).forEach(tableActions::add);
+		getColumns().stream().map(ca -> ca.getColumnAction().apply(this,ca)).forEach(tableActions::add);
+		getIndexActions().stream().map(ia -> ia.getAction().apply(this, ia)).forEach(tableActions::add);
 		return tableActions;
+	}
+
+	public TableActionType getType() {
+		return type;
 	}
 }

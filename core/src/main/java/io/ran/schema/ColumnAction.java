@@ -9,10 +9,10 @@ import java.util.function.Function;
 public class ColumnAction {
 	private Token name;
 	private Class type;
-	private BiFunction<TableActionType, ColumnAction, String> columnAction;
+	private BiFunction<TableAction, ColumnAction, String> columnAction;
 	private HashMap<String, Object> properties = new HashMap<>();
 
-	public ColumnAction(Token name, Class type, BiFunction<TableActionType, ColumnAction, String> columnAction) {
+	public ColumnAction(Token name, Class type, BiFunction<TableAction, ColumnAction, String> columnAction) {
 		this.name = name;
 		this.type = type;
 		this.columnAction = columnAction;
@@ -26,7 +26,7 @@ public class ColumnAction {
 		return type;
 	}
 
-	public BiFunction<TableActionType,ColumnAction, String> getColumnAction() {
+	public BiFunction<TableAction,ColumnAction, String> getColumnAction() {
 		return columnAction;
 	}
 

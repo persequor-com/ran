@@ -19,7 +19,7 @@ class TestTableBuilder extends TableModifier<TestTableBuilder, TestColumnBuilder
 	@Override
 	protected ColumnActionDelegate create() {
 		return (t,ca) -> {
-			return (t == TableActionType.MODIFY ? "ADD COLUMN " : "")+ca.getName().snake_case()+" "+ca.getType().getSimpleName().toLowerCase();
+			return (t.getType() == TableActionType.MODIFY ? "ADD COLUMN " : "")+ca.getName().snake_case()+" "+ca.getType().getSimpleName().toLowerCase();
 		};
 	}
 
@@ -46,7 +46,7 @@ class TestTableBuilder extends TableModifier<TestTableBuilder, TestColumnBuilder
 			} else if (ia.getProperty("isUnique").equals(true)) {
 				indexType = "UNIQUE ";
 			}
-			return (t == TableActionType.MODIFY ? "ADD " : "")+(ia.isPrimary() ? "PRIMARY KEY ":indexType+ia.getName()+" ")+"("+ia.getFields().stream().map(Token::snake_case).collect(Collectors.joining(", "))+")";
+			return (t.getType() == TableActionType.MODIFY ? "ADD " : "")+(ia.isPrimary() ? "PRIMARY KEY ":indexType+ia.getName()+" ")+"("+ia.getFields().stream().map(Token::snake_case).collect(Collectors.joining(", "))+")";
 		};
 	}
 
