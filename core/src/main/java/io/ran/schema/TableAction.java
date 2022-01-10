@@ -7,8 +7,7 @@ import java.util.List;
 import java.util.function.Function;
 
 public class TableAction {
-	private List<ColumnAction> columns = new ArrayList<>();
-	private List<IndexAction> indexActions = new ArrayList<>();
+	private List<OnTableAction> actions = new ArrayList<>();
 	private Token name;
 	private Function<TableAction, String> action;
 	private TableActionType type;
@@ -19,12 +18,8 @@ public class TableAction {
 		this.action = action;
 	}
 
-	public List<ColumnAction> getColumns() {
-		return columns;
-	}
-
-	public List<IndexAction> getIndexActions() {
-		return indexActions;
+	public List<OnTableAction> getColumns() {
+		return actions;
 	}
 
 	public Token getName() {
@@ -32,11 +27,11 @@ public class TableAction {
 	}
 
 	public void addColumn(ColumnAction column) {
-		columns.add(column);
+		actions.add(column);
 	}
 
 	public void addIndex(IndexAction indexAction) {
-		indexActions.add(indexAction);
+		actions.add(indexAction);
 	}
 
 	public Function<TableAction, String> getAction() {
@@ -45,12 +40,15 @@ public class TableAction {
 
 	public List<String> getActions() {
 		List<String> tableActions = new ArrayList<>();
-		getColumns().stream().map(ca -> ca.getColumnAction().apply(this,ca)).forEach(tableActions::add);
-		getIndexActions().stream().map(ia -> ia.getAction().apply(this, ia)).forEach(tableActions::add);
+		actions.stream().map(ca -> ca.apply(this,ca)).forEach(tableActions::add);
 		return tableActions;
 	}
 
 	public TableActionType getType() {
 		return type;
+	}
+
+	public void addAction(OnTableAction onTableAction) {
+		actions.add(onTableAction);
 	}
 }

@@ -10,7 +10,7 @@ public abstract class TableModifier<TM extends TableModifier<TM, CB, IB>, CB ext
 	public TM modifyColumn(Token token, Class type) {
 		ColumnAction column = new ColumnAction(token, type, (t,ca) -> modify().execute(t, ca));
 		CB columnBuilder = getColumnBuilder(column);
-		columns.add(column);
+		actions.add(column);
 		return (TM) this;
 	}
 
@@ -18,27 +18,27 @@ public abstract class TableModifier<TM extends TableModifier<TM, CB, IB>, CB ext
 		ColumnAction column = new ColumnAction(token, type, (t,ca) -> modify().execute(t, ca));
 		CB columnBuilder = getColumnBuilder(column);
 		consumer.accept(columnBuilder);
-		columns.add(column);
+		actions.add(column);
 		return (TM) this;
 	}
 
 	public TM removeColumn(Token token) {
 		ColumnAction column = new ColumnAction(token, null, (t,ca) -> remove().execute(t, ca));
-		columns.add(column);
+		actions.add(column);
 		return (TM) this;
 	}
 
 
 	public TM dropIndex(String name) {
 		IndexAction indexAction = new IndexAction(name, Collections.emptyList(), false, (t, ia) -> removeIndex().execute(t, ia));
-		indices.add(indexAction);
+		actions.add(indexAction);
 		return (TM) this;
 	}
 
 
 	public TM dropPrimaryKey() {
 		IndexAction indexAction = new IndexAction("PRIMARY", Collections.emptyList(), true, (t,ia) -> removeIndex().execute(t, ia));
-		indices.add(indexAction);
+		actions.add(indexAction);
 		return (TM) this;
 	}
 

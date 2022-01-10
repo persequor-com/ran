@@ -24,8 +24,7 @@ public abstract class SchemaBuilder<SB extends SchemaBuilder<SB, TB, CB, IB, ITB
 		TableAction table = new TableAction(name, TableActionType.CREATE, ta -> create().execute(ta));
 		TB tableBuilder = getTableBuilder();
 		consumer.accept((ITB) tableBuilder);
-		tableBuilder.columns.forEach(table::addColumn);
-		tableBuilder.indices.forEach(table::addIndex);
+		tableBuilder.actions.forEach(table::addAction);
 		tableActions.add(table);
 		return (SB) this;
 	}
@@ -34,8 +33,7 @@ public abstract class SchemaBuilder<SB extends SchemaBuilder<SB, TB, CB, IB, ITB
 		TableAction table = new TableAction(name, TableActionType.MODIFY, ta -> modify().execute(ta));
 		TB tableBuilder = getTableBuilder();
 		consumer.accept(tableBuilder);
-		tableBuilder.columns.forEach(table::addColumn);
-		tableBuilder.indices.forEach(table::addIndex);
+		tableBuilder.actions.forEach(table::addAction);
 		tableActions.add(table);
 
 		return (SB) this;
@@ -44,8 +42,7 @@ public abstract class SchemaBuilder<SB extends SchemaBuilder<SB, TB, CB, IB, ITB
 	public SB removeTable(Token name) {
 		TableAction table = new TableAction(name, TableActionType.REMOVE, ta -> remove().execute(ta));
 		TB tableBuilder = getTableBuilder();
-		tableBuilder.columns.forEach(table::addColumn);
-		tableBuilder.indices.forEach(table::addIndex);
+		tableBuilder.actions.forEach(table::addAction);
 		tableActions.add(table);
 		return (SB) this;
 	}

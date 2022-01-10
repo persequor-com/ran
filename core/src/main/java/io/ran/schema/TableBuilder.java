@@ -13,8 +13,7 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 public abstract class TableBuilder<TB extends TableBuilder<TB, CB, IB>, CB extends ColumnBuilder<CB>, IB extends IndexBuilder<IB>> implements ITableBuilder<TB, CB, IB> {
-	List<ColumnAction> columns = new ArrayList<>();
-	List<IndexAction> indices = new ArrayList<>();
+	List<OnTableAction> actions = new ArrayList<>();
 
 	protected abstract CB getColumnBuilder(ColumnAction column);
 	protected abstract IB getIndexBuilder(IndexAction indexAction);
@@ -27,7 +26,7 @@ public abstract class TableBuilder<TB extends TableBuilder<TB, CB, IB>, CB exten
 	public TB addColumn(Token token, Class type) {
 		ColumnAction column = new ColumnAction(token, type, (t,ca) -> create().execute(t, ca));
 		CB columnBuilder = getColumnBuilder(column);
-		columns.add(column);
+		actions.add(column);
 		return (TB) this;
 	}
 
@@ -35,20 +34,20 @@ public abstract class TableBuilder<TB extends TableBuilder<TB, CB, IB>, CB exten
 		ColumnAction column = new ColumnAction(token, type, (t,ca) -> create().execute(t, ca));
 		CB columnBuilder = getColumnBuilder(column);
 		consumer.accept(columnBuilder);
-		columns.add(column);
+		actions.add(column);
 		return (TB) this;
 	}
 
 
 	public TB addPrimaryKey(Token... id) {
 		IndexAction indexAction = new IndexAction("PRIMARY", Arrays.asList(id), true, (t,ia) -> createIndex().execute(t, ia));
-		indices.add(indexAction);
+		actions.add(indexAction);
 		return (TB) this;
 	}
 
 	public TB addIndex(String name, Token... id) {
 		IndexAction indexAction = new IndexAction(name, Arrays.asList(id), false, (t,ia) -> createIndex().execute(t, ia));
-		indices.add(indexAction);
+		actions.add(indexAction);
 		return (TB) this;
 	}
 
@@ -56,7 +55,7 @@ public abstract class TableBuilder<TB extends TableBuilder<TB, CB, IB>, CB exten
 		IndexAction indexAction = new IndexAction(name, new ArrayList<>(), false, (t, ia) -> createIndex().execute(t, ia));
 		IB indexBuilder = getIndexBuilder(indexAction);
 		consumer.accept(indexBuilder);
-		indices.add(indexAction);
+		actions.add(indexAction);
 		return (TB) this;
 	}
 

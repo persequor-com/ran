@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-public class ColumnAction {
+public class ColumnAction implements OnTableAction {
 	private Token name;
 	private Class type;
 	private BiFunction<TableAction, ColumnAction, String> columnAction;
@@ -32,5 +32,10 @@ public class ColumnAction {
 
 	public void setProperty(String property, Object value) {
 		properties.put(property, value);
+	}
+
+	@Override
+	public String apply(TableAction tableAction, OnTableAction ca) {
+		return columnAction.apply(tableAction, (ColumnAction) ca);
 	}
 }

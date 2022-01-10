@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-public class IndexAction {
+public class IndexAction implements OnTableAction {
 	private String name;
 	private boolean isPrimary = false;
 	private List<Token> fields = new ArrayList<>();
@@ -43,5 +43,10 @@ public class IndexAction {
 	}
 	public Object getProperty(String name) {
 		return properties.getOrDefault(name, new Object());
+	}
+
+	@Override
+	public String apply(TableAction tableAction, OnTableAction ca) {
+		return action.apply(tableAction, (IndexAction) ca);
 	}
 }
