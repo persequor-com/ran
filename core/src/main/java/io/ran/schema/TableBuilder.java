@@ -7,13 +7,14 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 public abstract class TableBuilder<TB extends TableBuilder<TB, CB, IB>, CB extends ColumnBuilder<CB>, IB extends IndexBuilder<IB>> implements ITableBuilder<TB, CB, IB> {
-	Map<Token, ColumnAction> columns = new LinkedHashMap<>();
-	Map<String, IndexAction> indices = new HashMap<>();
+	List<ColumnAction> columns = new ArrayList<>();
+	List<IndexAction> indices = new ArrayList<>();
 
 	protected abstract CB getColumnBuilder(ColumnAction column);
 	protected abstract IB getIndexBuilder(IndexAction indexAction);
@@ -26,7 +27,7 @@ public abstract class TableBuilder<TB extends TableBuilder<TB, CB, IB>, CB exten
 	public TB addColumn(Token token, Class type) {
 		ColumnAction column = new ColumnAction(token, type, (t,ca) -> create().execute(t, ca));
 		CB columnBuilder = getColumnBuilder(column);
-		columns.put(token, column);
+		columns.add(column);
 		return (TB) this;
 	}
 
@@ -34,20 +35,20 @@ public abstract class TableBuilder<TB extends TableBuilder<TB, CB, IB>, CB exten
 		ColumnAction column = new ColumnAction(token, type, (t,ca) -> create().execute(t, ca));
 		CB columnBuilder = getColumnBuilder(column);
 		consumer.accept(columnBuilder);
-		columns.put(token, column);
+		columns.add(column);
 		return (TB) this;
 	}
 
 
 	public TB addPrimaryKey(Token... id) {
 		IndexAction indexAction = new IndexAction("PRIMARY", Arrays.asList(id), true, (t,ia) -> createIndex().execute(t, ia));
-		indices.put("PRIMARY", indexAction);
+		indices.add(indexAction);
 		return (TB) this;
 	}
 
 	public TB addIndex(String name, Token... id) {
 		IndexAction indexAction = new IndexAction(name, Arrays.asList(id), false, (t,ia) -> createIndex().execute(t, ia));
-		indices.put(name, indexAction);
+		indices.add(indexAction);
 		return (TB) this;
 	}
 
@@ -55,7 +56,7 @@ public abstract class TableBuilder<TB extends TableBuilder<TB, CB, IB>, CB exten
 		IndexAction indexAction = new IndexAction(name, new ArrayList<>(), false, (t, ia) -> createIndex().execute(t, ia));
 		IB indexBuilder = getIndexBuilder(indexAction);
 		consumer.accept(indexBuilder);
-		indices.put(name, indexAction);
+		indices.add(indexAction);
 		return (TB) this;
 	}
 
