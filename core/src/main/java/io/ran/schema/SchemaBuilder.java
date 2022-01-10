@@ -2,10 +2,9 @@ package io.ran.schema;
 
 import io.ran.token.Token;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 public abstract class SchemaBuilder<SB extends SchemaBuilder<SB, TB, CB, IB, ITB>, TB extends TableBuilder<TB, CB, IB>, CB extends ColumnBuilder<CB>, IB extends IndexBuilder<IB>, ITB extends ITableBuilder<TB, CB, IB>> {
 	private SchemaExecutor executor;
@@ -14,7 +13,7 @@ public abstract class SchemaBuilder<SB extends SchemaBuilder<SB, TB, CB, IB, ITB
 		this.executor = executor;
 	}
 
-	private Map<Token, TableAction> tables = new HashMap<>();
+	private List<TableAction> tableActions = new ArrayList<>();
 
 	abstract protected TB getTableBuilder();
 	protected abstract TableActionDelegate create();
@@ -27,7 +26,7 @@ public abstract class SchemaBuilder<SB extends SchemaBuilder<SB, TB, CB, IB, ITB
 		consumer.accept((ITB) tableBuilder);
 		tableBuilder.columns.values().forEach(table::addColumn);
 		tableBuilder.indices.values().forEach(table::addIndex);
-		tables.put(name, table);
+		tableActions.add(table);
 		return (SB) this;
 	}
 
@@ -37,7 +36,8 @@ public abstract class SchemaBuilder<SB extends SchemaBuilder<SB, TB, CB, IB, ITB
 		consumer.accept(tableBuilder);
 		tableBuilder.columns.values().forEach(table::addColumn);
 		tableBuilder.indices.values().forEach(table::addIndex);
-		tables.put(name, table);
+		tableActions.add(table);
+
 		return (SB) this;
 	}
 
@@ -46,11 +46,11 @@ public abstract class SchemaBuilder<SB extends SchemaBuilder<SB, TB, CB, IB, ITB
 		TB tableBuilder = getTableBuilder();
 		tableBuilder.columns.values().forEach(table::addColumn);
 		tableBuilder.indices.values().forEach(table::addIndex);
-		tables.put(name, table);
+		tableActions.add(table);
 		return (SB) this;
 	}
 
 	public void build() {
-		executor.execute(tables.values());
+		executor.execute(tableActions);
 	}
 }
