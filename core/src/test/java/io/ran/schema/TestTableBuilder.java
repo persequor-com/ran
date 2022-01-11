@@ -1,5 +1,7 @@
 package io.ran.schema;
 
+import io.ran.token.ColumnToken;
+import io.ran.token.IndexToken;
 import io.ran.token.Token;
 
 import java.util.stream.Collectors;
@@ -13,27 +15,37 @@ class TestTableBuilder extends TableModifier<TestTableBuilder, TestColumnBuilder
 
 	@Override
 	protected TestIndexBuilder getIndexBuilder(IndexAction indexAction) {
-		return new TestIndexBuilder(indexAction);
+		return new TestIndexBuilder(this, indexAction);
+	}
+
+	@Override
+	protected ColumnToken getColumnToken(Token token) {
+		return new TestColumnToken(token);
+	}
+
+	@Override
+	protected IndexToken getIndexToken(Token token) {
+		return new TestIndexToken(token);
 	}
 
 	@Override
 	protected ColumnActionDelegate create() {
 		return (t,ca) -> {
-			return (t.getType() == TableActionType.MODIFY ? "ADD COLUMN " : "")+ca.getName().snake_case()+" "+ca.getType().getSimpleName().toLowerCase();
+			return (t.getType() == TableActionType.MODIFY ? "ADD COLUMN " : "")+ca.getName()+" "+ca.getType().getSimpleName().toLowerCase();
 		};
 	}
 
 	@Override
 	protected ColumnActionDelegate modify() {
 		return (t,ca) -> {
-			return "COLUMN "+ca.getName().snake_case()+" "+ca.getType().getSimpleName().toLowerCase();
+			return "COLUMN "+ca.getName()+" "+ca.getType().getSimpleName().toLowerCase();
 		};
 	}
 
 	@Override
 	protected ColumnActionDelegate remove() {
 		return (t,ca) -> {
-			return "DROP COLUMN "+ca.getName().snake_case();
+			return "DROP COLUMN "+ca.getName();
 		};
 	}
 
@@ -46,7 +58,7 @@ class TestTableBuilder extends TableModifier<TestTableBuilder, TestColumnBuilder
 			} else if (ia.getProperty("isUnique").equals(true)) {
 				indexType = "UNIQUE ";
 			}
-			return (t.getType() == TableActionType.MODIFY ? "ADD " : "")+(ia.isPrimary() ? "PRIMARY KEY ":indexType+ia.getName()+" ")+"("+ia.getFields().stream().map(Token::snake_case).collect(Collectors.joining(", "))+")";
+			return (t.getType() == TableActionType.MODIFY ? "ADD " : "")+(ia.isPrimary() ? "PRIMARY KEY ":indexType+ia.getName()+" ")+"("+ia.getFields().join(", ") +")";
 		};
 	}
 

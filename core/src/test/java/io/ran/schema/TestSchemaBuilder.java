@@ -1,5 +1,8 @@
 package io.ran.schema;
 
+import io.ran.token.TableToken;
+import io.ran.token.Token;
+
 class TestSchemaBuilder extends SchemaBuilder<TestSchemaBuilder, TestTableBuilder, TestColumnBuilder, TestIndexBuilder, ITestTableBuilder> {
 	public TestSchemaBuilder(SchemaExecutor executor) {
 		super(executor);
@@ -11,23 +14,28 @@ class TestSchemaBuilder extends SchemaBuilder<TestSchemaBuilder, TestTableBuilde
 	}
 
 	@Override
+	protected TableToken getTableToken(Token token) {
+		return new TestTableToken(token);
+	}
+
+	@Override
 	protected TableActionDelegate create() {
 		return ta -> {
-			return "CREATE TABLE "+ta.getName().snake_case()+" ("+ String.join(", ", ta.getActions()) +");";
+			return "CREATE TABLE "+ta.getName()+" ("+ String.join(", ", ta.getActions()) +");";
 		};
 	}
 
 	@Override
 	protected TableActionDelegate modify() {
 		return ta -> {
-			return "ALTER TABLE "+ta.getName().snake_case()+" "+ String.join(", ", ta.getActions()) +";";
+			return "ALTER TABLE "+ta.getName()+" "+ String.join(", ", ta.getActions()) +";";
 		};
 	}
 
 	@Override
 	protected TableActionDelegate remove() {
 		return ta -> {
-			return "DROP TABLE "+ta.getName().snake_case()+";";
+			return "DROP TABLE "+ta.getName()+";";
 		};
 	}
 }

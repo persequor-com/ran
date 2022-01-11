@@ -9,6 +9,6 @@ public interface ITableBuilder<TB extends ITableBuilder<TB, CB, IB>, CB extends 
 	TB addColumn(Token token, Class type);
 	TB addColumn(Token token, Class type, Consumer<CB> consumer);
 	TB addPrimaryKey(Token... id);
-	TB addIndex(String name, Token... id);
-	TB addIndex(String name, Consumer<IB> consumer);
+	TB addIndex(Token name, Token... id);
+	TB addIndex(Token name, Consumer<IB> consumer);
 }

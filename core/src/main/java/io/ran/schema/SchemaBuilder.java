@@ -1,5 +1,6 @@
 package io.ran.schema;
 
+import io.ran.token.TableToken;
 import io.ran.token.Token;
 
 import java.util.ArrayList;
@@ -16,12 +17,13 @@ public abstract class SchemaBuilder<SB extends SchemaBuilder<SB, TB, CB, IB, ITB
 	private List<TableAction> tableActions = new ArrayList<>();
 
 	abstract protected TB getTableBuilder();
+	abstract protected TableToken getTableToken(Token token);
 	protected abstract TableActionDelegate create();
 	protected abstract TableActionDelegate modify();
 	protected abstract TableActionDelegate remove();
 
 	public SB addTable(Token name, Consumer<ITB> consumer) {
-		TableAction table = new TableAction(name, TableActionType.CREATE, ta -> create().execute(ta));
+		TableAction table = new TableAction(getTableToken(name), TableActionType.CREATE, ta -> create().execute(ta));
 		TB tableBuilder = getTableBuilder();
 		consumer.accept((ITB) tableBuilder);
 		tableBuilder.actions.forEach(table::addAction);
@@ -30,7 +32,7 @@ public abstract class SchemaBuilder<SB extends SchemaBuilder<SB, TB, CB, IB, ITB
 	}
 
 	public SB modifyTable(Token name, Consumer<TB> consumer) {
-		TableAction table = new TableAction(name, TableActionType.MODIFY, ta -> modify().execute(ta));
+		TableAction table = new TableAction(getTableToken(name), TableActionType.MODIFY, ta -> modify().execute(ta));
 		TB tableBuilder = getTableBuilder();
 		consumer.accept(tableBuilder);
 		tableBuilder.actions.forEach(table::addAction);
@@ -40,7 +42,7 @@ public abstract class SchemaBuilder<SB extends SchemaBuilder<SB, TB, CB, IB, ITB
 	}
 
 	public SB removeTable(Token name) {
-		TableAction table = new TableAction(name, TableActionType.REMOVE, ta -> remove().execute(ta));
+		TableAction table = new TableAction(getTableToken(name), TableActionType.REMOVE, ta -> remove().execute(ta));
 		TB tableBuilder = getTableBuilder();
 		tableBuilder.actions.forEach(table::addAction);
 		tableActions.add(table);

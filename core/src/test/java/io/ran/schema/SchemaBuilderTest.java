@@ -16,14 +16,14 @@ public class SchemaBuilderTest {
 
 	@Test
 	public void buildSimpleSchema() {
-		builder.addTable(Token.get("TheTable"), tb -> {
+		builder.addTable(Token.of("the","table"), tb -> {
 			tb.addColumn(Token.get("id"), UUID.class);
 			tb.addColumn(Token.get("title"), String.class);
 			tb.addPrimaryKey(Token.get("id"));
 		});
 		builder.build();
 
-		assertEquals("CREATE TABLE the_table (id uuid, title string, PRIMARY KEY (id));", executor.result.toString());
+		assertEquals("CREATE TABLE 'TheTable' ('id' uuid, 'title' string, PRIMARY KEY ('id'));", executor.result.toString());
 	}
 
 	@Test
@@ -35,7 +35,7 @@ public class SchemaBuilderTest {
 		});
 		builder.build();
 
-		assertEquals("CREATE TABLE the_table (id uuid, title string, PRIMARY KEY (id, title));", executor.result.toString());
+		assertEquals("CREATE TABLE 'TheTable' ('id' uuid, 'title' string, PRIMARY KEY ('id', 'title'));", executor.result.toString());
 	}
 
 	@Test
@@ -47,7 +47,7 @@ public class SchemaBuilderTest {
 		});
 		builder.build();
 
-		assertEquals("ALTER TABLE the_table COLUMN id string, DROP COLUMN title, DROP PRIMARY KEY;", executor.result.toString());
+		assertEquals("ALTER TABLE 'TheTable' COLUMN 'id' string, DROP COLUMN 'title', DROP PRIMARY KEY;", executor.result.toString());
 	}
 
 	@Test
@@ -57,23 +57,23 @@ public class SchemaBuilderTest {
 		});
 		builder.build();
 
-		assertEquals("ALTER TABLE the_table ADD COLUMN created_at zoneddatetime;", executor.result.toString());
+		assertEquals("ALTER TABLE 'TheTable' ADD COLUMN 'created_at' zoneddatetime;", executor.result.toString());
 	}
 
 	@Test
 	public void modifyTable_addIndex() {
-		builder.modifyTable(Token.get("TheTable"), tb -> {
-			tb.addIndex("my_index", Token.get("title"), Token.get("TypeName"));
+		builder.modifyTable(Token.get("the_table"), tb -> {
+			tb.addIndex(Token.get("my_index"), Token.get("title"), Token.get("TypeName"));
 		});
 		builder.build();
 
-		assertEquals("ALTER TABLE the_table ADD INDEX my_index (title, type_name);", executor.result.toString());
+		assertEquals("ALTER TABLE 'TheTable' ADD INDEX 'myIndex' ('title', 'type_name');", executor.result.toString());
 	}
 
 	@Test
 	public void modifyTable_addIndexWithCustomProperties() {
-		builder.modifyTable(Token.get("TheTable"), tb -> {
-			tb.addIndex("myUnique", ib -> {
+		builder.modifyTable(Token.get("theTable"), tb -> {
+			tb.addIndex(Token.get("myUnique"), ib -> {
 				ib.addField(Token.get("id1"));
 				ib.addField(Token.get("id2"));
 				ib.isUnique();
@@ -81,7 +81,7 @@ public class SchemaBuilderTest {
 		});
 		builder.build();
 
-		assertEquals("ALTER TABLE the_table ADD UNIQUE myUnique (id1, id2);", executor.result.toString());
+		assertEquals("ALTER TABLE 'TheTable' ADD UNIQUE 'myUnique' ('id1', 'id2');", executor.result.toString());
 	}
 
 	private static class TestExecutor implements SchemaExecutor {

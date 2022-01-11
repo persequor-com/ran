@@ -1,5 +1,6 @@
 package io.ran.schema;
 
+import io.ran.token.IndexToken;
 import io.ran.token.Token;
 
 import java.util.Collections;
@@ -8,14 +9,14 @@ import java.util.function.Consumer;
 public abstract class TableModifier<TM extends TableModifier<TM, CB, IB>, CB extends ColumnBuilder<CB>, IB extends IndexBuilder<IB>> extends TableBuilder<TM, CB, IB> implements ITableBuilder<TM, CB, IB> {
 
 	public TM modifyColumn(Token token, Class type) {
-		ColumnAction column = new ColumnAction(token, type, (t,ca) -> modify().execute(t, ca));
+		ColumnAction column = new ColumnAction(getColumnToken(token), type, (t,ca) -> modify().execute(t, ca));
 		CB columnBuilder = getColumnBuilder(column);
 		actions.add(column);
 		return (TM) this;
 	}
 
 	public TM modifyColumn(Token token, Class type, Consumer<CB> consumer) {
-		ColumnAction column = new ColumnAction(token, type, (t,ca) -> modify().execute(t, ca));
+		ColumnAction column = new ColumnAction(getColumnToken(token), type, (t,ca) -> modify().execute(t, ca));
 		CB columnBuilder = getColumnBuilder(column);
 		consumer.accept(columnBuilder);
 		actions.add(column);
@@ -23,21 +24,21 @@ public abstract class TableModifier<TM extends TableModifier<TM, CB, IB>, CB ext
 	}
 
 	public TM removeColumn(Token token) {
-		ColumnAction column = new ColumnAction(token, null, (t,ca) -> remove().execute(t, ca));
+		ColumnAction column = new ColumnAction(getColumnToken(token), null, (t,ca) -> remove().execute(t, ca));
 		actions.add(column);
 		return (TM) this;
 	}
 
 
-	public TM dropIndex(String name) {
-		IndexAction indexAction = new IndexAction(name, Collections.emptyList(), false, (t, ia) -> removeIndex().execute(t, ia));
+	public TM dropIndex(Token name) {
+		IndexAction indexAction = new IndexAction(getIndexToken(name), FormattingTokenList.empty(), false, (t, ia) -> removeIndex().execute(t, ia));
 		actions.add(indexAction);
 		return (TM) this;
 	}
 
 
 	public TM dropPrimaryKey() {
-		IndexAction indexAction = new IndexAction("PRIMARY", Collections.emptyList(), true, (t,ia) -> removeIndex().execute(t, ia));
+		IndexAction indexAction = new IndexAction(getIndexToken(Token.of("PRIMARY")), FormattingTokenList.empty(), true, (t, ia) -> removeIndex().execute(t, ia));
 		actions.add(indexAction);
 		return (TM) this;
 	}

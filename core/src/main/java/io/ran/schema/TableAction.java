@@ -1,5 +1,6 @@
 package io.ran.schema;
 
+import io.ran.token.TableToken;
 import io.ran.token.Token;
 
 import java.util.ArrayList;
@@ -8,11 +9,11 @@ import java.util.function.Function;
 
 public class TableAction {
 	private List<OnTableAction> actions = new ArrayList<>();
-	private Token name;
+	private TableToken name;
 	private Function<TableAction, String> action;
 	private TableActionType type;
 
-	public TableAction(Token name, TableActionType type, Function<TableAction, String> action) {
+	public TableAction(TableToken name, TableActionType type, Function<TableAction, String> action) {
 		this.type = type;
 		this.name = name;
 		this.action = action;
@@ -22,7 +23,7 @@ public class TableAction {
 		return actions;
 	}
 
-	public Token getName() {
+	public TableToken getName() {
 		return name;
 	}
 

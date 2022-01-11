@@ -1,5 +1,8 @@
 package io.ran.schema;
 
+import io.ran.token.ColumnToken;
+import io.ran.token.FormattingToken;
+import io.ran.token.IndexToken;
 import io.ran.token.Token;
 
 import java.util.ArrayList;
@@ -9,20 +12,20 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class IndexAction implements OnTableAction {
-	private String name;
+	private IndexToken name;
 	private boolean isPrimary = false;
-	private List<Token> fields = new ArrayList<>();
+	private FormattingTokenList<ColumnToken> fields = new FormattingTokenList<ColumnToken>();
 	private BiFunction<TableAction, IndexAction, String> action;
 	private HashMap<String, Object> properties = new HashMap<>();
 
-	public IndexAction(String name, List<Token> fields, boolean isPrimary, BiFunction<TableAction, IndexAction, String> action) {
+	public IndexAction(IndexToken name, FormattingTokenList<ColumnToken> fields, boolean isPrimary, BiFunction<TableAction, IndexAction, String> action) {
 		this.name = name;
 		this.fields = fields;
 		this.isPrimary = isPrimary;
 		this.action = action;
 	}
 
-	public String getName() {
+	public IndexToken getName() {
 		return name;
 	}
 
@@ -30,7 +33,7 @@ public class IndexAction implements OnTableAction {
 		return isPrimary;
 	}
 
-	public List<Token> getFields() {
+	public FormattingTokenList<ColumnToken> getFields() {
 		return fields;
 	}
 

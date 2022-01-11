@@ -1,5 +1,6 @@
 package io.ran.schema;
 
+import io.ran.token.ColumnToken;
 import io.ran.token.Token;
 
 import java.util.HashMap;
@@ -7,18 +8,18 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class ColumnAction implements OnTableAction {
-	private Token name;
+	private ColumnToken name;
 	private Class type;
 	private BiFunction<TableAction, ColumnAction, String> columnAction;
 	private HashMap<String, Object> properties = new HashMap<>();
 
-	public ColumnAction(Token name, Class type, BiFunction<TableAction, ColumnAction, String> columnAction) {
+	public ColumnAction(ColumnToken name, Class type, BiFunction<TableAction, ColumnAction, String> columnAction) {
 		this.name = name;
 		this.type = type;
 		this.columnAction = columnAction;
 	}
 
-	public Token getName() {
+	public ColumnToken getName() {
 		return name;
 	}
 
