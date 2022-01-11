@@ -34,7 +34,6 @@ public class AutoWrapper {
 
 				AutoWrapperWriter visitor = new AutoWrapperWriter<W, T>(tc, wc);
 				byte[] bytes = visitor.toByteArray();
-				Files.write(path, bytes);
 				CheckClassAdapter.verify(new ClassReader(bytes), false, new PrintWriter(System.out));
 				return classLoader.define(visitor.getName(), bytes);
 			} catch (Exception e) {
