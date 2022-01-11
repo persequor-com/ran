@@ -8,6 +8,11 @@ public abstract class IndexToken implements FormattingToken {
 	}
 
 	@Override
+	public Token getToken() {
+		return token;
+	}
+
+	@Override
 	public String toString() {
 		return toSql();
 	}

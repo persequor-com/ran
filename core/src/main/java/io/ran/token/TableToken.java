@@ -8,6 +8,11 @@ public abstract class TableToken implements FormattingToken {
 	}
 
 	@Override
+	public Token getToken() {
+		return token;
+	}
+
+	@Override
 	public String toString() {
 		return toSql();
 	}

@@ -1,5 +1,7 @@
 package io.ran.schema;
 
+import io.ran.Clazz;
+import io.ran.Property;
 import io.ran.token.ColumnToken;
 import io.ran.token.Token;
 
@@ -38,5 +40,9 @@ public class ColumnAction implements OnTableAction {
 	@Override
 	public String apply(TableAction tableAction, OnTableAction ca) {
 		return columnAction.apply(tableAction, (ColumnAction) ca);
+	}
+
+	public Property getProperty() {
+		return Property.get(name.getToken(), Clazz.of(type));
 	}
 }
