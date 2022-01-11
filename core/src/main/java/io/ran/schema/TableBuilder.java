@@ -1,5 +1,6 @@
 package io.ran.schema;
 
+import io.ran.KeySet;
 import io.ran.Property;
 import io.ran.token.ColumnToken;
 import io.ran.token.IndexToken;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public abstract class TableBuilder<TB extends TableBuilder<TB, CB, IB>, CB extends ColumnBuilder<CB>, IB extends IndexBuilder<IB>> implements ITableBuilder<TB, CB, IB> {
 	List<OnTableAction> actions = new ArrayList<>();
@@ -47,17 +49,36 @@ public abstract class TableBuilder<TB extends TableBuilder<TB, CB, IB>, CB exten
 		return (TB) this;
 	}
 
+	public TB addPrimaryKey(KeySet key) {
+		IndexAction indexAction = new IndexAction(getIndexToken(Token.of("PRIMARY")), FormattingTokenList.of(this::getColumnToken,key.stream().map(KeySet.Field::getToken).collect(Collectors.toList())), true, (t, ia) -> createIndex().execute(t, ia));
+		actions.add(indexAction);
+		return (TB) this;
+	}
 
-	public TB addPrimaryKey(Token... id) {
+	public TB addPrimaryKey(List<Token> id) {
 		IndexAction indexAction = new IndexAction(getIndexToken(Token.of("PRIMARY")), FormattingTokenList.of(this::getColumnToken,id), true, (t, ia) -> createIndex().execute(t, ia));
 		actions.add(indexAction);
 		return (TB) this;
 	}
 
-	public TB addIndex(Token name, Token... id) {
+	public TB addPrimaryKey(Token... id) {
+		return addPrimaryKey(Arrays.asList(id));
+	}
+
+	public TB addIndex(KeySet key) {
+		IndexAction indexAction = new IndexAction(getIndexToken(Token.get(key.getName())), FormattingTokenList.of(this::getColumnToken,key.stream().map(KeySet.Field::getToken).collect(Collectors.toList())), false, (t, ia) -> createIndex().execute(t, ia));
+		actions.add(indexAction);
+		return (TB) this;
+	}
+
+	public TB addIndex(Token name, List<Token> id) {
 		IndexAction indexAction = new IndexAction(getIndexToken(name), FormattingTokenList.of(this::getColumnToken,id), false, (t,ia) -> createIndex().execute(t, ia));
 		actions.add(indexAction);
 		return (TB) this;
+	}
+
+	public TB addIndex(Token name, Token... id) {
+		return addIndex(name, Arrays.asList(id));
 	}
 
 	public TB addIndex(Token name, Consumer<IB> consumer) {

@@ -19,8 +19,12 @@ public class FormattingTokenList<T extends FormattingToken> extends ArrayList<T>
 
 	}
 
+	public static <X extends FormattingToken> FormattingTokenList<X> of(Function<Token, X> formattingTokenGetter, List<Token> tokens) {
+		return new FormattingTokenList<>(tokens.stream().map(formattingTokenGetter).collect(Collectors.toList()));
+	}
+
 	public static <X extends FormattingToken> FormattingTokenList<X> of(Function<Token, X> formattingTokenGetter, Token... tokens) {
-		return new FormattingTokenList<>(Arrays.asList(tokens).stream().map(formattingTokenGetter).collect(Collectors.toList()));
+		return of(formattingTokenGetter, Arrays.asList(tokens));
 	}
 
 	public static FormattingTokenList<ColumnToken> empty() {
