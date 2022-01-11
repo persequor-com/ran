@@ -12,4 +12,9 @@ public class TestTableToken extends TableToken {
 	public String toSql() {
 		return "'"+token.CamelBack()+"'";
 	}
+
+	@Override
+	public String unescaped() {
+		return token.CamelBack();
+	}
 }

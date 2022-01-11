@@ -12,4 +12,9 @@ public class TestIndexToken extends IndexToken {
 	public String toSql() {
 		return "'"+token.camelHump()+"'";
 	}
+
+	@Override
+	public String unescaped() {
+		return token.camelHump();
+	}
 }

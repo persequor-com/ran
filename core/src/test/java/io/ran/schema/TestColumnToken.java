@@ -12,4 +12,9 @@ public class TestColumnToken extends ColumnToken {
 	public String toSql() {
 		return "'"+token.snake_case()+"'";
 	}
+
+	@Override
+	public String unescaped() {
+		return token.snake_case();
+	}
 }
