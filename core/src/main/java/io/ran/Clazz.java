@@ -262,6 +262,10 @@ public class Clazz<T> {
 		}
 	}
 
+	public Token getToken() {
+		return Token.get(getSimpleName());
+	}
+
 	public String getSimpleName() {
 		if (clazz.isPrimitive()) {
 			if (clazz.equals(int.class)) {
