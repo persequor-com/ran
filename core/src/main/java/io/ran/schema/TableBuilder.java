@@ -1,5 +1,6 @@
 package io.ran.schema;
 
+import io.ran.Property;
 import io.ran.token.ColumnToken;
 import io.ran.token.IndexToken;
 import io.ran.token.Token;
@@ -26,6 +27,10 @@ public abstract class TableBuilder<TB extends TableBuilder<TB, CB, IB>, CB exten
 	protected abstract ColumnActionDelegate remove();
 	protected abstract IndexActionDelegate createIndex();
 	protected abstract IndexActionDelegate removeIndex();
+
+	public TB addColumn(Property property)  {
+		return addColumn(property.getToken(), property.getType().clazz);
+	}
 
 	public TB addColumn(Token token, Class type) {
 		ColumnAction column = new ColumnAction(getColumnToken(token), type, (t,ca) -> create().execute(t, ca));
