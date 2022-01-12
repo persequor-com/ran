@@ -14,4 +14,11 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface Mapper {
 	Class<? extends DbType> dbType();
+
+	/**
+	 * a token representation of the name of the entity representing this object in the database.
+	 * See Token.get(String);
+	 * @return
+	 */
+	String dbNameToken() default "";
 }

@@ -2,7 +2,6 @@ package io.ran;
 
 import io.ran.token.Token;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -150,7 +149,7 @@ public class Property<T> {
 				}
 			}
 			if (keys.isEmpty() && contains(Token.of("id"))) {
-				KeyInfo keyInfo = new KeyInfo(true, get(Token.of("id")),"", 0);
+				KeyInfo keyInfo = new KeyInfo(true, get(Token.of("id")),"", 0, true);
 				keys.put(keyInfo.getMapKey(), KeySet.get().add(keyInfo));
 			}
 			return keys;

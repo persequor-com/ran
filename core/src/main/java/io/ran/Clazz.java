@@ -295,11 +295,11 @@ public class Clazz<T> {
 			Property<?> property = Property.get(token,fieldType);
 			Key[] keys = field.getAnnotationsByType(Key.class);
 			Arrays.asList(keys).forEach(key -> {
-				property.addKey(new KeyInfo(false, property, key.name(), key.order()));
+				property.addKey(new KeyInfo(false, property, key.name(), key.order(), key.unique()));
 			});
 			PrimaryKey[] primaryKeys = field.getAnnotationsByType(PrimaryKey.class);
 			Arrays.asList(primaryKeys).forEach(key -> {
-				property.addKey(new KeyInfo(true, property, "", key.order()));
+				property.addKey(new KeyInfo(true, property, "", key.order(), true));
 			});
 
 			property.setOn(this);
