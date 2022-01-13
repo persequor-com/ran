@@ -11,7 +11,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface Mapper {
-	Class<? extends DbType> dbType();
+@Target({ElementType.TYPE, ElementType.FIELD})
+public @interface DbName {
+	String value();
 }
