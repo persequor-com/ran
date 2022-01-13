@@ -26,6 +26,6 @@ public abstract class FormattingToken {
 		return unescaped();
 	}
 
-	abstract String toSql();
-	abstract String unescaped();
+	public abstract String toSql();
+	public abstract String unescaped();
 }
