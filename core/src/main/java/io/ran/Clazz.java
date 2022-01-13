@@ -122,6 +122,7 @@ public class Clazz<T> {
 	public Class<T> clazz;
 	public List<Clazz<?>> generics = new ArrayList<>();
 	public Map<String,Clazz<?>> genericMap = new HashMap<>();
+	private Annotations annotations = null;
 
 	public String getDescriptor() {
 		if (isPrimitive()) {
@@ -281,6 +282,14 @@ public class Clazz<T> {
 
 	public KeySets getKeys() {
 		return getProperties().keys();
+	}
+
+	public Annotations getAnnotations() {
+		if (annotations == null) {
+			annotations = new Annotations();
+			annotations.addFrom(this);
+		}
+		return annotations;
 	}
 
 	public Property.PropertyList getProperties() {
