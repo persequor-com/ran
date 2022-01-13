@@ -1,19 +1,11 @@
 package io.ran.token;
 
-public abstract class TableToken implements FormattingToken {
-	protected Token token;
-
+public abstract class TableToken extends FormattingToken {
 	protected TableToken(Token token) {
-		this.token = token;
+		super(token);
 	}
 
-	@Override
-	public Token getToken() {
-		return token;
-	}
-
-	@Override
-	public String toString() {
-		return toSql();
+	protected TableToken(String concreteName) {
+		super(concreteName);
 	}
 }

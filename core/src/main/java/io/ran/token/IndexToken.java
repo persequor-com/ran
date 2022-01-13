@@ -1,19 +1,11 @@
 package io.ran.token;
 
-public abstract class IndexToken implements FormattingToken {
-	protected Token token;
-
+public abstract class IndexToken extends FormattingToken {
 	protected IndexToken(Token token) {
-		this.token = token;
+		super(token);
 	}
 
-	@Override
-	public Token getToken() {
-		return token;
-	}
-
-	@Override
-	public String toString() {
-		return toSql();
+	protected IndexToken(String concreteName) {
+		super(concreteName);
 	}
 }
