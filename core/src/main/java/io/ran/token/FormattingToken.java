@@ -2,7 +2,7 @@ package io.ran.token;
 
 public abstract class FormattingToken {
 	protected Token token;
-	private String concreteName = null;
+	protected String specifiedName = null;
 
 	protected FormattingToken(Token token) {
 		this.token = token;
@@ -10,7 +10,7 @@ public abstract class FormattingToken {
 
 	protected FormattingToken(String concreteName) {
 		this.token = Token.get(concreteName);
-		this.concreteName = concreteName;
+		this.specifiedName = concreteName;
 	}
 
 	public Token getToken() {
@@ -19,11 +19,11 @@ public abstract class FormattingToken {
 
 	@Override
 	public String toString() {
-		return concreteName != null ? concreteName : toSql();
+		return specifiedName != null ? specifiedName : toSql();
 	}
 
 	public String name() {
-		return unescaped();
+		return specifiedName != null ? specifiedName : unescaped();
 	}
 
 	public abstract String toSql();
