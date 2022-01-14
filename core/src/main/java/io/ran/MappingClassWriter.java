@@ -1,7 +1,6 @@
 package io.ran;
 
 
-import io.ran.token.CamelHumpToken;
 import io.ran.token.Token;
 import org.objectweb.asm.Opcodes;
 
@@ -51,6 +50,7 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 		createKeyGetter();
 		createSetRelation();
 		createGetRelation();
+		createSetRelationNotLoaded();
 		createSetterWrappers();
 	}
 
@@ -182,6 +182,53 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 			throw new RuntimeException(exception);
 		}
 	}
+
+	private void createSetRelationNotLoaded() {
+		try {
+			MethodWriter ce = method(Access.Public, new MethodSignature(Mapping.class.getMethod("_setRelationNotLoaded", RelationDescriber.class)));
+			ce.load(1);
+			ce.invoke(new MethodSignature(RelationDescriber.class.getMethod("getField")));
+			ce.invoke(new MethodSignature(Token.class.getMethod("snake_case")));
+			ce.objectStore(2);
+			List<String> fields = new ArrayList<>();
+			for (Field field : clazz.getRelationFields()) {
+				Token column = Token.camelHump(field.getName());
+				Relation resolver = field.getAnnotation(Relation.class);
+				if (resolver != null) {
+					fields.add(column.snake_case());
+					ce.load(2);
+					ce.push(column.snake_case());
+					ce.invoke(new MethodSignature(String.class.getMethod("equals", Object.class)));
+
+					ce.ifThen(c -> {
+						c.load(0);
+						c.load(0);
+						c.push(Boolean.FALSE);
+						c.putfield(mapperClazz, "_relationLoaded" + column.CamelBack(), Clazz.of(boolean.class));
+						c.returnNothing();
+					});
+
+				}
+			}
+
+			ce.throwException(Clazz.of(RuntimeException.class), mw -> {
+				mw.newInstance(Clazz.of(StringBuilder.class));
+				mw.dup();
+				mw.invoke(new MethodSignature(StringBuilder.class.getConstructor()));
+				mw.push("Could not find field: ");
+				mw.invoke(StringBuilder.class.getMethod("append", String.class));
+				mw.load(2);
+				mw.invoke(StringBuilder.class.getMethod("append", String.class));
+				mw.push(". Must be one of: "+String.join(", ",fields));
+				mw.invoke(StringBuilder.class.getMethod("append", String.class));
+				mw.invoke(StringBuilder.class.getMethod("toString"));
+			});
+			ce.end();
+		} catch (Exception exception) {
+			throw new RuntimeException(exception);
+		}
+	}
+
 
 	private void createKeyGetter() {
 		try {
