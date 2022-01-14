@@ -22,8 +22,8 @@ public abstract class SchemaBuilder<SB extends SchemaBuilder<SB, TB, CB, IB, ITB
 	protected abstract TableActionDelegate modify();
 	protected abstract TableActionDelegate remove();
 
-	public SB addTable(Token name, Consumer<ITB> consumer) {
-		TableAction table = new TableAction(getTableToken(name), TableActionType.CREATE, ta -> create().execute(ta));
+	public SB addTable(TableToken name, Consumer<ITB> consumer) {
+		TableAction table = new TableAction(name, TableActionType.CREATE, ta -> create().execute(ta));
 		TB tableBuilder = getTableBuilder();
 		consumer.accept((ITB) tableBuilder);
 		tableBuilder.actions.forEach(table::addAction);
@@ -31,8 +31,12 @@ public abstract class SchemaBuilder<SB extends SchemaBuilder<SB, TB, CB, IB, ITB
 		return (SB) this;
 	}
 
-	public SB modifyTable(Token name, Consumer<TB> consumer) {
-		TableAction table = new TableAction(getTableToken(name), TableActionType.MODIFY, ta -> modify().execute(ta));
+	public SB addTable(Token name, Consumer<ITB> consumer) {
+		return addTable(getTableToken(name), consumer);
+	}
+
+	public SB modifyTable(TableToken name, Consumer<TB> consumer) {
+		TableAction table = new TableAction(name, TableActionType.MODIFY, ta -> modify().execute(ta));
 		TB tableBuilder = getTableBuilder();
 		consumer.accept(tableBuilder);
 		tableBuilder.actions.forEach(table::addAction);
@@ -41,8 +45,16 @@ public abstract class SchemaBuilder<SB extends SchemaBuilder<SB, TB, CB, IB, ITB
 		return (SB) this;
 	}
 
+	public SB modifyTable(Token name, Consumer<TB> consumer) {
+		return modifyTable(getTableToken(name),consumer);
+	}
+
 	public SB removeTable(Token name) {
-		TableAction table = new TableAction(getTableToken(name), TableActionType.REMOVE, ta -> remove().execute(ta));
+		return removeTable(getTableToken(name));
+	}
+
+	public SB removeTable(TableToken name) {
+		TableAction table = new TableAction(name, TableActionType.REMOVE, ta -> remove().execute(ta));
 		TB tableBuilder = getTableBuilder();
 		tableBuilder.actions.forEach(table::addAction);
 		tableActions.add(table);
