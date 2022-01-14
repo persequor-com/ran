@@ -94,6 +94,13 @@ public class MethodWriter {
 		mv.visitLabel(endif);
 	}
 
+	public <E extends Throwable> void ifNegateBoolean(ThrowingConsumer<MethodWriter, E> o) throws E {
+		Label endif = new Label();
+		mv.visitJumpInsn(Opcodes.IFNE,endif);
+		o.accept(this);
+		mv.visitLabel(endif);
+	}
+
 	public <E extends Throwable> void ifNull(ThrowingConsumer<MethodWriter, E> o) throws E {
 		Label endif = new Label();
 		mv.visitJumpInsn(Opcodes.IFNONNULL,endif);
