@@ -13,8 +13,10 @@ public enum Access {
 		this.opCode = opCode;
 	}
 
-	public static Access of(int modifiers) {
-		return Arrays.asList(values()).stream().filter(a -> (modifiers & a.opCode) == 1).findFirst().orElseThrow(() -> new RuntimeException("Could not find access for modifier: "+modifiers));
+	public static Access of(Integer modifiers) {
+		return Arrays.stream(values())
+				.filter(a -> (modifiers & a.opCode) == a.opCode).
+				findFirst().orElseThrow(() -> new RuntimeException("Could not find access for modifier: "+modifiers));
 	}
 
 	public int getOpCode() {
