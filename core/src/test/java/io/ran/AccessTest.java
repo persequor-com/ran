@@ -22,4 +22,12 @@ public class AccessTest {
         access = Access.of(4098);
         assertEquals(access, Access.Private);
     }
+
+    @Test
+    public void is_method_synthetic() {
+        assertTrue(Access.isSyntheticMethod(4098));
+        assertFalse(Access.isSyntheticMethod(Access.Private.getOpCode()));
+        assertFalse(Access.isSyntheticMethod(Access.Public.getOpCode()));
+
+    }
 }
