@@ -42,6 +42,11 @@ public class MethodSignature {
 		return this;
 	}
 
+	public MethodSignature setName(String name) {
+		this.name = name;
+		return this;
+	}
+
 	public String getName() {
 		return name;
 	}
@@ -78,8 +83,9 @@ public class MethodSignature {
 		return parameters.size();
 	}
 
-	public void setOwner(Clazz newOwner) {
+	public MethodSignature setOwner(Clazz newOwner) {
 		this.owner = newOwner;
+		return this;
 	}
 
 }
