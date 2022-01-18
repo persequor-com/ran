@@ -22,8 +22,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Clazz<T> {
-
 	private static final String COVERAGE_FIELD_PATTERN = "__\\$.*\\$__";
+	public String className;
+	public Class<T> clazz;
+	public List<Clazz<?>> generics = new ArrayList<>();
+	public Map<String,Clazz<?>> genericMap = new HashMap<>();
+	private Annotations annotations = null;
 
 	public static Clazz of(Type type) {
 		if (type instanceof ParameterizedType) {
@@ -47,7 +51,6 @@ public class Clazz<T> {
 
 	public Method getUnBoxSignature() {
 		return Primitives.get(clazz).getConstructorSignature();
-
 	}
 
 	public Clazz getUnBoxed() {
@@ -122,7 +125,6 @@ public class Clazz<T> {
 	public Class<T> clazz;
 	public List<Clazz<?>> generics = new ArrayList<>();
 	public Map<String,Clazz<?>> genericMap = new HashMap<>();
-	private Annotations annotations = null;
 
 	public String getDescriptor() {
 		if (isPrimitive()) {
@@ -505,5 +507,17 @@ public class Clazz<T> {
 			}
 		}
 		return null;
+	}
+
+	public boolean equals(Clazz<?> clazz) {
+		return this.clazz.equals(clazz.clazz);
+	}
+
+	public boolean declaresMethod(ClazzMethod cm) {
+		return methods().find(cm).filter(m -> m.getDeclaringClazz().equals(this)).isPresent();
+	}
+
+	public boolean isVoid() {
+		return clazz.equals(Void.class) || clazz.equals(void.class);
 	}
 }
