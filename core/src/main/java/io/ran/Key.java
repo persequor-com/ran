@@ -15,4 +15,5 @@ public @interface Key {
 	int order() default -1;
 
 	String name();
+	boolean unique() default false;
 }

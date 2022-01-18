@@ -96,6 +96,14 @@ public class KeySet {
 		return this;
 	}
 
+	public void setPrimary(boolean primary) {
+		this.primary = primary;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
 	public String getName() {
 		return name;
 	}

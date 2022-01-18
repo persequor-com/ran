@@ -24,12 +24,13 @@ jobs:
         with:
           fetch-depth: 0
       - name: versioning
-        uses: paulhatch/semantic-version@v4.0.2
+        uses: paulhatch/semantic-version@v4.0.3
         with:
           tag_prefix: "v"
           major_pattern: "(MAJOR)"
           minor_pattern: "(MINOR)"
           format: "${major}.${minor}.${patch}-${increment}"
+          namespace: ${{ github.head_ref }}
           bump_each_commit: false
         id: versioning
       - name: Setup java

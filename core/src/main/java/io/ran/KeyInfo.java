@@ -5,12 +5,14 @@ public class KeyInfo {
 	private Property<?> property;
 	private String name;
 	private int order;
+	private boolean unique;
 
-	public KeyInfo(boolean primary, Property<?> property, String name, int order) {
+	public KeyInfo(boolean primary, Property<?> property, String name, int order, boolean unique) {
 		this.primary = primary;
 		this.property = property;
 		this.name = name;
 		this.order = order;
+		this.unique = unique;
 	}
 
 	public boolean isPrimary() {
@@ -31,5 +33,9 @@ public class KeyInfo {
 
 	public String getName() {
 		return name;
+	}
+
+	public boolean isUnique() {
+		return unique || primary;
 	}
 }

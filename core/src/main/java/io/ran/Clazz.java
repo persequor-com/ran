@@ -27,6 +27,7 @@ public class Clazz<T> {
 	public Class<T> clazz;
 	public List<Clazz<?>> generics = new ArrayList<>();
 	public Map<String,Clazz<?>> genericMap = new HashMap<>();
+	private Annotations annotations = null;
 
 	public static Clazz of(Type type) {
 		if (type instanceof ParameterizedType) {
@@ -259,6 +260,10 @@ public class Clazz<T> {
 		}
 	}
 
+	public Token getToken() {
+		return Token.get(getSimpleName());
+	}
+
 	public String getSimpleName() {
 		if (clazz.isPrimitive()) {
 			if (clazz.equals(int.class)) {
@@ -276,6 +281,14 @@ public class Clazz<T> {
 		return getProperties().keys();
 	}
 
+	public Annotations getAnnotations() {
+		if (annotations == null) {
+			annotations = new Annotations();
+			annotations.addFrom(this);
+		}
+		return annotations;
+	}
+
 	public Property.PropertyList getProperties() {
 		Property.PropertyList fields = Property.list();
 
@@ -288,11 +301,11 @@ public class Clazz<T> {
 			Property<?> property = Property.get(token,fieldType);
 			Key[] keys = field.getAnnotationsByType(Key.class);
 			Arrays.asList(keys).forEach(key -> {
-				property.addKey(new KeyInfo(false, property, key.name(), key.order()));
+				property.addKey(new KeyInfo(false, property, key.name(), key.order(), key.unique()));
 			});
 			PrimaryKey[] primaryKeys = field.getAnnotationsByType(PrimaryKey.class);
 			Arrays.asList(primaryKeys).forEach(key -> {
-				property.addKey(new KeyInfo(true, property, "", key.order()));
+				property.addKey(new KeyInfo(true, property, "", key.order(), true));
 			});
 
 			property.setOn(this);
