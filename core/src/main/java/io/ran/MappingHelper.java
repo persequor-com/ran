@@ -1,5 +1,7 @@
 package io.ran;
 
+import io.ran.token.Token;
+
 import javax.inject.Inject;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -42,6 +44,18 @@ public class MappingHelper {
 		} else {
 			return ((Mapping)genericFactory.get(obj.getClass()))._getValue(obj, property);
 		}
+	}
+
+	public Object getRelation(Object obj, RelationDescriber describer) {
+		if (obj instanceof Mapping) {
+			return ((Mapping) obj)._getRelation(describer);
+		} else {
+			return ((Mapping)genericFactory.get(obj.getClass()))._getRelation(obj, describer);
+		}
+	}
+
+	public Object getRelation(Object obj, Token fieldToken) {
+		return ((Mapping)genericFactory.get(obj.getClass()))._getRelation(obj, fieldToken);
 	}
 
 	public <T> ClazzMethod getMethod(Class<T> tClass, Function<T, ?> methodReference) {

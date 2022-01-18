@@ -82,28 +82,56 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 
 	private void createGetRelation() {
 		try {
-			MethodWriter ce = method(Access.Public, new MethodSignature(Mapping.class.getMethod("_getRelation", RelationDescriber.class)));
-			ce.load(1);
-			ce.invoke(new MethodSignature(RelationDescriber.class.getMethod("getField")));
+			MethodWriter ce1 = method(Access.Public, new MethodSignature(Mapping.class.getMethod("_getRelation", RelationDescriber.class)));
+			ce1.load(0);
+			ce1.load(0);
+			ce1.load(1);
+			ce1.invoke(Mapping.class.getMethod("_getRelation", Object.class, RelationDescriber.class));
+			ce1.returnObject();
+			ce1.end();
+
+			MethodWriter ce2 = method(Access.Public, new MethodSignature(Mapping.class.getMethod("_getRelation", Object.class, RelationDescriber.class)));
+			ce2.load(0);
+			ce2.load(1);
+			ce2.load(2);
+			ce2.invoke(new MethodSignature(RelationDescriber.class.getMethod("getField")));
+			ce2.invoke(Mapping.class.getMethod("_getRelation", Object.class, Token.class));
+			ce2.returnObject();
+			ce2.end();
+
+
+
+			MethodWriter ce = method(Access.Public, new MethodSignature(Mapping.class.getMethod("_getRelation", Object.class, Token.class)));
+			ce.load(2);
+
 			ce.invoke(new MethodSignature(Token.class.getMethod("snake_case")));
-			ce.objectStore(3);
+			ce.objectStore(4);
 			List<String> fields = new ArrayList<>();
 			for (Field field : clazz.getRelationFields()) {
 				Token column = Token.camelHump(field.getName());
 				Method getter = getGetter(field, column);
 				Relation resolver = field.getAnnotation(Relation.class);
 				if (resolver != null) {
+					MethodSignature superMethod = new MethodSignature(getter).setOwner(mapperClazz).setName("_" + getter.getName() + "Super");
+					MethodWriter superRelationReader = method(Access.Public, superMethod);
+					superRelationReader.load(0);
+					superRelationReader.invokeSuper(new MethodSignature(getter));
+					superRelationReader.returnObject();
+					superRelationReader.end();
+
 					fields.add(column.snake_case());
-					ce.load(3);
+					ce.load(4);
 					ce.push(column.snake_case());
 					ce.invoke(new MethodSignature(String.class.getMethod("equals", Object.class)));
 
 					ce.ifThen(c -> {
-						ce.load(0);
-						ce.invokeSuper(new MethodSignature(getter));
+						ce.load(1);
+						ce.cast(mapperClazz);
+						ce.invoke(superMethod);
 						ce.ifNonNull(c2 -> {
-							ce.load(0);
-							ce.invokeSuper(new MethodSignature(getter));
+							ce.load(1);
+							ce.cast(mapperClazz);
+							ce.invoke(superMethod);
 							ce.cast(Clazz.of(field));
 							ce.returnObject();
 						});
@@ -120,7 +148,7 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 				mw.invoke(new MethodSignature(StringBuilder.class.getConstructor()));
 				mw.push("Could not find field: ");
 				mw.invoke(StringBuilder.class.getMethod("append", String.class));
-				mw.load(3);
+				mw.load(4);
 				mw.invoke(StringBuilder.class.getMethod("append", String.class));
 				mw.push(". Must be one of: "+String.join(", ",fields));
 				mw.invoke(StringBuilder.class.getMethod("append", String.class));
