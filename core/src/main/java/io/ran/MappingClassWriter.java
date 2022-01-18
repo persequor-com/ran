@@ -5,6 +5,7 @@ import io.ran.token.Token;
 import org.objectweb.asm.Opcodes;
 
 import javax.inject.Inject;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -32,10 +33,14 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 		Arrays.asList(clazz.getConstructors()).forEach(c -> {
 			MethodWriter mw = method(Access.of(c.getModifiers()), new MethodSignature(c));
 			int i = 0;
+			if (c.getAnnotation(Inject.class) != null) {
+				mw.addAnnotation(Clazz.of(Inject.class), true);
+			}
+			mw.load(0);
 			for (Parameter p : Arrays.asList(c.getParameters())) {
 				mw.load(++i);
 			}
-			mw.load(0);
+
 			mw.invoke(new MethodSignature(c));
 			mw.returnNothing();
 			mw.end();

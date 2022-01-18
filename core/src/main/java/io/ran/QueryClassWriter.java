@@ -4,7 +4,10 @@ package io.ran;
 import io.ran.token.Token;
 import org.objectweb.asm.Opcodes;
 
+import javax.inject.Inject;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.Arrays;
 
 public class QueryClassWriter extends AutoMapperClassWriter {
@@ -24,19 +27,32 @@ public class QueryClassWriter extends AutoMapperClassWriter {
 
 	private void buildConstructor() {
 		try {
-			MethodWriter c = method(Access.Public, new MethodSignature(getSelf(), "<init>", Clazz.getVoid()));
-			c.load(0);
-			c.invokeSuper(new MethodSignature(clazz.clazz.getConstructor()));
-			c.load(0);
-			c.invoke(Property.class.getMethod("get"));
-			c.putfield(getSelf(), "currentProperty", Clazz.of(Property.class));
-			c.load(0);
-			c.push(clazz);
-			c.invoke(TypeDescriberImpl.class.getMethod("getTypeDescriber", Class.class));
-			c.cast(Clazz.of(TypeDescriberImpl.class));
-			c.putfield(getSelf(), "typeDescriber", Clazz.of(TypeDescriberImpl.class));
-			c.returnNothing();
-			c.end();
+			for (Constructor<?> c : clazz.clazz.getConstructors()) {
+				MethodWriter mw = method(Access.of(c.getModifiers()), new MethodSignature(c));
+
+				if (c.getAnnotation(Inject.class) != null) {
+					mw.addAnnotation(Clazz.of(Inject.class), true);
+				}
+				mw.load(0);
+				int i = 0;
+				for (Parameter p : Arrays.asList(c.getParameters())) {
+					mw.load(++i);
+				}
+				mw.invoke(new MethodSignature(c));
+
+				mw.load(0);
+				mw.invoke(Property.class.getMethod("get"));
+				mw.putfield(getSelf(), "currentProperty", Clazz.of(Property.class));
+				mw.load(0);
+				mw.push(clazz);
+				mw.invoke(TypeDescriberImpl.class.getMethod("getTypeDescriber", Class.class));
+				mw.cast(Clazz.of(TypeDescriberImpl.class));
+				mw.putfield(getSelf(), "typeDescriber", Clazz.of(TypeDescriberImpl.class));
+				mw.returnNothing();
+				mw.end();
+			}
+
+
 		} catch (NoSuchMethodException exception) {
 			throw new RuntimeException(exception);
 		}
