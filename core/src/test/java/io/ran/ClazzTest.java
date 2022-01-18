@@ -143,7 +143,7 @@ public class ClazzTest {
 		Clazz<?> clazz = Clazz.of(NonGenericInterfaceExplicit.class);
 		assertEquals(0, clazz.generics.size());
 		assertEquals(1, clazz.methods().size());
-		ClazzMethod method = clazz.methods().find("method", String.class).orElseThrow(RuntimeException::new);
+		ClazzMethod method = clazz.methods().find("method", void.class, String.class).orElseThrow(RuntimeException::new);
 		assertEquals(Clazz.of(String.class).clazz, method.parameters().get(0).getBestEffortClazz().clazz);
 	}
 

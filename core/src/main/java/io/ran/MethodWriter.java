@@ -184,6 +184,16 @@ public class MethodWriter {
 		mv.visitInsn(Opcodes.IRETURN+of.getPrimitiveOffset());
 	}
 
+	public void returnOf(Clazz<?> returnType) {
+		if (returnType.isVoid()) {
+			returnNothing();
+		} else if (returnType.isPrimitive()) {
+			returnPrimitive(returnType);
+		} else {
+			returnObject();
+		}
+	}
+
 	public void end() {
 		mv.visitMaxs(30,locals);
 		mv.visitEnd();

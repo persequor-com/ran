@@ -10,4 +10,6 @@ public interface GenericFactory {
 	<T> T getQueryInstance(Class<T> clazz);
 
 	DbResolver<DbType> getResolver(Class<? extends DbType> dbTypeClass);
+
+	<T> T wrapped(Class<T> aClass);
 }
