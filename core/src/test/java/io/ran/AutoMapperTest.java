@@ -225,4 +225,15 @@ public class AutoMapperTest {
 		assertEquals(withBinaryField.getUuid(), withBinaryFieldHydrated.getUuid());
 		assertEquals(withBinaryField.getBytes(), withBinaryFieldHydrated.getBytes());
 	}
+
+	@Test
+	public void setRelationForObject() throws IllegalAccessException, InstantiationException {
+		TypeDescriber<Car> describer = TypeDescriberImpl.getTypeDescriber(Car.class);
+		Car car = helper.factory.get(Car.class);
+		Mapping carMapping = (Mapping)car;
+
+		carMapping._setRelation(describer.relations().get(0), null);
+
+		assertNull(car.getEngine());
+	}
 }

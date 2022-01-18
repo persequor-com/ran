@@ -54,7 +54,9 @@ public class Car {
 	}
 
 	public void setEngine(Engine engine) {
-		this.engineId = engine.getId();
+		if(engine != null) {
+			this.engineId = engine.getId();
+		}
 		this.engine = engine;
 	}
 

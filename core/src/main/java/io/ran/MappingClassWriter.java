@@ -1,7 +1,6 @@
 package io.ran;
 
 
-import io.ran.token.CamelHumpToken;
 import io.ran.token.Token;
 import org.objectweb.asm.Opcodes;
 
@@ -51,6 +50,7 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 		createKeyGetter();
 		createSetRelation();
 		createGetRelation();
+		createSetRelationNotLoaded();
 		createSetterWrappers();
 	}
 
@@ -152,11 +152,14 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 					ce.invoke(new MethodSignature(String.class.getMethod("equals", Object.class)));
 
 					ce.ifThen(c -> {
-						ce.load(0);
-						ce.load(2);
-						ce.cast(Clazz.of(field));
-						ce.invoke(setterInfo);
-						ce.returnNothing();
+						c.load(0);
+						c.load(2);
+						c.cast(Clazz.of(field));
+						c.invoke(setterInfo);
+						c.load(0);
+						c.push(Boolean.TRUE);
+						c.putfield(mapperClazz, "_relationLoaded" + column.CamelBack(), Clazz.of(boolean.class));
+						c.returnNothing();
 					});
 				}
 
@@ -179,6 +182,53 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 			throw new RuntimeException(exception);
 		}
 	}
+
+	private void createSetRelationNotLoaded() {
+		try {
+			MethodWriter ce = method(Access.Public, new MethodSignature(Mapping.class.getMethod("_setRelationNotLoaded", RelationDescriber.class)));
+			ce.load(1);
+			ce.invoke(new MethodSignature(RelationDescriber.class.getMethod("getField")));
+			ce.invoke(new MethodSignature(Token.class.getMethod("snake_case")));
+			ce.objectStore(2);
+			List<String> fields = new ArrayList<>();
+			for (Field field : clazz.getRelationFields()) {
+				Token column = Token.camelHump(field.getName());
+				Relation resolver = field.getAnnotation(Relation.class);
+				if (resolver != null) {
+					fields.add(column.snake_case());
+					ce.load(2);
+					ce.push(column.snake_case());
+					ce.invoke(new MethodSignature(String.class.getMethod("equals", Object.class)));
+
+					ce.ifThen(c -> {
+						c.load(0);
+						c.load(0);
+						c.push(Boolean.FALSE);
+						c.putfield(mapperClazz, "_relationLoaded" + column.CamelBack(), Clazz.of(boolean.class));
+						c.returnNothing();
+					});
+
+				}
+			}
+
+			ce.throwException(Clazz.of(RuntimeException.class), mw -> {
+				mw.newInstance(Clazz.of(StringBuilder.class));
+				mw.dup();
+				mw.invoke(new MethodSignature(StringBuilder.class.getConstructor()));
+				mw.push("Could not find field: ");
+				mw.invoke(StringBuilder.class.getMethod("append", String.class));
+				mw.load(2);
+				mw.invoke(StringBuilder.class.getMethod("append", String.class));
+				mw.push(". Must be one of: "+String.join(", ",fields));
+				mw.invoke(StringBuilder.class.getMethod("append", String.class));
+				mw.invoke(StringBuilder.class.getMethod("toString"));
+			});
+			ce.end();
+		} catch (Exception exception) {
+			throw new RuntimeException(exception);
+		}
+	}
+
 
 	private void createKeyGetter() {
 		try {
@@ -433,8 +483,8 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 				Method fieldMethod = getGetter(field, column);
 				Relation resolver = field.getAnnotation(Relation.class);
 				if (resolver != null) {
-
-
+					String relationLoaded = "_relationLoaded" + column.CamelBack();
+					field(Access.Private, relationLoaded, Clazz.of(boolean.class), false);
 					Method fieldMethodSetter = aClass.getMethod("set" + column.CamelBack(), field.getType());
 					boolean isCollection = Collection.class.isAssignableFrom(field.getType());
 					String fieldName = column.camelHump();
@@ -442,29 +492,52 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 					MethodSignature sig = new MethodSignature(fieldMethod);
 					MethodWriter ce = method(Access.of(fieldMethod.getModifiers()), sig);
 					{
+						// if (super.get{column.CamelBack()}() == null
 						ce.load(0);
 						ce.invokeSuper(sig);
-						ce.ifNull(c -> {
-							c.load(0);
-							c.load(0);
-							c.getField(getSelf(), "_resolver", Clazz.of(Resolver.class));
-							MethodSignature resolverMethod = null;
-							if (isCollection) {
-								resolverMethod = new MethodSignature(Clazz.ofClasses(Resolver.class,aClass, elementType) ,"getCollection", Clazz.of(Collection.class), Clazz.of(Class.class), Clazz.of(String.class), Clazz.of(Object.class));
-							} else {
-								resolverMethod = new MethodSignature(Clazz.of(Resolver.class) ,"get" , Clazz.of(Object.class),Clazz.of(Class.class), Clazz.of(String.class), Clazz.of(Object.class));
-							}
-							ce.push(clazz);
-							ce.push(Token.camelHump(fieldName).snake_case());
-							ce.load(0);
-							ce.invoke(resolverMethod);
-							ce.cast(Clazz.of(field));
-							ce.invoke(fieldMethodSetter);
+						ce.ifNull(innerIf -> {
+							// && !_relationLoaded{column.CamelBack()} ) {
+							innerIf.load(0);
+							innerIf.getField(getSelf(), relationLoaded, Clazz.of(boolean.class));
+							innerIf.ifNegateBoolean(c -> {
+								MethodSignature resolverMethod = null;
+								if (isCollection) {
+									resolverMethod = new MethodSignature(Clazz.ofClasses(Resolver.class,aClass, elementType) ,"getCollection", Clazz.of(Collection.class), Clazz.of(Class.class), Clazz.of(String.class), Clazz.of(Object.class));
+								} else {
+									resolverMethod = new MethodSignature(Clazz.of(Resolver.class) ,"get" , Clazz.of(Object.class),Clazz.of(Class.class), Clazz.of(String.class), Clazz.of(Object.class));
+								}
+
+								c.load(0); // this
+
+								c.load(0);
+
+								c.getField(getSelf(), "_resolver", Clazz.of(Resolver.class));
+
+								// call method resolverMethod with clazz, Token.camelHump(fieldName).snake_case() and this
+								c.push(clazz);
+								c.push(Token.camelHump(fieldName).snake_case());
+								c.load(0);
+								c.invoke(resolverMethod);
+
+								// cast the result of resolverMethod._resolver to Clazz.of(field)
+								c.cast(Clazz.of(field));
+
+								// invoke setter of the field with the cast object
+								c.invoke(fieldMethodSetter);
+
+								// _relationLoaded{column.CamelBack()}=true
+								c.load(0);
+								c.push(Boolean.TRUE);
+								c.putfield(mapperClazz, "_relationLoaded" + column.CamelBack(), Clazz.of(boolean.class));
+							});
 						});
 
+						// return super.get{column.CamelBack()}()
 						ce.load(0);
 						ce.invokeSuper(sig);
 						ce.returnObject();
+
+						// end function
 						ce.end();
 					}
 				}
