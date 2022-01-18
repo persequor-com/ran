@@ -54,7 +54,7 @@ public class QueryClassWriter extends AutoMapperClassWriter {
 			field(Access.Private, "currentProperty", Clazz.of(Property.class), null);
 
 			for (Method m : Arrays.asList(clazz.clazz.getMethods())) {
-				if (!m.getName().matches("^(?:is|get|set).+") || m.getDeclaringClass() == Object.class) {
+				if (!m.getName().matches("^(?:is|get|set).+") || m.getDeclaringClass() == Object.class ) {
 					continue;
 				}
 				String tokenSnake = Token.get(m.getName().replaceFirst("^(?:is|get|set)","")).snake_case();
@@ -93,7 +93,8 @@ public class QueryClassWriter extends AutoMapperClassWriter {
 
 
 			for (ClazzMethod m : clazz.methods()) {
-				if (m.getMethod().getDeclaringClass() == Object.class || m.getName().matches("^(?:is|get|set).+")) {
+				if (m.getMethod().getDeclaringClass() == Object.class || m.getName().matches("^(?:is|get|set).+")
+						|| Access.isSyntheticMethod(m.getModifiers())) {
 					continue;
 				}
 				MethodWriter mw = method(Access.of(m.getModifiers()), new MethodSignature(m.getMethod()));
