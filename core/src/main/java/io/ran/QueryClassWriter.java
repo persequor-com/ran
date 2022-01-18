@@ -29,11 +29,12 @@ public class QueryClassWriter extends AutoMapperClassWriter {
 		try {
 			for (Constructor<?> c : clazz.clazz.getConstructors()) {
 				MethodWriter mw = method(Access.of(c.getModifiers()), new MethodSignature(c));
-				int i = 0;
+
 				if (c.getAnnotation(Inject.class) != null) {
 					mw.addAnnotation(Clazz.of(Inject.class), true);
 				}
 				mw.load(0);
+				int i = 0;
 				for (Parameter p : Arrays.asList(c.getParameters())) {
 					mw.load(++i);
 				}
@@ -47,9 +48,6 @@ public class QueryClassWriter extends AutoMapperClassWriter {
 				mw.invoke(TypeDescriberImpl.class.getMethod("getTypeDescriber", Class.class));
 				mw.cast(Clazz.of(TypeDescriberImpl.class));
 				mw.putfield(getSelf(), "typeDescriber", Clazz.of(TypeDescriberImpl.class));
-				mw.returnNothing();
-				mw.end();
-
 				mw.returnNothing();
 				mw.end();
 			}
