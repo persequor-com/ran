@@ -121,11 +121,6 @@ public class Clazz<T> {
 		return Clazz.of(int.class);
 	}
 
-	public String className;
-	public Class<T> clazz;
-	public List<Clazz<?>> generics = new ArrayList<>();
-	public Map<String,Clazz<?>> genericMap = new HashMap<>();
-
 	public String getDescriptor() {
 		if (isPrimitive()) {
 			return Primitives.get(clazz).getDescriptor();
