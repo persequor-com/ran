@@ -68,6 +68,7 @@ public class QueryClassWriter extends AutoMapperClassWriter {
 			g.end();
 
 			field(Access.Private, "currentProperty", Clazz.of(Property.class), null);
+			field(Access.Private, "autoMapper", Clazz.of(AutoMapper.class), null);
 
 			for (Method m : Arrays.asList(clazz.clazz.getMethods())) {
 				if (!m.getName().matches("^(?:is|get|set).+") || m.getDeclaringClass() == Object.class ) {

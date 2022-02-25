@@ -14,7 +14,7 @@ public class MappingHelperTest {
 	@Before
 	public void setup() {
 		helper = new GuiceHelper();
-		mappingHelper = new MappingHelper(helper.factory);
+		mappingHelper = new MappingHelper(helper.factory, new AutoMapper(new DefaultRanConfig()));
 	}
 
 	@Test

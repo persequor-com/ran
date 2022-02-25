@@ -9,7 +9,6 @@ public class WithConstructorInjection {
 
 	@Inject
 	public WithConstructorInjection(MyDep myDep) {
-
 		this.myDep = myDep;
 	}
 

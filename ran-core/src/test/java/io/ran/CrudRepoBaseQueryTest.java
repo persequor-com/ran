@@ -76,7 +76,7 @@ public class CrudRepoBaseQueryTest {
 	class TestRepoQuery<T> extends CrudRepoBaseQuery<T, TestRepoQuery<T>> {
 
 		public TestRepoQuery(Class<T> clazz, GenericFactory genericFactory) {
-			super(clazz, genericFactory);
+			super(clazz, genericFactory, new AutoMapper(new DefaultRanConfig()));
 		}
 
 		@Override
@@ -158,7 +158,7 @@ public class CrudRepoBaseQueryTest {
 	class TestRepoQueryCar extends CrudRepoBaseQuery<Car, TestRepoQueryCar> {
 
 		public TestRepoQueryCar(TypeDescriber<Car> typeDescriber) {
-			super(Car.class, helper.factory);
+			super(Car.class, helper.factory, new AutoMapper(new DefaultRanConfig()));
 			instance = new CarQuery(currentProperty);
 		}
 

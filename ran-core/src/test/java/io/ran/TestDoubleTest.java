@@ -158,35 +158,35 @@ public class TestDoubleTest {
 
 	public static class TestCarRepo extends CrudRepositoryTestDoubleBase<Car, String> {
 		@Inject
-		public TestCarRepo(GenericFactory genericFactory, MappingHelper mappingHelper, TestDoubleDb store) {
-			super(genericFactory, Car.class, String.class, mappingHelper, store);
+		public TestCarRepo(GenericFactory genericFactory, MappingHelper mappingHelper, TestDoubleDb store, AutoMapper autoMapper) {
+			super(genericFactory, Car.class, String.class, mappingHelper, store, autoMapper);
 		}
 
 		public TestQuery<Car> query() {
-			return new TestQuery<Car>(modelType, genericFactory, mappingHelper, store);
+			return new TestQuery<Car>(modelType, genericFactory, mappingHelper, store, autoMapper);
 		}
 	}
 
 	public static class TestEngineRepo extends CrudRepositoryTestDoubleBase<Engine, UUID> {
 		@Inject
-		public TestEngineRepo(GenericFactory genericFactory, MappingHelper mappingHelper, TestDoubleDb store) {
-			super(genericFactory, Engine.class, UUID.class, mappingHelper, store);
+		public TestEngineRepo(GenericFactory genericFactory, MappingHelper mappingHelper, TestDoubleDb store, AutoMapper autoMapper) {
+			super(genericFactory, Engine.class, UUID.class, mappingHelper, store, autoMapper);
 		}
 
 		public TestQuery<Engine> query() {
-			return new TestQuery<Engine>(modelType, genericFactory, mappingHelper, store);
+			return new TestQuery<Engine>(modelType, genericFactory, mappingHelper, store, autoMapper);
 		}
 	}
 
 	public static class TestQuery<T> extends TestDoubleQuery<T, TestQuery<T>> {
 
-		public TestQuery(Class<T> modelType, GenericFactory genericFactory, MappingHelper mappingHelper, TestDoubleDb testDoubleDb) {
-			super(modelType, genericFactory, mappingHelper, testDoubleDb);
+		public TestQuery(Class<T> modelType, GenericFactory genericFactory, MappingHelper mappingHelper, TestDoubleDb testDoubleDb, AutoMapper autoMapper) {
+			super(modelType, genericFactory, mappingHelper, testDoubleDb, autoMapper);
 		}
 
 		@Override
 		protected TestQuery<T> getQuery(Class<?> queryClass) {
-			return new TestQuery(queryClass, genericFactory, mappingHelper, testDoubleDb);
+			return new TestQuery(queryClass, genericFactory, mappingHelper, testDoubleDb, autoMapper);
 		}
 
 		public <X> TestQuery<T> subQuery(Function<T, X> field, Consumer<TestQuery<X>> subQuery) {

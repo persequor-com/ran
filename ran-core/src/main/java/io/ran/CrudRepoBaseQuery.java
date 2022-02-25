@@ -15,9 +15,9 @@ public abstract class CrudRepoBaseQuery<T, Z extends InlineQuery<T, Z>> implemen
 	protected GenericFactory genericFactory;
 	protected Property currentProperty = Property.get(Token.of("t"), Clazz.of(Object.class));
 
-	public CrudRepoBaseQuery(Class<T> clazz, GenericFactory genericFactory) {
+	public CrudRepoBaseQuery(Class<T> clazz, GenericFactory genericFactory, AutoMapper autoMapper) {
 		this.clazz = clazz;
-		this.typeDescriber = TypeDescriberImpl.getTypeDescriber(clazz);
+		this.typeDescriber = TypeDescriberImpl.getTypeDescriber(clazz, autoMapper);
 		this.genericFactory = genericFactory;
 		instance = genericFactory.getQueryInstance(clazz);
 		queryWrapper = (QueryWrapper)instance;

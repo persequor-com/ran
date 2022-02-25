@@ -1,6 +1,5 @@
 package io.ran;
 
-import javax.management.remote.JMXServerErrorException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -17,14 +16,14 @@ public class TypeDescriberImpl<T> implements TypeDescriber<T> {
 	private List<KeySet> indexes;
 	private List<ClazzMethod> methods;
 
-	private TypeDescriberImpl(Clazz<T> clazz) {
+	private TypeDescriberImpl(Clazz<T> clazz, AutoMapper autoMapper) {
 		this.clazz = clazz;
 		annotations.addFrom(clazz);
-		AutoMapper.map(clazz.clazz);
+		autoMapper.map(clazz.clazz);
 	}
 
-	public static <X> TypeDescriber<X> getTypeDescriber(Class<X> tClass) {
-		return descibers.computeIfAbsent(tClass, c -> new TypeDescriberImpl<>(Clazz.of(tClass)));
+	public static <X> TypeDescriber<X> getTypeDescriber(Class<X> tClass, AutoMapper autoMapper) {
+		return descibers.computeIfAbsent(tClass, c -> new TypeDescriberImpl<>(Clazz.of(tClass), autoMapper));
 	}
 
 	@Override

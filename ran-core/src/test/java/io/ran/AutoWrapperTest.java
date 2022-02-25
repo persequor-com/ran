@@ -16,8 +16,18 @@ public class AutoWrapperTest {
 
 	@Before
 	public void setup() {
-		injector = Guice.createInjector();
-		autoMapper = new AutoMapper();
+		injector = Guice.createInjector(binder -> binder.bind(RanConfig.class).toInstance(new RanConfig() {
+			@Override
+			public boolean enableRanClassesDebugging() {
+				return false;
+			}
+
+			@Override
+			public String projectBasePath() {
+				return null;
+			}
+		}));
+		autoMapper = new AutoMapper(injector.getInstance(RanConfig.class));
 		factory = new GuiceHelper.GuiceGenericFactory(autoMapper,injector);
 		autoWrapper = new AutoWrapper(factory);
 	}

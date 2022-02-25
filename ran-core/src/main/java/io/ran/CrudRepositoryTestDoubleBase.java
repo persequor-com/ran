@@ -12,14 +12,15 @@ public abstract class CrudRepositoryTestDoubleBase<T, K> implements CrudReposito
 	protected Class<K> keyType;
 	protected TypeDescriber<T> typeDescriber;
 	protected MappingHelper mappingHelper;
+	protected AutoMapper autoMapper;
 
-	public CrudRepositoryTestDoubleBase(GenericFactory genericFactory, Class<T> modelType, Class<K> keyType, MappingHelper mappingHelper, TestDoubleDb store) {
+	public CrudRepositoryTestDoubleBase(GenericFactory genericFactory, Class<T> modelType, Class<K> keyType, MappingHelper mappingHelper, TestDoubleDb store, AutoMapper autoMapper) {
 		this.store = store;
 		this.genericFactory = genericFactory;
 		this.modelType = modelType;
-
+		this.autoMapper = autoMapper;
 		this.keyType = keyType;
-		this.typeDescriber = TypeDescriberImpl.getTypeDescriber(modelType);
+		this.typeDescriber = TypeDescriberImpl.getTypeDescriber(modelType, autoMapper);
 		this.mappingHelper = mappingHelper;
 	}
 

@@ -19,12 +19,14 @@ public abstract class TestDoubleQuery<T, Z extends CrudRepository.InlineQuery<T,
 	protected TestDoubleDb testDoubleDb;
 	protected GenericFactory factory;
 	protected int offset;
+	protected AutoMapper autoMapper;
 
-	public TestDoubleQuery(Class<T> modelType, GenericFactory genericFactory, MappingHelper mappingHelper, TestDoubleDb testDoubleDb) {
-		super(modelType, genericFactory);
+	public TestDoubleQuery(Class<T> modelType, GenericFactory genericFactory, MappingHelper mappingHelper, TestDoubleDb testDoubleDb, AutoMapper autoMapper) {
+		super(modelType, genericFactory, autoMapper);
 		this.mappingHelper = mappingHelper;
 		this.testDoubleDb = testDoubleDb;
 		this.factory = genericFactory;
+		this.autoMapper = autoMapper;
 	}
 
 	public Z eq(Property.PropertyValue<?> propertyValue) {

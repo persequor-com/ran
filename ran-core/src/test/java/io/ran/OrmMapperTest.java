@@ -8,7 +8,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class OrmMapperTest {
-	private static AutoMapper mapper;
+	private final AutoMapper mapper = new AutoMapper(new DefaultRanConfig());
 
 	@BeforeClass
 	public static void setup() {
@@ -17,19 +17,19 @@ public class OrmMapperTest {
 
 	@Test
 	public void simpleField() throws Throwable {
-		TypeDescriber<TestClass> describer = TypeDescriberImpl.getTypeDescriber(TestClass.class);
+		TypeDescriber<TestClass> describer = TypeDescriberImpl.getTypeDescriber(TestClass.class, mapper);
 		assertTrue(describer.fields().stream().filter(p -> "id".equals(p.getToken().snake_case())).findAny().isPresent());
 	}
 
 	@Test
 	public void collectionField() throws Throwable {
-		TypeDescriber<Other> describer = TypeDescriberImpl.getTypeDescriber(Other.class);
+		TypeDescriber<Other> describer = TypeDescriberImpl.getTypeDescriber(Other.class, mapper);
 		assertTrue(describer.relations().stream().filter(p -> "test_classes".equals(p.getField().snake_case())).findAny().isPresent());
 	}
 
 	@Test
 	public void getValueFromProperty() throws Throwable {
-		TypeDescriber<TestClass> describer = TypeDescriberImpl.getTypeDescriber(TestClass.class);
+		TypeDescriber<TestClass> describer = TypeDescriberImpl.getTypeDescriber(TestClass.class, mapper);
 		TestClass t = mapper.get(TestClass.class).newInstance();
 		Mapping tMapping = (Mapping)t;
 		t.setId("my id");
@@ -41,13 +41,13 @@ public class OrmMapperTest {
 
 	@Test
 	public void keys() throws Throwable {
-		TypeDescriber<TestClass> describer = TypeDescriberImpl.getTypeDescriber(TestClass.class);
+		TypeDescriber<TestClass> describer = TypeDescriberImpl.getTypeDescriber(TestClass.class, mapper);
 		assertEquals(1, describer.fields().stream().filter(p -> "other_id".equals(p.getToken().snake_case())).findAny().get().getKeys().size());
 	}
 
 	@Test
 	public void fieldAnnotations() throws Throwable {
-		TypeDescriber<TestClass> describer = TypeDescriberImpl.getTypeDescriber(TestClass.class);
+		TypeDescriber<TestClass> describer = TypeDescriberImpl.getTypeDescriber(TestClass.class, mapper);
 		assertEquals("muh", describer.fields().stream().filter(p -> "other_id".equals(p.getToken().snake_case())).findAny().get().getAnnotations().get(Key.class).name());
 	}
 }
