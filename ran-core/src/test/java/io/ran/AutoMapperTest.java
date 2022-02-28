@@ -35,6 +35,7 @@ import static org.junit.Assert.*;
 public class AutoMapperTest {
 	private AutoMapper mapper = new AutoMapper(new DefaultRanConfig());
 	private GuiceHelper helper;
+	private TypeDescriberFactory factory;
 
 	@BeforeClass
 	public static void beforeClass() throws IOException {
@@ -187,7 +188,7 @@ public class AutoMapperTest {
 
 	@Test
 	public void compoundKeyRelation_typeDescriber() throws Throwable {
-		TypeDescriber<Bike> typeDescriber = TypeDescriberImpl.getTypeDescriber(Bike.class, mapper);
+		TypeDescriber<Bike> typeDescriber = factory.getTypeDescriber(Bike.class);
 		RelationDescriber gearsRelation = typeDescriber.relations().get("gears");
 		assertEquals(2,gearsRelation.getVia().size());
 		assertEquals("id",gearsRelation.getVia().get(0).getFromKeys().get(0).getToken().snake_case());
@@ -206,7 +207,7 @@ public class AutoMapperTest {
 
 	@Test
 	public void objectWithoutPrimaryKey() throws Throwable {
-		TypeDescriberImpl.getTypeDescriber(ObjectWithoutPrimaryKey.class, mapper);
+		factory.getTypeDescriber(ObjectWithoutPrimaryKey.class);
 	}
 
 
@@ -229,7 +230,7 @@ public class AutoMapperTest {
 
 	@Test
 	public void setRelationForObject() throws IllegalAccessException, InstantiationException {
-		TypeDescriber<Car> describer = TypeDescriberImpl.getTypeDescriber(Car.class, mapper);
+		TypeDescriber<Car> describer = factory.getTypeDescriber(Car.class);
 		Car car = helper.factory.get(Car.class);
 		Mapping carMapping = (Mapping)car;
 

@@ -18,6 +18,7 @@ public class DescriberTest {
 	private GenericFactory factory;
 	private GuiceHelper helper;
 	private final AutoMapper autoMapper = new AutoMapper(new DefaultRanConfig());
+	private TypeDescriberFactory typeDescriberFactory;
 
 	@BeforeClass
 	public static void beforeClass() {
@@ -28,11 +29,12 @@ public class DescriberTest {
 	public void setup() {
 		helper = new GuiceHelper();
 		factory = helper.factory;
+		typeDescriberFactory = helper.describerFactory;
 	}
 
 	@Test
 	public void car() throws Throwable {
-		TypeDescriber<Car> describer = TypeDescriberImpl.getTypeDescriber(Car.class, autoMapper);
+		TypeDescriber<Car> describer = typeDescriberFactory.getTypeDescriber(Car.class);
 		assertEquals(7, describer.fields().size());
 		assertEquals(1, describer.primaryKeys().size());
 		assertEquals("id", describer.primaryKeys().get(0).getToken().snake_case());
@@ -65,7 +67,7 @@ public class DescriberTest {
 
 	@Test
 	public void door() throws Throwable {
-		TypeDescriber<Door> describer = TypeDescriberImpl.getTypeDescriber(Door.class, autoMapper);
+		TypeDescriber<Door> describer = typeDescriberFactory.getTypeDescriber(Door.class);
 
 		assertEquals("carId", describer.relations().get(Car.class).get().getFromKeys().get(0).getToken().camelHump());
 		assertEquals(String.class, describer.relations().get(Car.class).get().getFromKeys().get(0).getType().clazz);
@@ -76,7 +78,7 @@ public class DescriberTest {
 
 	@Test
 	public void engine() throws Throwable {
-		TypeDescriber<Engine> describer = TypeDescriberImpl.getTypeDescriber(Engine.class, autoMapper);
+		TypeDescriber<Engine> describer = typeDescriberFactory.getTypeDescriber(Engine.class);
 
 		assertEquals("id", describer.relations().get(Car.class).get().getFromKeys().get(0).getToken().camelHump());
 		assertEquals(UUID.class, describer.relations().get(Car.class).get().getFromKeys().get(0).getType().clazz);
@@ -86,7 +88,7 @@ public class DescriberTest {
 
 	@Test
 	public void getValue() throws Throwable {
-		TypeDescriber<Engine> describer = TypeDescriberImpl.getTypeDescriber(Engine.class, autoMapper);
+		TypeDescriber<Engine> describer = typeDescriberFactory.getTypeDescriber(Engine.class);
 
 		Engine engine = factory.get(Engine.class);
 		Mapping engineMapping = (Mapping)engine;
@@ -108,7 +110,7 @@ public class DescriberTest {
 
 	@Test
 	public void setRelation() throws Throwable {
-		TypeDescriber<Car> describer = TypeDescriberImpl.getTypeDescriber(Car.class, autoMapper);
+		TypeDescriber<Car> describer = typeDescriberFactory.getTypeDescriber(Car.class);
 
 		Engine engine = factory.get(Engine.class);
 		Car car = factory.get(Car.class);
@@ -120,7 +122,7 @@ public class DescriberTest {
 
 	@Test
 	public void setCollectionRelation() throws Throwable {
-		TypeDescriber<Engine> describer = TypeDescriberImpl.getTypeDescriber(Engine.class, autoMapper);
+		TypeDescriber<Engine> describer = typeDescriberFactory.getTypeDescriber(Engine.class);
 
 		Engine engine = factory.get(Engine.class);
 		Mapping engineMapping = (Mapping)engine;
@@ -132,7 +134,7 @@ public class DescriberTest {
 
 	@Test
 	public void getRelation() throws Throwable {
-		TypeDescriber<Car> describer = TypeDescriberImpl.getTypeDescriber(Car.class, autoMapper);
+		TypeDescriber<Car> describer = typeDescriberFactory.getTypeDescriber(Car.class);
 		Car car = factory.get(Car.class);
 		Mapping carMapping = (Mapping)car;
 
@@ -148,7 +150,7 @@ public class DescriberTest {
 
 	@Test
 	public void isChanged() throws Throwable {
-		TypeDescriber<Car> describer = TypeDescriberImpl.getTypeDescriber(Car.class, autoMapper);
+		TypeDescriber<Car> describer = typeDescriberFactory.getTypeDescriber(Car.class);
 		Car car = factory.get(Car.class);
 		Mapping carMapping = (Mapping)car;
 

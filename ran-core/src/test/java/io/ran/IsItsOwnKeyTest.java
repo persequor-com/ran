@@ -17,7 +17,8 @@ public class IsItsOwnKeyTest {
 	public void setup() {
 		store = new TestDoubleDb();
 		helper = new GuiceHelper();
-		repo = new IsItsOwnKeyRepository(helper.factory, new MappingHelper(helper.factory, new AutoMapper(new DefaultRanConfig())), store);
+		TypeDescriberFactory typeDescriberFactory = helper.describerFactory;
+		repo = new IsItsOwnKeyRepository(helper.factory, new MappingHelper(helper.factory, typeDescriberFactory), store, typeDescriberFactory);
 	}
 
 	@Test

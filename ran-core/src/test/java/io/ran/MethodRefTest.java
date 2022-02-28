@@ -8,7 +8,7 @@ import static org.junit.Assert.assertEquals;
 
 public class MethodRefTest {
 	GuiceHelper helper = new GuiceHelper();
-	MappingHelper mappingHelper = new MappingHelper(helper.factory, new AutoMapper(new DefaultRanConfig()));
+	MappingHelper mappingHelper = new MappingHelper(helper.factory, helper.describerFactory);
 
 	@Test
 	public void simpleMethod() {

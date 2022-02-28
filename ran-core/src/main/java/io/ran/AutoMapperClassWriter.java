@@ -1,6 +1,9 @@
 package io.ran;
 
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.FieldVisitor;
+
+import java.lang.annotation.Annotation;
 
 public class AutoMapperClassWriter extends ClassWriter {
 	protected String name;
@@ -34,7 +37,14 @@ public class AutoMapperClassWriter extends ClassWriter {
 
 
 	public void field(Access access, String name, Clazz type, Object value) {
-		visitField(access.getOpCode(), name, type.getDescriptor(), type.generics.isEmpty() ? null : type.getSignature(), value);
+		field(access, name, type, value, null);
+	}
+
+	public void field(Access access, String name, Clazz type, Object value, Clazz annotation) {
+		FieldVisitor fieldVisitor = visitField(access.getOpCode(), name, type.getDescriptor(), type.generics.isEmpty() ? null : type.getSignature(), value);
+		if (annotation != null) {
+			fieldVisitor.visitAnnotation(annotation.getDescriptor(), true);
+		}
 	}
 
 	public String getName() {

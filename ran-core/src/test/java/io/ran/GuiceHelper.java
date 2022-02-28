@@ -8,11 +8,13 @@ import com.google.inject.Key;
 public class GuiceHelper {
 	final Injector injector;
 	final GenericFactory factory;
+	final TypeDescriberFactory describerFactory;
 
 	public GuiceHelper() {
 		GuiceModule module = new GuiceModule();
 		injector = Guice.createInjector(module);
 		factory = injector.getInstance(GuiceGenericFactory.class);
+		describerFactory = injector.getInstance(TypeDescriberFactory.class);
 	}
 
 	public static class GuiceGenericFactory implements GenericFactory {
@@ -32,7 +34,9 @@ public class GuiceHelper {
 
 		@Override
 		public <T> T getQueryInstance(Class<T> clazz) {
-			return injector.getInstance(ormMapper.getQueryMaps(clazz));
+			T instance = injector.getInstance(ormMapper.getQueryMaps(clazz));
+			injector.injectMembers(instance);
+			return instance;
 		}
 
 		@Override

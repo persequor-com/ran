@@ -8,11 +8,12 @@ import java.util.function.Function;
 
 public class MappingHelper {
 	private final GenericFactory genericFactory;
-	private final AutoMapper autoMapper;
+	private final TypeDescriberFactory typeDescriberFactory;
+
 	@Inject
-	public MappingHelper(GenericFactory genericFactory, AutoMapper autoMapper) {
+	public MappingHelper(GenericFactory genericFactory, TypeDescriberFactory typeDescriberFactory) {
 		this.genericFactory = genericFactory;
-		this.autoMapper = autoMapper;
+		this.typeDescriberFactory = typeDescriberFactory;
 	}
 
 	public void hydrate(Object toHydrate, ObjectMapHydrator hydrator) {
@@ -60,14 +61,14 @@ public class MappingHelper {
 	}
 
 	public <T> ClazzMethod getMethod(Class<T> tClass, Function<T, ?> methodReference) {
-		TypeDescriberImpl.getTypeDescriber(tClass, autoMapper);
+		typeDescriberFactory.getTypeDescriber(tClass);
 		T queryInstance = genericFactory.getQueryInstance(tClass);
 		methodReference.apply(queryInstance);
 		return ((QueryWrapper)queryInstance).getCurrentMethod();
 	}
 
 	public <T> ClazzMethod getMethod(Class<T> tClass, Consumer<T> methodReference) {
-		TypeDescriberImpl.getTypeDescriber(tClass, autoMapper);
+		typeDescriberFactory.getTypeDescriber(tClass);
 		T queryInstance = genericFactory.getQueryInstance(tClass);
 		methodReference.accept(queryInstance);
 		return ((QueryWrapper)queryInstance).getCurrentMethod();

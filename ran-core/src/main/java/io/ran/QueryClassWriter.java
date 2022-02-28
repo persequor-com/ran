@@ -5,6 +5,7 @@ import io.ran.token.Token;
 import org.objectweb.asm.Opcodes;
 
 import javax.inject.Inject;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -43,8 +44,22 @@ public class QueryClassWriter extends AutoMapperClassWriter {
 				mw.load(0);
 				mw.invoke(Property.class.getMethod("get"));
 				mw.putfield(getSelf(), "currentProperty", Clazz.of(Property.class));
+
+				//store auto
+//				mw.load(0);
+//				mw.getField(getSelf(), "autoMapper", Clazz.of(AutoMapper.class));
+//				mw.objectStore(4);
+
+
+
 				mw.load(0);
+
 				mw.push(clazz);
+				mw.load(0);
+				mw.getField(getSelf(), "autoMapper", Clazz.of(AutoMapper.class));
+				//mw.load(0);
+				//mw.load(4);
+
 				mw.invoke(TypeDescriberImpl.class.getMethod("getTypeDescriber", Class.class));
 				mw.cast(Clazz.of(TypeDescriberImpl.class));
 				mw.putfield(getSelf(), "typeDescriber", Clazz.of(TypeDescriberImpl.class));
@@ -68,7 +83,7 @@ public class QueryClassWriter extends AutoMapperClassWriter {
 			g.end();
 
 			field(Access.Private, "currentProperty", Clazz.of(Property.class), null);
-			field(Access.Private, "autoMapper", Clazz.of(AutoMapper.class), null);
+			field(Access.Private, "typeDescriberFactory", Clazz.of(TypeDescriberFactory.class), null, Clazz.of(Inject.class));
 
 			for (Method m : Arrays.asList(clazz.clazz.getMethods())) {
 				if (!m.getName().matches("^(?:is|get|set).+") || m.getDeclaringClass() == Object.class ) {
