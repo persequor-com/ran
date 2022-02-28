@@ -10,10 +10,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class MapperGenerator {
-	private final RanConfig config;
-	public MapperGenerator(RanConfig config) {
-		this.config = config;
-	}
+
 	public Wrapped generate(AutoMapperClassLoader classLoader, Clazz clazz) {
 		try {
 
@@ -43,7 +40,7 @@ public class MapperGenerator {
 	}
 
 	private void writeClasses(Clazz clazz, byte[] bytes, byte[] bytes2) throws IOException {
-		if (config.enableRanClassesDebugging()) {
+		if (RanConfig.enableRanClassesDebugging) {
 			Path path = buildPathForType(clazz, "Mapper");
 			Path pathQuery = buildPathForType(clazz, "Query");
 			Files.write(path, bytes);
@@ -52,7 +49,7 @@ public class MapperGenerator {
 	}
 
 	private Path buildPathForType(Clazz clazz, String type) {
-		return Paths.get(config.projectBasePath() + "/tmp/" + clazz.getSimpleName()+ type + ".class");
+		return Paths.get(RanConfig.projectBasePath + "/tmp/" + clazz.getSimpleName()+ type + ".class");
 	}
 
 }

@@ -5,25 +5,20 @@
  */
 package io.ran;
 
-import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
 
 public class AutoMapper {
-	private final Map<Class, Class> mapped;
-	private final Map<Class, Class> query;
-	private final MapperGenerator mapperGenerator;
-	private final AutoMapperClassLoader classLoader;
+	private static Map<Class, Class> mapped = new HashMap<>();
+	private static Map<Class, Class> query = new HashMap<>();
+	private static MapperGenerator mapperGenerator = new MapperGenerator();
+	private static AutoMapperClassLoader classLoader = new AutoMapperClassLoader(AutoMapper.class.getClassLoader());
 
-	@Inject
-	public AutoMapper(RanConfig config) {
-		this.mapped = new HashMap<>();
-		this.query = new HashMap<>();
-		this.mapperGenerator = new MapperGenerator(config);
-		this.classLoader = new AutoMapperClassLoader(AutoMapper.class.getClassLoader());
+	public Map<Class, Class> getMapped() {
+		return mapped;
 	}
 
-	public void map(Class aClass) {
+	public static void map(Class aClass) {
 		if(!mapped.containsKey(aClass)) {
 			synchronized (AutoMapper.class) {
 				if(!mapped.containsKey(aClass)) {
@@ -43,14 +38,14 @@ public class AutoMapper {
 		}
 	}
 
-	public synchronized  <X, Z extends X> Class<Z> get(Class<X> xClass) {
+	public synchronized static  <X, Z extends X> Class<Z> get(Class<X> xClass) {
 		if(!mapped.containsKey(xClass)) {
 			map(xClass);
 		}
 		return (Class<Z>)mapped.get(xClass);
 	}
 
-	public synchronized <X, Z extends  X> Class<Z> getQueryMaps(Class<X> xClass) {
+	public synchronized static  <X, Z extends  X> Class<Z> getQueryMaps(Class<X> xClass) {
 		return query.get(xClass);
 	}
 }

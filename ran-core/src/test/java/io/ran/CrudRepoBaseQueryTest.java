@@ -34,7 +34,7 @@ public class CrudRepoBaseQueryTest {
 	public void awarmup() {
 		long s = System.currentTimeMillis();
 		for(int i=0;i<1000;i++) {
-			TestRepoQuery<Car> query = new TestRepoQuery<>(Car.class, helper.factory, helper.describerFactory)
+			TestRepoQuery<Car> query = new TestRepoQuery<>(Car.class, helper.factory)
 					.eq(Car::getBrand, Brand.Hyundai)
 //					.subQuery(Car::getEngine, sq -> {
 //						sq.lt(Engine::getId, UUID.randomUUID());
@@ -49,7 +49,7 @@ public class CrudRepoBaseQueryTest {
 	public void performance() {
 		long s = System.currentTimeMillis();
 		for(int i=0;i<1000;i++) {
-			TestRepoQuery<Car> query = new TestRepoQuery<>(Car.class, helper.factory, helper.describerFactory)
+			TestRepoQuery<Car> query = new TestRepoQuery<>(Car.class, helper.factory)
 					.eq(Car::getBrand, Brand.Hyundai)
 //					.subQuery(Car::getEngine, sq -> {
 //						sq.lt(Engine::getId, UUID.randomUUID());
@@ -63,7 +63,7 @@ public class CrudRepoBaseQueryTest {
 	public void performanceGenerated() {
 		long s = System.currentTimeMillis();
 		for(int i=0;i<1000;i++) {
-			TestRepoQuery<Car> query = new TestRepoQuery<>(Car.class, helper.factory, helper.describerFactory)
+			TestRepoQuery<Car> query = new TestRepoQuery<>(Car.class, helper.factory)
 					.eq(Car::getBrand, Brand.Hyundai)
 //					.subQuery(Car::getEngine, sq -> {
 //						sq.lt(Engine::getId, UUID.randomUUID());
@@ -75,8 +75,8 @@ public class CrudRepoBaseQueryTest {
 
 	class TestRepoQuery<T> extends CrudRepoBaseQuery<T, TestRepoQuery<T>> {
 
-		public TestRepoQuery(Class<T> clazz, GenericFactory genericFactory, TypeDescriberFactory typeDescriberFactory) {
-			super(clazz, genericFactory, typeDescriberFactory);
+		public TestRepoQuery(Class<T> clazz, GenericFactory genericFactory) {
+			super(clazz, genericFactory);
 		}
 
 		@Override
@@ -157,8 +157,8 @@ public class CrudRepoBaseQueryTest {
 
 	class TestRepoQueryCar extends CrudRepoBaseQuery<Car, TestRepoQueryCar> {
 
-		public TestRepoQueryCar() {
-			super(Car.class, helper.factory, helper.describerFactory);
+		public TestRepoQueryCar(TypeDescriber<Car> typeDescriber) {
+			super(Car.class, helper.factory);
 			instance = new CarQuery(currentProperty);
 		}
 

@@ -18,7 +18,6 @@ import io.ran.testclasses.Regular;
 import io.ran.testclasses.WithBinaryField;
 import io.ran.testclasses.WithCollections;
 import io.ran.token.Token;
-import org.checkerframework.checker.units.qual.A;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -33,9 +32,7 @@ import java.util.UUID;
 import static org.junit.Assert.*;
 
 public class AutoMapperTest {
-	private AutoMapper mapper = new AutoMapper(new DefaultRanConfig());
 	private GuiceHelper helper;
-	private TypeDescriberFactory factory;
 
 	@BeforeClass
 	public static void beforeClass() throws IOException {
@@ -159,7 +156,7 @@ public class AutoMapperTest {
 
 	@Test
 	public void compoundKey() throws Throwable {
-		Class<Bike> bikeClass = mapper.get(Bike.class);
+		Class<Bike> bikeClass = AutoMapper.get(Bike.class);
 		Bike bike = bikeClass.newInstance();
 		Mapping bikeMapping = (Mapping)bike;
 		bike.setId("my id");
@@ -167,7 +164,7 @@ public class AutoMapperTest {
 		assertEquals(1, bikeKey.getValues().size());
 		assertEquals("my id", bikeKey.getValue(Token.get("id")));
 
-		Class<BikeWheel> bikeWheelClass = mapper.get(BikeWheel.class);
+		Class<BikeWheel> bikeWheelClass = AutoMapper.get(BikeWheel.class);
 		BikeWheel bikeWheel = bikeWheelClass.newInstance();
 		Mapping bikeWheelMapping = (Mapping)bikeWheel;
 		bikeWheel.setSize(20);
@@ -177,7 +174,7 @@ public class AutoMapperTest {
 		assertEquals(20, wheelKey.getValue(Token.get("size")));
 		assertEquals(BikeType.Mountain, wheelKey.getValue(Token.get("bikeType")));
 
-		Class<BikeGear> bikeGearClass  = mapper.get(BikeGear.class);
+		Class<BikeGear> bikeGearClass  = AutoMapper.get(BikeGear.class);
 		BikeGear bikeGear = bikeGearClass.newInstance();
 		Mapping bikeGearMapping = (Mapping)bikeGear;
 		bikeGear.setGearNum(20);
@@ -188,7 +185,7 @@ public class AutoMapperTest {
 
 	@Test
 	public void compoundKeyRelation_typeDescriber() throws Throwable {
-		TypeDescriber<Bike> typeDescriber = factory.getTypeDescriber(Bike.class);
+		TypeDescriber<Bike> typeDescriber = TypeDescriberImpl.getTypeDescriber(Bike.class);
 		RelationDescriber gearsRelation = typeDescriber.relations().get("gears");
 		assertEquals(2,gearsRelation.getVia().size());
 		assertEquals("id",gearsRelation.getVia().get(0).getFromKeys().get(0).getToken().snake_case());
@@ -207,7 +204,7 @@ public class AutoMapperTest {
 
 	@Test
 	public void objectWithoutPrimaryKey() throws Throwable {
-		factory.getTypeDescriber(ObjectWithoutPrimaryKey.class);
+		TypeDescriberImpl.getTypeDescriber(ObjectWithoutPrimaryKey.class);
 	}
 
 
@@ -230,7 +227,7 @@ public class AutoMapperTest {
 
 	@Test
 	public void setRelationForObject() throws IllegalAccessException, InstantiationException {
-		TypeDescriber<Car> describer = factory.getTypeDescriber(Car.class);
+		TypeDescriber<Car> describer = TypeDescriberImpl.getTypeDescriber(Car.class);
 		Car car = helper.factory.get(Car.class);
 		Mapping carMapping = (Mapping)car;
 

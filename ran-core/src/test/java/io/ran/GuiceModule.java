@@ -14,6 +14,5 @@ public class GuiceModule extends AbstractModule {
 		bind(Resolver.class).to(ResolverImpl.class);
 		bind(GenericFactory.class).to(GuiceHelper.GuiceGenericFactory.class);
 		bind(new TypeLiteral<DbResolver<TestDbType>>(){}).to(TestResolver.class);
-		bind(RanConfig.class).to(DefaultRanConfig.class);
 	}
 }

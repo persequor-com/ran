@@ -1,5 +1,6 @@
 package io.ran;
 
+import javax.management.remote.JMXServerErrorException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -7,6 +8,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class TypeDescriberImpl<T> implements TypeDescriber<T> {
+	private static Map<Class, TypeDescriber> descibers = Collections.synchronizedMap(new HashMap<>());
 	private Clazz<T> clazz;
 	private KeySet primaryKeys = null;
 	private Property.PropertyList fields = null;
@@ -15,10 +17,14 @@ public class TypeDescriberImpl<T> implements TypeDescriber<T> {
 	private List<KeySet> indexes;
 	private List<ClazzMethod> methods;
 
-	TypeDescriberImpl(Clazz<T> clazz, AutoMapper autoMapper) {
+	private TypeDescriberImpl(Clazz<T> clazz) {
 		this.clazz = clazz;
 		annotations.addFrom(clazz);
-		autoMapper.map(clazz.clazz);
+		AutoMapper.map(clazz.clazz);
+	}
+
+	public static <X> TypeDescriber<X> getTypeDescriber(Class<X> tClass) {
+		return descibers.computeIfAbsent(tClass, c -> new TypeDescriberImpl<>(Clazz.of(tClass)));
 	}
 
 	@Override
