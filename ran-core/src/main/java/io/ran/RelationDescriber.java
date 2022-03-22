@@ -76,7 +76,7 @@ public class RelationDescriber {
 	}
 
 	public RelationDescriber inverse() {
-		RelationDescriber inverse = RelationDescriber.describer(toClass, null, null, fromClass, toKeys, fromKeys, type, null);
+		RelationDescriber inverse = RelationDescriber.describer(toClass, null, null, fromClass, toKeys, fromKeys, null, null);
 		if (!getVia().isEmpty()) {
 			inverse.getVia().add(getVia().get(1).inverse());
 			inverse.getVia().add(getVia().get(0).inverse());
