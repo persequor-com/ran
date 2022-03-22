@@ -5,18 +5,7 @@
  */
 package io.ran;
 
-import io.ran.testclasses.Bike;
-import io.ran.testclasses.BikeGear;
-import io.ran.testclasses.BikeType;
-import io.ran.testclasses.BikeWheel;
-import io.ran.testclasses.Brand;
-import io.ran.testclasses.Car;
-import io.ran.testclasses.Door;
-import io.ran.testclasses.Engine;
-import io.ran.testclasses.ObjectWithoutPrimaryKey;
-import io.ran.testclasses.Regular;
-import io.ran.testclasses.WithBinaryField;
-import io.ran.testclasses.WithCollections;
+import io.ran.testclasses.*;
 import io.ran.token.Token;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -24,16 +13,25 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
 public class AutoMapperTest {
 	private AutoMapper mapper;
 	private GuiceHelper helper;
+
+	Resolver resolver = new Resolver() {
+		@Override
+		public <FROM, TO> TO get(Class<FROM> fromClass, String field, FROM obj) {
+			return null;
+		}
+
+		@Override
+		public <FROM, TO> Collection<TO> getCollection(Class<FROM> fromClass, String field, FROM obj) {
+			return null;
+		}
+	};
 
 	@BeforeClass
 	public static void beforeClass() throws IOException {
@@ -236,4 +234,28 @@ public class AutoMapperTest {
 
 		assertNull(car.getEngine());
 	}
+
+	@Test
+	public void setRelationForObject_manyToMany() throws Throwable {
+		Bike bike = helper.factory.get(Bike.class);
+		BikeGear gear = helper.factory.get(BikeGear.class);
+		bike.setGears(Collections.singletonList(gear));
+		gear.setBikes(Collections.singletonList(bike));
+
+		Mapping bikeMapping = (Mapping)bike;
+		bike.getClass().getMethod("_resolverInject", Resolver.class).invoke(bike, resolver);
+		RelationDescriber gearsRelation = TypeDescriberImpl.getTypeDescriber(Bike.class).relations().get("gears");
+		bikeMapping._setRelation(gearsRelation, null);
+		bikeMapping._setRelationNotLoaded(gearsRelation);
+
+		Mapping gearMapping = (Mapping)gear;
+		gear.getClass().getMethod("_resolverInject", Resolver.class).invoke(gear, resolver);
+		RelationDescriber gearRelation = TypeDescriberImpl.getTypeDescriber(BikeGear.class).relations().get("bikes");
+		gearMapping._setRelation(gearRelation, null);
+		gearMapping._setRelationNotLoaded(gearRelation);
+
+		assertNull(bike.getGears());
+		assertNull(gear.getBikes());
+	}
+
 }

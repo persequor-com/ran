@@ -2,10 +2,7 @@ package io.ran;
 
 import io.ran.token.Token;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -17,6 +14,19 @@ public class KeySet {
 
 	public KeySet(List<Field> fields) {
 		fields.forEach(this::add);
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		KeySet keySet = (KeySet) o;
+		return primary == keySet.primary && name.equals(keySet.name) && parts.equals(keySet.parts);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(primary, name, parts);
 	}
 
 	public static KeySet get(Field... fields) {
@@ -139,6 +149,19 @@ public class KeySet {
 
 		public Clazz<?> getOn() {
 			return property.getOn();
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) return true;
+			if (o == null || getClass() != o.getClass()) return false;
+			Field field = (Field) o;
+			return order == field.order && property.equals(field.property);
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(property, order);
 		}
 	}
 }
