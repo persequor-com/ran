@@ -75,7 +75,12 @@ public class RelationDescriber {
 	}
 
 	public RelationDescriber inverse() {
-		return RelationDescriber.describer(toClass, null, null, fromClass, toKeys, fromKeys, null, null);
+		RelationDescriber inverse = RelationDescriber.describer(toClass, null, null, fromClass, toKeys, fromKeys, null, null);
+		if (!getVia().isEmpty()) {
+			inverse.getVia().add(getVia().get(1));
+			inverse.getVia().add(getVia().get(0));
+		}
+		return inverse;
 	}
 
 	public Relation getRelationAnnotation() {
