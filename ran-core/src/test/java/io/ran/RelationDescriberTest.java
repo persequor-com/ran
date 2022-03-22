@@ -37,8 +37,8 @@ public class RelationDescriberTest {
         assertEquals(BikeGear.class, inverse.getFromClass().clazz);
         assertTrue(inverse.getToKeys().isEmpty());
         assertTrue(inverse.getFromKeys().isEmpty());
-        assertEquals(relationDescriber.getVia().get(1),inverse.getVia().get(0));
-        assertEquals(relationDescriber.getVia().get(0),inverse.getVia().get(1));
+        assertTrue(relationDescriber.getVia().get(1).inverse().requiredFieldsEquals(inverse.getVia().get(0)));
+        assertTrue(relationDescriber.getVia().get(0).inverse().requiredFieldsEquals(inverse.getVia().get(1)));
 
     }
 

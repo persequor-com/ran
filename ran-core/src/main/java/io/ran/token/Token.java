@@ -8,6 +8,7 @@ package io.ran.token;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class Token {
 	List<String> parts = new ArrayList<>();
@@ -68,21 +69,6 @@ public class Token {
 		return new HumanReadableToken(tokenString).toToken();
 	}
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-
-		Token token = (Token) o;
-
-		return parts != null ? parts.equals(token.parts) : token.parts == null;
-	}
-
-	@Override
-	public int hashCode() {
-		return parts != null ? parts.hashCode() : 0;
-	}
-
 	public <T extends TokenType> String toString(Class<T> type) {
 		try {
 			T tokenType = type.newInstance();
@@ -138,5 +124,18 @@ public class Token {
 		public void add(String snakeCase) {
 			add(Token.snake_case(snakeCase));
 		}
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		Token token = (Token) o;
+		return Objects.equals(parts, token.parts);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(parts);
 	}
 }
