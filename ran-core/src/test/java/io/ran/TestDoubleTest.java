@@ -9,7 +9,6 @@ import org.junit.Test;
 import javax.inject.Inject;
 import java.time.Duration;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -99,18 +98,6 @@ public class TestDoubleTest {
 		List<Car> actual = carRepo.query().sortDescending(Car::getConstructionDate).limit(1).execute().collect(Collectors.toList());
 		assertEquals(1, actual.size());
 		assertEquals("My other car", actual.get(0).getId());
-	}
-
-	@Test
-	public void sortDescending() {
-		List<String> actual = carRepo.query().sortDescending(Car::getId).execute().map(Car::getId).collect(Collectors.toList());
-		assertEquals(Arrays.asList("My other car","My car"),actual);
-	}
-
-	@Test
-	public void sortAscending() {
-		List<String> actual = carRepo.query().sortAscending(Car::getId).execute().map(Car::getId).collect(Collectors.toList());
-		assertEquals(Arrays.asList("My car","My other car"),actual);
 	}
 
 	@Test
