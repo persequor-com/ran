@@ -131,7 +131,7 @@ public abstract class CrudRepoBaseQuery<T, Z extends InlineQuery<T, Z>> implemen
 	@Override
 	public <X extends Comparable<X>> Z sortDescending(BiConsumer<T, X> field) {
 		field.accept(instance, null);
-		this.sortAscending(queryWrapper.getCurrentProperty().copy());
+		this.sortDescending(queryWrapper.getCurrentProperty().copy());
 		return (Z)this;
 	}
 
