@@ -67,8 +67,6 @@ public class TestDoubleTest {
 		car2.setTitle("Sedan");
 		car2.setEngine(engine2);
 		carRepo.save(car2);
-
-
 	}
 
 	@Test

@@ -106,10 +106,13 @@ public abstract class TestDoubleQuery<T, Z extends CrudRepository.InlineQuery<T,
 	}
 
 	private <X extends Comparable<X>> X getSQLLikeValue(Property<X> property, T o) {
-		X t = getValue(property, o);
-		t = t instanceof String ?  (X) ((String) t).toLowerCase() : t;
-		t = t.getClass().isEnum() ? (X) t.toString().toLowerCase() : t;
-		return t;
+		X value = getValue(property, o);
+		if (value instanceof String) {
+			return (X) ((String) value).toLowerCase();
+		} else if (value.getClass().isEnum()) {
+			return (X) value.toString().toLowerCase();
+		}
+		return value;
 	}
 
 	@Override
