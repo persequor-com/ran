@@ -32,7 +32,7 @@ public class DescriberTest {
 	@Test
 	public void car() throws Throwable {
 		TypeDescriber<Car> describer = TypeDescriberImpl.getTypeDescriber(Car.class);
-		assertEquals(7, describer.fields().size());
+		assertEquals(8, describer.fields().size());
 		assertEquals(1, describer.primaryKeys().size());
 		assertEquals("id", describer.primaryKeys().get(0).getToken().snake_case());
 		assertEquals(String.class, describer.primaryKeys().get(0).getType().clazz);

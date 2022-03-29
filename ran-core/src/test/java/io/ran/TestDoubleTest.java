@@ -92,6 +92,17 @@ public class TestDoubleTest {
 						, Arrays.asList("SUV", Brand.Porsche))
 				, actual
 		);
+
+		actual = carRepo.query()
+				.sortDescending(Car::getTitle).sortAscending(Car::getBrand)
+				.execute().map(car -> Arrays.asList(car.getTitle(), car.getBrand())).collect(Collectors.toList());
+
+		assertEquals(Arrays.asList(
+						Arrays.asList("SUV", Brand.Porsche)
+						, Arrays.asList("Sedan", Brand.Hyundai)
+						,Arrays.asList("Sedan", Brand.Porsche))
+				, actual
+		);
 	}
 
 
