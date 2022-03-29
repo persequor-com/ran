@@ -17,6 +17,8 @@ import java.util.UUID;
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 @Mapper(dbType = TestDbType.class)
 public class Car {
+
+	private String title;
 	private String id;
 	private ZonedDateTime constructionDate;
 	private UUID engineId;
@@ -32,6 +34,14 @@ public class Car {
 	private List<CarEngineOilReading> oilReadings;
 	@Relation(fields = "id", relationFields = "on")
 	private HeadLights headLights;
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
 
 	public String getId() {
 		return id;
