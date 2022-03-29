@@ -17,6 +17,15 @@ import java.util.UUID;
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 @Mapper(dbType = TestDbType.class)
 public class Car {
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	private String title;
 	private String id;
 	private ZonedDateTime constructionDate;
 	private UUID engineId;

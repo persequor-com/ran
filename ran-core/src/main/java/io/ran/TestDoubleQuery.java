@@ -95,13 +95,13 @@ public abstract class TestDoubleQuery<T, Z extends CrudRepository.InlineQuery<T,
 
 	@Override
 	public <X extends Comparable<X>> Z sortAscending(Property<X> property) {
-		this.sorts.add(Comparator.comparing(o -> getValue(property, o)));
+		this.sorts.add(Comparator.comparing(o -> getValue(property, o).getClass().isEnum()? (X) getValue(property,o).toString():getValue(property,o)));
 		return (Z)this;
 	}
 
 	@Override
 	public <X extends Comparable<X>> Z sortDescending(Property<X> property) {
-		this.sorts.add(Comparator.comparing((T o) -> getValue(property, o)).reversed());
+		this.sorts.add(Comparator.comparing((T o) -> getValue(property, o).getClass().isEnum()? (X) getValue(property,o).toString():getValue(property,o)).reversed());
 		return (Z)this;
 	}
 
