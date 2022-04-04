@@ -30,19 +30,16 @@ public abstract class TableBuilder<TB extends TableBuilder<TB, CB, IB>, CB exten
 	protected abstract IndexActionDelegate createIndex();
 	protected abstract IndexActionDelegate removeIndex();
 
-	public TB addColumn(Property property)  {
-		return addColumn(property.getToken(), property.getType().clazz);
-	}
 
-	public TB addColumn(Token token, Class type) {
-		ColumnAction column = new ColumnAction(getColumnToken(token), type, (t,ca) -> create().execute(t, ca));
+	public TB addColumn(Property property) {
+		ColumnAction column = new ColumnAction(getColumnToken(property.getToken()), property, property.getType().clazz, (t,ca) -> create().execute(t, ca));
 		CB columnBuilder = getColumnBuilder(column);
 		actions.add(column);
 		return (TB) this;
 	}
 
-	public TB addColumn(Token token, Class type, Consumer<CB> consumer) {
-		ColumnAction column = new ColumnAction(getColumnToken(token), type, (t,ca) -> create().execute(t, ca));
+	public TB addColumn(Property property, Consumer<CB> consumer) {
+		ColumnAction column = new ColumnAction(getColumnToken(property.getToken()), property, property.getType().clazz, (t,ca) -> create().execute(t, ca));
 		CB columnBuilder = getColumnBuilder(column);
 		consumer.accept(columnBuilder);
 		actions.add(column);

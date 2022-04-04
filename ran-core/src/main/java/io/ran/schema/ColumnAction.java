@@ -14,11 +14,13 @@ public class ColumnAction implements OnTableAction {
 	private Class type;
 	private BiFunction<TableAction, ColumnAction, String> columnAction;
 	private HashMap<String, Object> properties = new HashMap<>();
+	private Property property;
 
-	public ColumnAction(ColumnToken name, Class type, BiFunction<TableAction, ColumnAction, String> columnAction) {
+	public ColumnAction(ColumnToken name, Property property, Class type, BiFunction<TableAction, ColumnAction, String> columnAction) {
 		this.name = name;
 		this.type = type;
 		this.columnAction = columnAction;
+		this.property = property;
 	}
 
 	public ColumnToken getName() {
@@ -43,6 +45,6 @@ public class ColumnAction implements OnTableAction {
 	}
 
 	public Property getProperty() {
-		return Property.get(name.getToken(), Clazz.of(type));
+		return property;
 	}
 }
