@@ -405,18 +405,6 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 					ce1.invoke(ISerializer.class.getMethod("deserialize", Class.class, String.class));
 					ce1.cast(Clazz.of(field));
 
-//					ce1.objectLoad(3);
-//					ce1.load(1);
-//					ce1.push(Token.camelHump(field.getName()).snake_case());
-//					ce1.invoke(Token.class.getMethod("snake_case", String.class));
-//					ce1.load(0);
-//					ce1.getField(getSelf(), "_serializerFor" + field.getName(), Clazz.of(ISerializer.class));
-//					ce1.push(Clazz.of(field.getType()));
-//					ce1.load(1);
-//					ce1.invoke(ObjectMapHydrator.class.getMethod("getString", Token.class));
-//					ce1.invoke(ISerializer.class.getMethod("deserialize", Class.class, String.class));
-//					ce1.cast(Clazz.of(field));
-
 					cec.load(2);
 					cec.push(Token.camelHump(field.getName()).snake_case());
 					cec.invoke(Token.class.getMethod("snake_case", String.class));

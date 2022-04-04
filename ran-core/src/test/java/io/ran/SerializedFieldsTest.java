@@ -4,24 +4,14 @@ import io.ran.testclasses.ObjectWithSerializedField;
 import io.ran.testclasses.SerializableObject;
 import io.ran.token.Token;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-
-import java.io.IOException;
-import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
 
 public class SerializedFieldsTest {
-    private AutoMapper mapper;
     private GuiceHelper helper;
     private MappingHelper mappingHelper;
     private ObjectWithSerializedField objectWithSerializedField;
-
-    @BeforeClass
-    public static void beforeClass() throws IOException {
-
-    }
 
     @Before
     public void setup() {
