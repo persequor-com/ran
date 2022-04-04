@@ -1,5 +1,7 @@
 package io.ran.schema;
 
+import io.ran.Clazz;
+import io.ran.Property;
 import io.ran.token.Token;
 import org.junit.Test;
 
@@ -17,8 +19,8 @@ public class SchemaBuilderTest {
 	@Test
 	public void buildSimpleSchema() {
 		builder.addTable(Token.of("the","table"), tb -> {
-			tb.addColumn(Token.get("id"), UUID.class);
-			tb.addColumn(Token.get("title"), String.class);
+			tb.addColumn(Property.get(Token.get("id"), Clazz.of(UUID.class)));
+			tb.addColumn(Property.get(Token.get("title"), Clazz.of(String.class)));
 			tb.addPrimaryKey(Token.get("id"));
 		});
 		builder.build();
@@ -29,8 +31,8 @@ public class SchemaBuilderTest {
 	@Test
 	public void buildCompoundKeySchema() {
 		builder.addTable(Token.get("TheTable"), tb -> {
-			tb.addColumn(Token.get("id"), UUID.class);
-			tb.addColumn(Token.get("title"), String.class);
+			tb.addColumn(Property.get(Token.get("id"), Clazz.of(UUID.class)));
+			tb.addColumn(Property.get(Token.get("title"), Clazz.of(String.class)));
 			tb.addPrimaryKey(Token.get("id"), Token.get("title"));
 		});
 		builder.build();
@@ -41,7 +43,7 @@ public class SchemaBuilderTest {
 	@Test
 	public void modifyTable_dropColumn() {
 		builder.modifyTable(Token.get("TheTable"), tb -> {
-			tb.modifyColumn(Token.get("id"), String.class);
+			tb.modifyColumn(Property.get(Token.get("id"), Clazz.of(String.class)));
 			tb.removeColumn(Token.get("title"));
 			tb.dropPrimaryKey();
 		});
@@ -53,7 +55,7 @@ public class SchemaBuilderTest {
 	@Test
 	public void modifyTable_addColumn() {
 		builder.modifyTable(Token.get("TheTable"), tb -> {
-			tb.addColumn(Token.get("CreatedAt"), ZonedDateTime.class);
+			tb.addColumn(Property.get(Token.get("CreatedAt"), Clazz.of(ZonedDateTime.class)));
 		});
 		builder.build();
 
