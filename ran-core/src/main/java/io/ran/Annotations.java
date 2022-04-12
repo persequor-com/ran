@@ -22,4 +22,10 @@ public class Annotations {
 	public <T extends Annotation> T get(Class<T> dbType) {
 		return (T)map.get(dbType);
 	}
+
+	public Annotations copy() {
+		Annotations copy = new Annotations();
+		copy.map.putAll(this.map);
+		return copy;
+	}
 }
