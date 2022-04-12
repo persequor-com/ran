@@ -105,7 +105,7 @@ public class Property<T> {
 	}
 
 	public Property<T> copy() {
-		return Property.get(token, type,annotations);
+		return Property.get(token, type, annotations);
 	}
 
 	private static <T> Property<T> get(Token token, Clazz<T> type, Annotations annotations) {
