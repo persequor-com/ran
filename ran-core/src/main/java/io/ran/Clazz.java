@@ -289,11 +289,19 @@ public class Clazz<T> {
 		return annotations;
 	}
 
+	public Property.PropertyList getAllFields() {
+		return getFields(true);
+	}
+
 	public Property.PropertyList getProperties() {
+		return getFields(false);
+	}
+
+	private Property.PropertyList getFields(boolean includeNonProperties) {
 		Property.PropertyList fields = Property.list();
 
 		for (Field field : getFields()) {
-			if(!isPropertyField(field)) {
+			if(!includeNonProperties && !isPropertyField(field)) {
 				continue;
 			}
 			Token token = Token.camelHump(field.getName());
@@ -310,9 +318,7 @@ public class Clazz<T> {
 
 			property.setOn(this);
 			property.getAnnotations().addFrom(field);
-			if (isPropertyField(field)) {
-				fields.add(property);
-			}
+			fields.add(property);
 		}
 		return fields;
 	}

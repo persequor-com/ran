@@ -2,16 +2,12 @@ package io.ran;
 
 import io.ran.token.Token;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Property<T> {
 	private Token token;
+	private String snakeCase;
 	private Clazz<T> type;
 	private Clazz<?> on;
 	private List<KeyInfo> keys  = new ArrayList<>();
@@ -23,10 +19,18 @@ public class Property<T> {
 		return new Property<>();
 	}
 
+	public static <T> Property<T> get(Token token) {
+		Property<T> field = new Property<>();
+		field.token = token;
+		field.snakeCase = token.snake_case();
+		return field;
+	}
+
 	public static <T> Property<T> get(Token token, Clazz<T> type) {
 		Property<T> field = new Property<>();
 		field.token = token;
 		field.type = type;
+		field.snakeCase = token.snake_case();
 		return field;
 	}
 
@@ -34,6 +38,7 @@ public class Property<T> {
 		Property<T> field = new Property<>();
 		field.token = Token.snake_case(snakeCaseToken);
 		field.type = type;
+		field.snakeCase = snakeCaseToken;
 		return field;
 	}
 
@@ -82,6 +87,14 @@ public class Property<T> {
 		return this;
 	}
 
+	public boolean matchesSnakeCase(String snakeCase) {
+		return this.snakeCase.equals(snakeCase);
+	}
+
+	public String getSnakeCase() {
+		return snakeCase;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -113,7 +126,7 @@ public class Property<T> {
 	}
 
 	public static class PropertyList extends ArrayList<Property> {
-
+		private Map<String, Property> propertyMap = Collections.synchronizedMap(new HashMap<>());
 		public PropertyList(List<Property> properties) {
 			addAll(properties);
 		}
@@ -122,12 +135,44 @@ public class Property<T> {
 
 		}
 
+
+		@Override
+		public boolean addAll(int i, Collection<? extends Property> collection) {
+			collection.forEach(property -> propertyMap.put(property.getSnakeCase(), property));
+
+			return super.addAll(i, collection);
+		}
+
+		@Override
+		public boolean addAll(Collection<? extends Property> collection) {
+			collection.forEach(property -> propertyMap.put(property.getSnakeCase(), property));
+			return super.addAll(collection);
+		}
+
+
+		@Override
+		public void add(int i, Property property) {
+			propertyMap.put(property.getSnakeCase(), property);
+
+			super.add(i, property);
+		}
+
+		@Override
+		public boolean add(Property property) {
+			propertyMap.put(property.getSnakeCase(), property);
+			return super.add(property);
+		}
+
 		public void add(String snakeCase, Clazz<?> type) {
-			add(Property.get(Token.snake_case(snakeCase),type));
+			Property<?> property = Property.get(Token.snake_case(snakeCase), type);
+			add(property);
+			propertyMap.put(property.getSnakeCase(), property);
 		}
 
 		public void add(Token token, Clazz<?> type) {
-			add(Property.get(token,type));
+			Property<?> property = Property.get(token, type);
+			add(property);
+			propertyMap.put(property.getSnakeCase(), property);
 		}
 
 		public boolean contains(Token token) {
@@ -183,13 +228,25 @@ public class Property<T> {
 		}
 
 		public Optional<Property> getOptional(Token token) {
-			return stream().filter(p -> p.getToken().equals(token)).findFirst();
+			return Optional.ofNullable(propertyMap.get(token.snake_case()));
+		}
+
+		public Optional<Property> getOptional(String snakeCase) {
+			return Optional.ofNullable(propertyMap.get(snakeCase));
 		}
 
 		public Property<?> get(Token token) {
 			try {
 				return getOptional(token).orElseThrow(() -> new RuntimeException("Could not find property by token: " + token.toString() + " on " + stream().findAny().map(p -> p.getOn().clazz.getName()).orElse("unknown class")));
-			} catch (NullPointerException e) {
+			} catch (Exception e) {
+				throw e;
+			}
+		}
+
+		public Property<?> get(String snakeCase) {
+			try {
+				return getOptional(snakeCase).orElseThrow(() -> new RuntimeException("Could not find property by snake_case: " + snakeCase + " on " + stream().findAny().map(p -> p.getOn().clazz.getName()).orElse("unknown class")));
+			} catch (Exception e) {
 				throw e;
 			}
 		}

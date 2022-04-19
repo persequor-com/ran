@@ -1,5 +1,7 @@
 package io.ran;
 
+import io.ran.token.Token;
+
 import javax.management.remote.JMXServerErrorException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -12,6 +14,8 @@ public class TypeDescriberImpl<T> implements TypeDescriber<T> {
 	private Clazz<T> clazz;
 	private KeySet primaryKeys = null;
 	private Property.PropertyList fields = null;
+	private Property.PropertyList allFields = null;
+
 	private RelationDescriber.RelationDescriberList relations = null;
 	private Annotations annotations = new Annotations();
 	private List<KeySet> indexes;
@@ -64,6 +68,18 @@ public class TypeDescriberImpl<T> implements TypeDescriber<T> {
 	}
 
 	@Override
+	public Property.PropertyList allFields() {
+		if (allFields == null) {
+			synchronized (this) {
+				if (allFields == null) {
+					allFields = clazz.getAllFields();
+				}
+			}
+		}
+		return allFields;
+	}
+
+	@Override
 	public List<ClazzMethod> methods() {
 		if (methods == null) {
 			synchronized (this) {
@@ -100,5 +116,15 @@ public class TypeDescriberImpl<T> implements TypeDescriber<T> {
 	@Override
 	public Annotations annotations() {
 		return annotations;
+	}
+
+	@Override
+	public Property getPropertyFromSnakeCase(String snakeCase) {
+		return allFields().get(snakeCase);
+	}
+
+	@Override
+	public Token getTokenFromSnakeCase(String snakeCase) {
+		return allFields().get(snakeCase).getToken();
 	}
 }

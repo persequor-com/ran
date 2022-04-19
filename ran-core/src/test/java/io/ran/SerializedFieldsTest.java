@@ -24,20 +24,24 @@ public class SerializedFieldsTest {
         objectWithSerializedField.getSerialized().setUp(33);
     }
 
+    private Property property(String name) {
+        return Property.get(Token.of(name));
+    }
+
     @Test
     public void serializedField_happyPath() {
         ObjectMap objectMap = new ObjectMap();
         mappingHelper.columnize(objectWithSerializedField, objectMap);
 
-        assertEquals("The id of this thing", objectMap.get(Token.of("id")));
-        assertEquals("{\"up\":33,\"down\":\"down\"}", objectMap.getString(Token.of("serialized")));
+        assertEquals("The id of this thing", objectMap.get(Token.get("id")));
+        assertEquals("{\"up\":33,\"down\":\"down\"}", objectMap.getString(property("serialized")));
     }
 
     @Test
     public void deserializedField_forNonMappedObject() {
         ObjectMap objectMap = new ObjectMap();
-        objectMap.set(Token.of("id"), "the id yo");
-        objectMap.set(Token.of("serialized"), "{\"up\":33,\"down\":\"down\"}");
+        objectMap.set(property("id"), "the id yo");
+        objectMap.set(property("serialized"), "{\"up\":33,\"down\":\"down\"}");
         ObjectWithSerializedField anotherObjectWithSerializedField = new ObjectWithSerializedField();
         mappingHelper.hydrate(anotherObjectWithSerializedField, objectMap);
 
@@ -49,8 +53,8 @@ public class SerializedFieldsTest {
     @Test
     public void deserializedField_forMappedObject() {
         ObjectMap objectMap = new ObjectMap();
-        objectMap.set(Token.of("id"), "the id yo");
-        objectMap.set(Token.of("serialized"), "{\"up\":33,\"down\":\"down\"}");
+        objectMap.set(property("id"), "the id yo");
+        objectMap.set(property("serialized"), "{\"up\":33,\"down\":\"down\"}");
         ObjectWithSerializedField anotherObjectWithSerializedField = helper.factory.get(ObjectWithSerializedField.class);
         mappingHelper.hydrate(anotherObjectWithSerializedField, objectMap);
 
