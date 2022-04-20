@@ -176,7 +176,11 @@ public class Property<T> {
 		}
 
 		public boolean contains(Token token) {
-			return stream().filter(p -> p.getToken().equals(token)).findAny().isPresent();
+			return propertyMap.containsKey(token.snake_case());
+		}
+
+		public boolean contains(String snakeCase) {
+			return propertyMap.containsKey(snakeCase);
 		}
 
 		public PropertyList remove(PropertyList properties) {
@@ -194,7 +198,7 @@ public class Property<T> {
 				}
 			}
 			if (keys.isEmpty() && contains(Token.of("id"))) {
-				KeyInfo keyInfo = new KeyInfo(true, get(Token.of("id")),"", 0, true);
+				KeyInfo keyInfo = new KeyInfo(true, get("id"),"", 0, true);
 				keys.put(keyInfo.getMapKey(), KeySet.get().add(keyInfo));
 			}
 			return keys;
@@ -208,7 +212,7 @@ public class Property<T> {
 					Clazz<?> otherType = otherProperty.getOn();
 					Optional<Property> ownProperty = getOptional(Token.CamelCase(otherType.clazz.getSimpleName() + "Id"));
 					KeySets keys = keys();
-					if (otherProperty.getToken().equals(Token.of("id")) && ownProperty.isPresent()) {
+					if (otherProperty.matchesSnakeCase("id") && ownProperty.isPresent()) {
 						keySet.parts.clear();
 						keySet.add(ownProperty.get());
 						return keySet;
