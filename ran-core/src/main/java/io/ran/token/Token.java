@@ -6,13 +6,14 @@
 package io.ran.token;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Token {
 	List<String> parts = new ArrayList<>();
-	private static Map<String, Token> tokenMap = Collections.synchronizedMap(new HashMap<>());
-	private Map<Class, String> toStringMap = Collections.synchronizedMap(new HashMap<>());
+	private static Map<String, Token> tokenMap = new ConcurrentHashMap<>();
+	private Map<Class, String> toStringMap = new ConcurrentHashMap<>();
 	private Token(List<String> parts) {
 		if (parts.stream().anyMatch(String::isEmpty)) {
 			throw new InvalidTokenException("Empty token part in: {"+String.join("}{",parts)+"}");
@@ -34,15 +35,11 @@ public class Token {
 	}
 
 	static public Token of(String... parts) {
-		return tokenMap.computeIfAbsent(parts.length == 1 ? parts[0] : String.join("_", parts), t -> {
-			return new Token(Arrays.asList(parts));
-		});
+		return new Token(Arrays.asList(parts));
 	}
 
 	static public Token of(List<String> parts) {
-		return tokenMap.computeIfAbsent(parts.size() == 1 ? parts.get(0) : String.join("_", parts), t -> {
-			return new Token(parts);
-		});
+		return new Token(parts);
 	}
 
 	static public TokenList list() {
@@ -50,29 +47,29 @@ public class Token {
 	}
 
 	public static Token CamelCase(String tokenString) {
-		return tokenMap.computeIfAbsent(tokenString, t -> {
+		return tokenMap.computeIfAbsent(tokenString+"_CamelCase", t -> {
 			return new CamelCaseToken(tokenString).toToken();
 		});
 	}
 
 	public static Token camelHump(String tokenString) {
-		return tokenMap.computeIfAbsent(tokenString, t -> {
+		return tokenMap.computeIfAbsent(tokenString+"_camelHump", t -> {
 			return new CamelHumpToken(tokenString).toToken();
 		});
 	}
 
 	public static Token snake_case(String tokenString) {
-		return tokenMap.computeIfAbsent(tokenString, t -> {
+		return tokenMap.computeIfAbsent(tokenString+"_snake_case", t -> {
 			return new SnakeCaseToken(tokenString).toToken();
 		});
 	}
 
 	public static Token javaMethod(String tokenString) {
-		return tokenMap.computeIfAbsent(tokenString, t -> {
+		return tokenMap.computeIfAbsent(tokenString+"_javaMethod", t -> {
 			if (tokenString.substring(0, 1).equals(tokenString.substring(0, 1).toLowerCase())) {
-				return camelHump(tokenString);
+				return new CamelHumpToken(tokenString).toToken();
 			} else {
-				return CamelCase(tokenString);
+				return new CamelCaseToken(tokenString).toToken();
 			}
 		});
 	}

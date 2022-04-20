@@ -17,43 +17,47 @@ import java.util.Optional;
 
 public class MappingClassWriter extends AutoMapperClassWriter {
 	Clazz mapperClazz;
-	public MappingClassWriter(Class clazz) throws NoSuchMethodException {
+	public MappingClassWriter(Class clazz) {
 		super(clazz);
-		postFix = "Mapper";
-		mapperClazz = Clazz.of(this.clazz.getInternalName()+postFix);
-		visit(Opcodes.V1_8, Access.Public.getOpCode(), this.clazz.getInternalName()+postFix, this.clazz.generics.isEmpty() ? null : this.clazz.getSignature(), this.clazz.getInternalName(), new String[]{Clazz.of(Mapping.class).getInternalName()});
-		field(Access.Private, "_changed", Clazz.of(boolean.class), false);
-		field(Access.Private, "typeDescriber", Clazz.of(TypeDescriberImpl.class), null);
+		try {
+			postFix = "Mapper";
+			mapperClazz = Clazz.of(this.clazz.getInternalName() + postFix);
+			visit(Opcodes.V1_8, Access.Public.getOpCode(), this.clazz.getInternalName() + postFix, this.clazz.generics.isEmpty() ? null : this.clazz.getSignature(), this.clazz.getInternalName(), new String[]{Clazz.of(Mapping.class).getInternalName()});
+			field(Access.Private, "_changed", Clazz.of(boolean.class), false);
+			field(Access.Private, "typeDescriber", Clazz.of(TypeDescriberImpl.class), null);
 
-		MethodWriter w = method(Access.Public, new MethodSignature(mapperClazz, "_isChanged", Clazz.of(boolean.class)));
-		w.load(0);
-		w.getField(mapperClazz, "_changed", Clazz.of(boolean.class));
-		w.returnPrimitive(Clazz.of(boolean.class));
-		w.end();
+			MethodWriter w = method(Access.Public, new MethodSignature(mapperClazz, "_isChanged", Clazz.of(boolean.class)));
+			w.load(0);
+			w.getField(mapperClazz, "_changed", Clazz.of(boolean.class));
+			w.returnPrimitive(Clazz.of(boolean.class));
+			w.end();
 
-		for (Constructor c : Arrays.asList(clazz.getConstructors())) {
-			MethodWriter mw = method(Access.of(c.getModifiers()), new MethodSignature(c));
-			int i = 0;
-			if (c.getAnnotation(Inject.class) != null) {
-				mw.addAnnotation(Clazz.of(Inject.class), true);
+			for (Constructor c : Arrays.asList(clazz.getConstructors())) {
+				MethodWriter mw = method(Access.of(c.getModifiers()), new MethodSignature(c));
+				int i = 0;
+				if (c.getAnnotation(Inject.class) != null) {
+					mw.addAnnotation(Clazz.of(Inject.class), true);
+				}
+				mw.load(0);
+				for (Parameter p : Arrays.asList(c.getParameters())) {
+					mw.load(++i);
+				}
+
+				mw.invoke(new MethodSignature(c));
+
+				mw.load(0);
+				mw.push(this.clazz);
+				mw.invoke(TypeDescriberImpl.class.getMethod("getTypeDescriber", Class.class));
+				mw.cast(Clazz.of(TypeDescriberImpl.class));
+				mw.putfield(getSelf(), "typeDescriber", Clazz.of(TypeDescriberImpl.class));
+
+				mw.returnNothing();
+				mw.end();
 			}
-			mw.load(0);
-			for (Parameter p : Arrays.asList(c.getParameters())) {
-				mw.load(++i);
-			}
-
-			mw.invoke(new MethodSignature(c));
-
-			mw.load(0);
-			mw.push(this.clazz);
-			mw.invoke(TypeDescriberImpl.class.getMethod("getTypeDescriber", Class.class));
-			mw.cast(Clazz.of(TypeDescriberImpl.class));
-			mw.putfield(getSelf(), "typeDescriber", Clazz.of(TypeDescriberImpl.class));
-
-			mw.returnNothing();
-			mw.end();
+			build();
+		} catch (NoSuchMethodException e) {
+			throw new RuntimeException(e); // This should never happen, so a runtime exception is apt
 		}
-		build();
 	}
 
 	protected void build() {
@@ -396,10 +400,10 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 					ce.load("clazz");
 					ce.load("this");
 					ce.getField(getSelf(), "_serializerFor" + field.getName(), Clazz.of(ISerializer.class));
-					{
+					{ // Pushes the field type to the stack
 						ce.push(Clazz.of(field.getType()));
 					}
-					{
+					{ // Pushes the string value of the specified property to the stack
 						ce.load("hydrator");
 						ce.load("this");
 						ce.getField(getSelf(), "typeDescriber", Clazz.of(TypeDescriberImpl.class));

@@ -118,7 +118,12 @@ public class Property<T> {
 	}
 
 	public Property<T> copy() {
-		return Property.get(token, type);
+		Property property = Property.get(token, type);
+		property.snakeCase = snakeCase;
+		property.on = on;
+		property.annotations = annotations;
+		property.keys = new ArrayList<>(keys);
+		return property;
 	}
 
 	public Annotations getAnnotations() {
