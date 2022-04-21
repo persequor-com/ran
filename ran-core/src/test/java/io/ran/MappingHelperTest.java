@@ -46,6 +46,8 @@ public class MappingHelperTest {
 		map.put(Token.of("the","boolean"), true);
 		mappingHelper.hydrate(car, map);
 
+		car.getEngine();
+
 		assertEquals("my id", car.getId());
 	}
 

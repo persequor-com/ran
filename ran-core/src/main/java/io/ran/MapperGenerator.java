@@ -11,6 +11,17 @@ import java.nio.file.Paths;
 
 public class MapperGenerator {
 
+	private static boolean ideaConfigFileGenerated = false;
+	private final String ideaXmlConfig = "<component name=\"libraryTable\">\n" +
+			"  <library name=\"tmp\">\n" +
+			"    <CLASSES>\n" +
+			"      <root url=\"file://%s\" />\n" +
+			"    </CLASSES>\n" +
+			"    <JAVADOC />\n" +
+			"    <SOURCES />\n" +
+			"  </library>\n" +
+			"</component>\n";
+
 	public Wrapped generate(AutoMapperClassLoader classLoader, Clazz clazz) {
 		try {
 
@@ -43,8 +54,20 @@ public class MapperGenerator {
 		if (RanConfig.enableRanClassesDebugging) {
 			Path path = buildPathForType(clazz, "Mapper");
 			Path pathQuery = buildPathForType(clazz, "Query");
+			String tmpDir = RanConfig.projectBasePath + "/tmp";
+			if (!Files.exists(Paths.get(tmpDir))) {
+				Files.createDirectory(Paths.get(tmpDir));
+			}
 			Files.write(path, bytes);
 			Files.write(pathQuery, bytes2);
+			if (!ideaConfigFileGenerated) {
+				String ideaLibPath = RanConfig.projectBasePath + "/.idea/libraries";
+				if (!Files.exists(Paths.get(ideaLibPath))) {
+					Files.createDirectory(Paths.get(ideaLibPath));
+				}
+				Files.write(Paths.get(ideaLibPath + "/tmp.xml"), String.format(ideaXmlConfig, tmpDir).getBytes());
+				ideaConfigFileGenerated = true;
+			}
 		}
 	}
 
