@@ -24,6 +24,8 @@ public abstract class TableBuilder<TB extends TableBuilder<TB, CB, IB>, CB exten
 	protected abstract IB getIndexBuilder(IndexAction indexAction);
 	protected abstract ColumnToken getColumnToken(Token token);
 	protected abstract IndexToken getIndexToken(Token token);
+	protected abstract ColumnToken getColumnToken(Property property);
+	protected abstract IndexToken getIndexToken(Property property);
 	protected abstract ColumnActionDelegate create();
 	protected abstract ColumnActionDelegate modify();
 	protected abstract ColumnActionDelegate remove();
@@ -47,7 +49,7 @@ public abstract class TableBuilder<TB extends TableBuilder<TB, CB, IB>, CB exten
 	}
 
 	public TB addPrimaryKey(KeySet key) {
-		IndexAction indexAction = new IndexAction(getIndexToken(Token.of("PRIMARY")), FormattingTokenList.of(this::getColumnToken,key.stream().map(KeySet.Field::getToken).collect(Collectors.toList())), true, (t, ia) -> createIndex().execute(t, ia));
+		IndexAction indexAction = new IndexAction(getIndexToken(Token.of("PRIMARY")), FormattingTokenList.ofProperties(this::getColumnToken,key.stream().map(KeySet.Field::getProperty).collect(Collectors.toList())), true, (t, ia) -> createIndex().execute(t, ia));
 		actions.add(indexAction);
 		return (TB) this;
 	}
@@ -63,7 +65,7 @@ public abstract class TableBuilder<TB extends TableBuilder<TB, CB, IB>, CB exten
 	}
 
 	public TB addIndex(KeySet key) {
-		IndexAction indexAction = new IndexAction(getIndexToken(Token.get(key.getName())), FormattingTokenList.of(this::getColumnToken,key.stream().map(KeySet.Field::getToken).collect(Collectors.toList())), false, (t, ia) -> createIndex().execute(t, ia));
+		IndexAction indexAction = new IndexAction(getIndexToken(Token.get(key.getName())), FormattingTokenList.ofProperties(this::getColumnToken,key.stream().map(KeySet.Field::getProperty).collect(Collectors.toList())), false, (t, ia) -> createIndex().execute(t, ia));
 		actions.add(indexAction);
 		return (TB) this;
 	}
