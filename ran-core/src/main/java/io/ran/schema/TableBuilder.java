@@ -54,13 +54,13 @@ public abstract class TableBuilder<TB extends TableBuilder<TB, CB, IB>, CB exten
 		return (TB) this;
 	}
 
-	public TB addPrimaryKey(List<Token> id) {
-		IndexAction indexAction = new IndexAction(getIndexToken(Token.of("PRIMARY")), FormattingTokenList.of(this::getColumnToken,id), true, (t, ia) -> createIndex().execute(t, ia));
+	public TB addPrimaryKey(List<Property> id) {
+		IndexAction indexAction = new IndexAction(getIndexToken(Token.of("PRIMARY")), FormattingTokenList.ofProperties(this::getColumnToken,id), true, (t, ia) -> createIndex().execute(t, ia));
 		actions.add(indexAction);
 		return (TB) this;
 	}
 
-	public TB addPrimaryKey(Token... id) {
+	public TB addPrimaryKey(Property... id) {
 		return addPrimaryKey(Arrays.asList(id));
 	}
 
@@ -70,17 +70,17 @@ public abstract class TableBuilder<TB extends TableBuilder<TB, CB, IB>, CB exten
 		return (TB) this;
 	}
 
-	public TB addIndex(Token name, List<Token> id) {
-		IndexAction indexAction = new IndexAction(getIndexToken(name), FormattingTokenList.of(this::getColumnToken,id), false, (t,ia) -> createIndex().execute(t, ia));
+	public TB addIndex(Property name, List<Property> id) {
+		IndexAction indexAction = new IndexAction(getIndexToken(name), FormattingTokenList.ofProperties(this::getColumnToken,id), false, (t,ia) -> createIndex().execute(t, ia));
 		actions.add(indexAction);
 		return (TB) this;
 	}
 
-	public TB addIndex(Token name, Token... id) {
+	public TB addIndex(Property name, Property... id) {
 		return addIndex(name, Arrays.asList(id));
 	}
 
-	public TB addIndex(Token name, Consumer<IB> consumer) {
+	public TB addIndex(Property name, Consumer<IB> consumer) {
 		IndexAction indexAction = new IndexAction(getIndexToken(name), new FormattingTokenList<>(), false, (t, ia) -> createIndex().execute(t, ia));
 		IB indexBuilder = getIndexBuilder(indexAction);
 		consumer.accept(indexBuilder);

@@ -21,7 +21,7 @@ public class SchemaBuilderTest {
 		builder.addTable(Token.of("the","table"), tb -> {
 			tb.addColumn(Property.get(Token.get("id"), Clazz.of(UUID.class)));
 			tb.addColumn(Property.get(Token.get("title"), Clazz.of(String.class)));
-			tb.addPrimaryKey(Token.get("id"));
+			tb.addPrimaryKey(Property.get(Token.get("id")));
 		});
 		builder.build();
 
@@ -33,7 +33,7 @@ public class SchemaBuilderTest {
 		builder.addTable(Token.get("TheTable"), tb -> {
 			tb.addColumn(Property.get(Token.get("id"), Clazz.of(UUID.class)));
 			tb.addColumn(Property.get(Token.get("title"), Clazz.of(String.class)));
-			tb.addPrimaryKey(Token.get("id"), Token.get("title"));
+			tb.addPrimaryKey(Property.get(Token.get("id")), Property.get(Token.get("title")));
 		});
 		builder.build();
 
@@ -65,7 +65,7 @@ public class SchemaBuilderTest {
 	@Test
 	public void modifyTable_addIndex() {
 		builder.modifyTable(Token.get("the_table"), tb -> {
-			tb.addIndex(Token.get("my_index"), Token.get("title"), Token.get("TypeName"));
+			tb.addIndex(Property.get(Token.get("my_index")), Property.get(Token.get("title")), Property.get(Token.get("TypeName")));
 		});
 		builder.build();
 
@@ -75,9 +75,9 @@ public class SchemaBuilderTest {
 	@Test
 	public void modifyTable_addIndexWithCustomProperties() {
 		builder.modifyTable(Token.get("theTable"), tb -> {
-			tb.addIndex(Token.get("myUnique"), ib -> {
-				ib.addField(Token.get("id1"));
-				ib.addField(Token.get("id2"));
+			tb.addIndex(Property.get(Token.get("myUnique")), ib -> {
+				ib.addField(Property.get(Token.get("id1")));
+				ib.addField(Property.get(Token.get("id2")));
 				ib.isUnique();
 			});
 		});

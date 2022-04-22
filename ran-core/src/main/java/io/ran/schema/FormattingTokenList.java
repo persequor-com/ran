@@ -25,10 +25,6 @@ public class FormattingTokenList<T extends FormattingToken> extends ArrayList<T>
 		return new FormattingTokenList<>(tokens.stream().map(formattingTokenGetter).collect(Collectors.toList()));
 	}
 
-	public static <X extends FormattingToken> FormattingTokenList<X> of(Function<Token, X> formattingTokenGetter, Token... tokens) {
-		return of(formattingTokenGetter, Arrays.asList(tokens));
-	}
-
 	public static <X extends FormattingToken> FormattingTokenList<X> ofProperties(Function<Property, X> formattingTokenGetter, List<Property> properties) {
 		return new FormattingTokenList<>(properties.stream().map(formattingTokenGetter).collect(Collectors.toList()));
 	}
