@@ -1,8 +1,16 @@
 package io.ran.token;
 
+import io.ran.Property;
+
 public abstract class FormattingToken {
+	protected Property property;
 	protected Token token;
 	protected String specifiedName = null;
+
+	protected FormattingToken(Property property) {
+		this.property = property;
+		this.token = property.getToken();
+	}
 
 	protected FormattingToken(Token token) {
 		this.token = token;
@@ -15,6 +23,10 @@ public abstract class FormattingToken {
 
 	public Token getToken() {
 		return token;
+	}
+
+	public Property getProperty() {
+		return property;
 	}
 
 	@Override

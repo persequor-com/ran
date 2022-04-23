@@ -49,9 +49,9 @@ public class AutoMapperTest {
 		map.set("Id", "My id");
 		ZonedDateTime now = ZonedDateTime.now();
 		map.set("ConstructionDate", now);
-		map.set(Token.CamelCase("Brand"), Brand.Hyundai);
-		map.set(Token.CamelCase("CrashRating"), 4.4);
-		map.set(Token.CamelCase("TheBoolean"), false);
+		map.set(Property.get(Token.CamelCase("Brand")), Brand.Hyundai);
+		map.set(Property.get(Token.CamelCase("CrashRating")), 4.4);
+		map.set(Property.get(Token.CamelCase("TheBoolean")), false);
 
 		Car car = helper.factory.get(Car.class);
 		Mapping carMapping = (Mapping)car;
@@ -78,8 +78,8 @@ public class AutoMapperTest {
 
 		assertEquals("My id", result.getString("Id"));
 		assertEquals(now, result.getZonedDateTime("ConstructionDate"));
-		assertEquals(Brand.Hyundai, result.getEnum(Token.CamelCase("Brand"), Brand.class));
-		assertEquals(Double.valueOf(4.4), result.getDouble(Token.CamelCase("CrashRating")));
+		assertEquals(Brand.Hyundai, result.getEnum(Property.get(Token.CamelCase("Brand")) , Brand.class));
+		assertEquals(Double.valueOf(4.4), result.getDouble(Property.get(Token.CamelCase("CrashRating"))));
 	}
 
 	@Test
@@ -141,8 +141,8 @@ public class AutoMapperTest {
 		ObjectMap map = new ObjectMap();
 		mapping.columnize(map);
 
-		assertEquals("reg", map.getString(Token.of("reg")));
-		assertEquals("sup", map.getString(Token.of("sup")));
+		assertEquals("reg", map.getString(Property.get(Token.of("reg"))));
+		assertEquals("sup", map.getString(Property.get(Token.of("sup"))));
 
 		Regular r2 = helper.factory.get(Regular.class);
 		Mapping mapping2 = (Mapping) r2;

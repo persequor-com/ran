@@ -1,17 +1,22 @@
 package io.ran;
 
+import io.ran.token.Token;
+
 import javax.management.remote.JMXServerErrorException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public class TypeDescriberImpl<T> implements TypeDescriber<T> {
-	private static Map<Class, TypeDescriber> descibers = Collections.synchronizedMap(new HashMap<>());
+	private static Map<Class, TypeDescriber> descibers = new ConcurrentHashMap<>();
 	private Clazz<T> clazz;
 	private KeySet primaryKeys = null;
 	private Property.PropertyList fields = null;
+	private Property.PropertyList allFields = null;
+
 	private RelationDescriber.RelationDescriberList relations = null;
 	private Annotations annotations = new Annotations();
 	private List<KeySet> indexes;
@@ -64,6 +69,18 @@ public class TypeDescriberImpl<T> implements TypeDescriber<T> {
 	}
 
 	@Override
+	public Property.PropertyList allFields() {
+		if (allFields == null) {
+			synchronized (this) {
+				if (allFields == null) {
+					allFields = clazz.getAllFields();
+				}
+			}
+		}
+		return allFields;
+	}
+
+	@Override
 	public List<ClazzMethod> methods() {
 		if (methods == null) {
 			synchronized (this) {
@@ -100,5 +117,15 @@ public class TypeDescriberImpl<T> implements TypeDescriber<T> {
 	@Override
 	public Annotations annotations() {
 		return annotations;
+	}
+
+	@Override
+	public Property getPropertyFromSnakeCase(String snakeCase) {
+		return allFields().get(snakeCase);
+	}
+
+	@Override
+	public Token getTokenFromSnakeCase(String snakeCase) {
+		return allFields().get(snakeCase).getToken();
 	}
 }

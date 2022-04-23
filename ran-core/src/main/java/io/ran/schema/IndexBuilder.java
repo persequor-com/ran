@@ -1,5 +1,6 @@
 package io.ran.schema;
 
+import io.ran.Property;
 import io.ran.token.Token;
 
 public class IndexBuilder<IB extends IndexBuilder<IB>> {
@@ -11,7 +12,7 @@ public class IndexBuilder<IB extends IndexBuilder<IB>> {
 		this.action = action;
 	}
 
-	public void addField(Token field) {
+	public void addField(Property field) {
 		action.getFields().add(tableBuilder.getColumnToken(field));
 	}
 }
