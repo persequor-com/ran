@@ -301,7 +301,7 @@ public class Clazz<T> {
 		Property.PropertyList fields = Property.list();
 
 		for (Field field : getFields()) {
-			if(!includeNonProperties && !isPropertyField(field)) {
+			if(isPublicStatic(field) || !includeNonProperties && !isPropertyField(field)) {
 				continue;
 			}
 			Token token = Token.camelHump(field.getName());
@@ -344,6 +344,11 @@ public class Clazz<T> {
 	public static boolean isPropertyField(Field field) {
 		return CamelHumpToken.is(field.getName()) && !Modifier.isTransient(field.getModifiers()) && field.getAnnotation(Relation.class) == null;
 	}
+
+	public static boolean isPublicStatic(Field field) {
+		return Modifier.isPublic(field.getModifiers()) && Modifier.isStatic(field.getModifiers());
+	}
+
 
 	public static boolean isRelationField(Field field) {
 		return CamelHumpToken.is(field.getName()) && field.getAnnotation(Relation.class) != null;
