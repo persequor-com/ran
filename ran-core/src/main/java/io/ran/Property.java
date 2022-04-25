@@ -143,41 +143,43 @@ public class Property<T> {
 
 		@Override
 		public boolean addAll(int i, Collection<? extends Property> collection) {
-			collection.forEach(property -> propertyMap.put(property.getSnakeCase(), property));
-
-			return super.addAll(i, collection);
+			throw new RuntimeException("Adding at position is unsupported by PropertyList");
 		}
 
 		@Override
 		public boolean addAll(Collection<? extends Property> collection) {
-			collection.forEach(property -> propertyMap.put(property.getSnakeCase(), property));
-			return super.addAll(collection);
+			boolean changed = false;
+			for (Property property : collection) {
+				if (propertyMap.put(property.getSnakeCase(), property) == null) {
+					super.add(property);
+					changed = true;
+				}
+			}
+			return changed;
 		}
 
 
 		@Override
 		public void add(int i, Property property) {
-			propertyMap.put(property.getSnakeCase(), property);
-
-			super.add(i, property);
+			throw new RuntimeException("Adding at position is unsupported by PropertyList");
 		}
 
 		@Override
 		public boolean add(Property property) {
-			propertyMap.put(property.getSnakeCase(), property);
-			return super.add(property);
+			if (propertyMap.put(property.getSnakeCase(), property) == null) {
+				return super.add(property);
+			}
+			return false;
 		}
 
 		public void add(String snakeCase, Clazz<?> type) {
 			Property<?> property = Property.get(Token.snake_case(snakeCase), type);
 			add(property);
-			propertyMap.put(property.getSnakeCase(), property);
 		}
 
 		public void add(Token token, Clazz<?> type) {
 			Property<?> property = Property.get(token, type);
 			add(property);
-			propertyMap.put(property.getSnakeCase(), property);
 		}
 
 		public boolean contains(Token token) {
