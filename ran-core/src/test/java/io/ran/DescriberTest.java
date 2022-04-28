@@ -1,9 +1,6 @@
 package io.ran;
 
-import io.ran.testclasses.Brand;
-import io.ran.testclasses.Car;
-import io.ran.testclasses.Door;
-import io.ran.testclasses.Engine;
+import io.ran.testclasses.*;
 import io.ran.token.Token;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -156,5 +153,14 @@ public class DescriberTest {
 		car.setBrand(Brand.Porsche);
 
 		assertTrue(carMapping._isChanged());
+	}
+
+	@Test
+	public void handleGraphs() throws Throwable {
+		TypeDescriber<GraphNode> describer = TypeDescriberImpl.getTypeDescriber(GraphNode.class);
+		assertEquals(Clazz.of(GraphNodeLink.class),describer.relations().get("next_nodes").getToKeys().get(0).getOn());
+		assertEquals("to_id",describer.relations().get("next_nodes").getToKeys().get(0).getProperty().getSnakeCase());
+		assertEquals(Clazz.of(GraphNodeLink.class),describer.relations().get("previous_nodes").getToKeys().get(0).getOn());
+		assertEquals("from_id",describer.relations().get("previous_nodes").getToKeys().get(0).getProperty().getSnakeCase());
 	}
 }

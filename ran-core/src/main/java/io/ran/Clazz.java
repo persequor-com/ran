@@ -386,8 +386,10 @@ public class Clazz<T> {
 
 		KeySet selfKeys = KeySet.get();
 		KeySet relationKeys = KeySet.get();
+		Clazz<?> relationForFields = relationAnnotation.via() != None.class ? Clazz.of(relationAnnotation.via()) : relation;
+
 		if (relationFields.size() > 0) {
-			relationFields.stream().map(Token::get).map(t ->  relation.getProperties().get(t)).forEach(relationKeys::add);
+			relationFields.stream().map(Token::get).map(t ->  relationForFields.getProperties().get(t)).forEach(relationKeys::add);
 		}
 		if (fields.size() > 0) {
 			fields.stream().map(Token::get).map(properties::get).forEach(selfKeys::add);
