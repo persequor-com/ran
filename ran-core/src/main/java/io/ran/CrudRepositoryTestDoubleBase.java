@@ -62,7 +62,7 @@ public abstract class CrudRepositoryTestDoubleBase<T, K> implements CrudReposito
 	@Override
 	public CrudRepository.CrudUpdateResult save(T t) {
 		Object key = getKey(t);
-		T existing = getStore(modelType).put((Object) key, t);
+		T existing = getStore(modelType).put((Object) key, mappingCopy(t));
 		return new CrudRepository.CrudUpdateResult() {
 			@Override
 			public int affectedRows() {
