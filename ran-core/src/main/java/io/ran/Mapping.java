@@ -19,6 +19,7 @@ public interface Mapping {
 	void _setRelation(RelationDescriber relationDescriber, Object value);
 	void _setRelationNotLoaded(RelationDescriber relationDescriber);
 	Object _getRelation(RelationDescriber relationDescriber);
+	Object _getRelation(Token token);
 	Object _getRelation(Object object, RelationDescriber relationDescriber);
 	Object _getRelation(Object object, Token token);
 

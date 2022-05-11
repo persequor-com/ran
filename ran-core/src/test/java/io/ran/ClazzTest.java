@@ -1,5 +1,6 @@
 package io.ran;
 
+import io.ran.testclasses.GraphNode;
 import io.ran.testclasses.Regular;
 import io.ran.token.Token;
 import org.junit.Test;
@@ -27,6 +28,35 @@ public class ClazzTest {
 		assertEquals(RelationTo.class, relations.get(0).getVia().get(1).getToClass().clazz);
 		assertEquals(Token.of("relation","to","id"), relations.get(0).getVia().get(1).getFromKeys().get(0).getToken());
 		assertEquals(Token.of("id"), relations.get(0).getVia().get(1).getToKeys().get(0).getToken());
+	}
+
+	@Test
+	public void relations_via_graph() {
+		List<RelationDescriber> relations = Clazz.of(GraphNode.class).getRelations();
+
+		assertEquals(2, relations.size());
+		assertEquals(2, relations.get(0).getVia().size());
+		assertEquals(2, relations.get(1).getVia().size());
+
+		assertEquals("previous_nodes", relations.get(0).getField().snake_case());
+		assertEquals("id", relations.get(0).getFromKeys().get(0).getToken().snake_case());
+		assertEquals("to_id", relations.get(0).getToKeys().get(0).getToken().snake_case());
+		assertEquals("id", relations.get(0).getVia().get(0).getFromKeys().get(0).getToken().snake_case());
+		assertEquals("to_id", relations.get(0).getVia().get(0).getToKeys().get(0).getToken().snake_case());
+		assertEquals("from_id", relations.get(0).getVia().get(1).getFromKeys().get(0).getToken().snake_case());
+		assertEquals("id", relations.get(0).getVia().get(1).getToKeys().get(0).getToken().snake_case());
+
+		assertEquals("next_nodes", relations.get(1).getField().snake_case());
+		assertEquals("id", relations.get(1)     .getFromKeys().get(0).getToken().snake_case());
+		assertEquals("from_id", relations.get(1).getToKeys().get(0).getToken().snake_case());
+		assertEquals("id", relations.get(1)     .getVia().get(0).getFromKeys().get(0).getToken().snake_case());
+		System.out.println(relations.get(1).getVia().get(0).getFromKeys().get(0).getToken().snake_case());
+		System.out.println(relations.get(1).getVia().get(0).getToKeys().get(0).getToken().snake_case());
+		System.out.println(relations.get(1)  .getVia().get(1).getFromKeys().get(0).getToken().snake_case());
+		System.out.println(relations.get(1)     .getVia().get(1).getToKeys().get(0).getToken().snake_case());
+		assertEquals("from_id", relations.get(1).getVia().get(0).getToKeys().get(0).getToken().snake_case());
+		assertEquals("to_id", relations.get(1)  .getVia().get(1).getFromKeys().get(0).getToken().snake_case());
+		assertEquals("id", relations.get(1)     .getVia().get(1).getToKeys().get(0).getToken().snake_case());
 	}
 
 	@Test

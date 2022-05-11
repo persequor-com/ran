@@ -411,11 +411,44 @@ public class Clazz<T> {
 
 		if (via.clazz != None.class) {
 			List<RelationDescriber> viaRelations = via.getRelations();
-			Optional<RelationDescriber> fromRelation = viaRelations.stream().filter(r -> r.getToClass().clazz.equals(from.clazz)).findFirst();
-			Optional<RelationDescriber> toRelation = viaRelations.stream().filter(r -> r.getToClass().clazz.equals(relation.clazz)).findFirst();
+			Optional<RelationDescriber> fromRelation;
+			Optional<RelationDescriber> toRelation;
+			if (!viaRelations.isEmpty() && from.clazz.equals(relation.clazz)) {
+				boolean keysMatchesStraight = viaRelations.get(0).getFromKeys().matchesKeys(relationDescriber.getToKeys())
+						&&
+						viaRelations.get(0).getToKeys().matchesKeys(relationDescriber.getFromKeys());
+
+				System.out.println(keysMatchesStraight);
+					fromRelation = Optional.ofNullable(
+							keysMatchesStraight
+							? viaRelations.get(0)
+							: viaRelations.get(1));
+					toRelation = Optional.ofNullable(
+							keysMatchesStraight
+							? viaRelations.get(1)
+							: viaRelations.get(0));
+
+				boolean toMatchesFrom = toRelation.get().getFromKeys().matchesKeys(relationDescriber.getFromKeys())
+						&&
+						toRelation.get().getToKeys().matchesKeys(relationDescriber.getToKeys());
+
+				if (toMatchesFrom) {
+					throw new RuntimeException("Invalid via relation configuration. 'fields' and 'relationsFields' must match. See configuration on "+relationDescriber.getFromClass().getSimpleName()+"."+relationDescriber.getField().camelHump());
+				}
+
+
+			} else {
+				fromRelation = viaRelations.stream().filter(r -> r.getToClass().clazz.equals(from.clazz)).findFirst();
+				toRelation = viaRelations.stream().filter(r -> r.getToClass().clazz.equals(relation.clazz)).findFirst();
+			}
+
 
 			relationDescriber.getVia().add(RelationDescriber
-					.describer(from, relationAnnotation, token, via, fromRelation.map(RelationDescriber::getToKeys)
+					.describer(from
+							, relationAnnotation
+							, token
+							, via
+							, fromRelation.map(RelationDescriber::getToKeys)
 					.orElse(from.getKeys().getPrimary())
 				, fromRelation
 					.map(RelationDescriber::getFromKeys)
@@ -426,7 +459,11 @@ public class Clazz<T> {
 					.orElse(null)));
 
 			relationDescriber.getVia().add(RelationDescriber
-					.describer(via, relationAnnotation, token, relation, toRelation.map(RelationDescriber::getFromKeys)
+					.describer(via
+							,from.getRelationFields().stream().filter(f -> f.getName().equals(token.camelHump())).findFirst().orElseThrow(RuntimeException::new).getAnnotation(Relation.class)
+							, token
+							, relation
+							, toRelation.map(RelationDescriber::getFromKeys)
 					.orElse(via
 						.getKeys()
 						.getPrimary()

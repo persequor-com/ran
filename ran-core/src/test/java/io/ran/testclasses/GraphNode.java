@@ -9,9 +9,9 @@ import java.util.List;
 public class GraphNode {
     @PrimaryKey
     private String id;
-    @Relation(via = GraphNodeLink.class, fields = "id", relationFields = "fromId", autoSave = true)
-    private List<GraphNode> previousNodes = new ArrayList<>();
     @Relation(via = GraphNodeLink.class, fields = "id", relationFields = "toId", autoSave = true)
+    private List<GraphNode> previousNodes = new ArrayList<>();
+    @Relation(via = GraphNodeLink.class, fields = "id", relationFields = "fromId", autoSave = true)
     private List<GraphNode> nextNodes = new ArrayList<>();
 
     public String getId() {

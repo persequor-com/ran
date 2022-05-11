@@ -55,7 +55,11 @@ public class MappingHelper {
 	}
 
 	public Object getRelation(Object obj, Token fieldToken) {
-		return ((Mapping)genericFactory.get(obj.getClass()))._getRelation(obj, fieldToken);
+		if (obj instanceof Mapping) {
+			return ((Mapping) obj)._getRelation(fieldToken);
+		} else {
+			return ((Mapping)genericFactory.get(obj.getClass()))._getRelation(obj, fieldToken);
+		}
 	}
 
 	public <T> ClazzMethod getMethod(Class<T> tClass, Function<T, ?> methodReference) {
