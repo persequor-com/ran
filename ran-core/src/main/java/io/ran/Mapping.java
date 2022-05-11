@@ -22,7 +22,7 @@ public interface Mapping {
 	Object _getRelation(Token token);
 	Object _getRelation(Object object, RelationDescriber relationDescriber);
 	Object _getRelation(Object object, Token token);
-
 	boolean _isChanged();
 	TypeDescriber _getDescriber();
+    void copy(Object from, Object to);
 }

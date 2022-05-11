@@ -69,6 +69,33 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 		createGetRelation();
 		createSetRelationNotLoaded();
 		createSetterWrappers();
+		createCopy();
+	}
+
+	private void createCopy() {
+		try {
+			MethodWriter w = method(Access.Public, new MethodSignature(Mapping.class.getMethod("copy", Object.class, Object.class)));
+			w.defineVar("from", 1);
+			w.defineVar("to", 2);
+			w.load("to");
+			w.cast(clazz);
+			w.objectVar("toTyped");
+			w.load("from");
+			w.cast(clazz);
+			w.objectVar("fromTyped");
+			for (Field field : clazz.getPropertyFields()) {
+				MethodSignature getter = new MethodSignature(aClass.getMethod((field.getType().isPrimitive() && field.getType().equals(boolean.class) ? "is" : "get") + Token.get(field.getName()).javaGetter()));
+				MethodSignature setter = new MethodSignature(aClass.getMethod("set" + Token.get(field.getName()).javaGetter(), field.getType()));
+				w.load("toTyped");
+				w.load("fromTyped");
+				w.invoke(getter);
+				w.invoke(setter);
+			}
+			w.returnNothing();;
+			w.end();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	private void createSetterWrappers() {

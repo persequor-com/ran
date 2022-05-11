@@ -75,4 +75,11 @@ public class MappingHelper {
 		methodReference.accept(queryInstance);
 		return ((QueryWrapper)queryInstance).getCurrentMethod();
 	}
+
+	public <T> void copyValues(Class<T> tClass, T from, T to) {
+		TypeDescriberImpl.getTypeDescriber(tClass);
+		Mapping mapping = (Mapping) genericFactory.get(tClass);
+
+		mapping.copy(from, to);
+	}
 }
