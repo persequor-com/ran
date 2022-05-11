@@ -77,9 +77,13 @@ public class MappingHelper {
 	}
 
 	public <T> void copyValues(Class<T> tClass, T from, T to) {
-		TypeDescriberImpl.getTypeDescriber(tClass);
 		Mapping mapping = (Mapping) genericFactory.get(tClass);
-
 		mapping.copy(from, to);
+	}
+
+	public <T> T makeCopy(Class<T> tClass, T t) {
+		Mapping mapping = (Mapping) genericFactory.get(tClass);
+		mapping.copy(t, mapping);
+		return (T)mapping;
 	}
 }
