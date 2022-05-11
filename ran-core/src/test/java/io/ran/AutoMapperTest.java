@@ -258,4 +258,13 @@ public class AutoMapperTest {
 		assertNull(gear.getBikes());
 	}
 
+	@Test
+	public void manyToManyRelation_typeDescriber_sameObject() throws Throwable {
+		RelationDescriber manyToManyDescriber = TypeDescriberImpl.getTypeDescriber(Bike.class).relations().get("related_bikes_somehow");
+		assertTrue(manyToManyDescriber.getVia().stream().anyMatch(relationDescriber -> relationDescriber.getFromKeys().get(0).getToken().snake_case().equals("bike_2_id")));
+		assertTrue(manyToManyDescriber.getVia().stream().anyMatch(relationDescriber -> relationDescriber.getToKeys().get(0).getToken().snake_case().equals("bike_1_id")));
+
+
+	}
+
 }

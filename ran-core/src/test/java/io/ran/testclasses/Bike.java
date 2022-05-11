@@ -21,6 +21,9 @@ public class Bike {
 	@Relation(collectionElementType = BikeGear.class,via = BikeGearBike.class, autoSave = true)
 	private List<BikeGear> gears;
 
+	@Relation(collectionElementType = Bike.class, via = BikeToBike.class, autoSave = true)
+	private List<Bike> relatedBikesSomehow;
+
 	public String getId() {
 		return id;
 	}
@@ -67,5 +70,13 @@ public class Bike {
 
 	public void setGears(List<BikeGear> gears) {
 		this.gears = gears;
+	}
+
+	public List<Bike> getRelatedBikesSomehow() {
+		return relatedBikesSomehow;
+	}
+
+	public void setRelatedBikesSomehow(List<Bike> relatedBikesSomehow) {
+		this.relatedBikesSomehow = relatedBikesSomehow;
 	}
 }

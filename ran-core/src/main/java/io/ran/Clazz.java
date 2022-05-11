@@ -412,7 +412,10 @@ public class Clazz<T> {
 		if (via.clazz != None.class) {
 			List<RelationDescriber> viaRelations = via.getRelations();
 			Optional<RelationDescriber> fromRelation = viaRelations.stream().filter(r -> r.getToClass().clazz.equals(from.clazz)).findFirst();
-			Optional<RelationDescriber> toRelation = viaRelations.stream().filter(r -> r.getToClass().clazz.equals(relation.clazz)).findFirst();
+			Optional<RelationDescriber> toRelation = viaRelations.stream()
+					.filter(r -> r.getToClass().clazz.equals(relation.clazz))
+					.filter(r -> fromRelation.isPresent() && !fromRelation.get().equals(r))
+					.findFirst();
 
 			relationDescriber.getVia().add(RelationDescriber
 					.describer(from, relationAnnotation, token, via, fromRelation.map(RelationDescriber::getToKeys)
