@@ -122,6 +122,19 @@ public class KeySet {
 		return primary;
 	}
 
+	public boolean matchesKeys(KeySet o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		KeySet keySet = (KeySet) o;
+		if (parts.size() != keySet.parts.size()) return false;
+		Iterator<Field> itt1 = parts.iterator();
+		Iterator<Field> itt2 = keySet.parts.iterator();
+		while(itt1.hasNext()) {
+			if (!itt1.next().equals(itt2.next())) return false;
+		}
+		return true;
+	}
+
 	public static class Field {
 		private Property<?> property;
 		private int order;

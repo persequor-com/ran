@@ -149,6 +149,7 @@ public class TestDoubleTest {
 	@Test
 	public void limitAndMultipleSorts_firstSortDiffers() {
 		car2.setCrashRating(1.0);
+		carRepo.save(car2);
 		List<Car> actual = carRepo.query().sortAscending(Car::getCrashRating).sortAscending(Car::getConstructionDate).limit(1).execute().collect(Collectors.toList());
 		assertEquals(1, actual.size());
 		assertEquals("My other car", actual.get(0).getId());
@@ -166,6 +167,7 @@ public class TestDoubleTest {
 	@Test
 	public void isNull() {
 		car2.setBrand(null);
+		carRepo.save(car2);
 		Optional<Car> actual = carRepo.query().isNull(Car::getBrand).execute().findFirst();
 		assertTrue(actual.isPresent());
 		assertEquals("My other car", actual.get().getId());

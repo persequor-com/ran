@@ -28,6 +28,7 @@ public class IsItsOwnKeyTest {
 		repo.save(o);
 
 		IsItsOwnKey res = repo.get(o).orElseThrow(() -> new RuntimeException());
-		assertEquals(o, res);
+		assertEquals("k1", res.getKey1());
+		assertEquals("k2", res.getKey2());
 	}
 }

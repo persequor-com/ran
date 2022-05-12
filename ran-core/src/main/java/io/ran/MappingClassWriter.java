@@ -69,6 +69,33 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 		createGetRelation();
 		createSetRelationNotLoaded();
 		createSetterWrappers();
+		createCopy();
+	}
+
+	private void createCopy() {
+		try {
+			MethodWriter w = method(Access.Public, new MethodSignature(Mapping.class.getMethod("copy", Object.class, Object.class)));
+			w.defineVar("from", 1);
+			w.defineVar("to", 2);
+			w.load("to");
+			w.cast(clazz);
+			w.objectVar("toTyped");
+			w.load("from");
+			w.cast(clazz);
+			w.objectVar("fromTyped");
+			for (Field field : clazz.getPropertyFields()) {
+				MethodSignature getter = new MethodSignature(aClass.getMethod((field.getType().isPrimitive() && field.getType().equals(boolean.class) ? "is" : "get") + Token.get(field.getName()).javaGetter()));
+				MethodSignature setter = new MethodSignature(aClass.getMethod("set" + Token.get(field.getName()).javaGetter(), field.getType()));
+				w.load("toTyped");
+				w.load("fromTyped");
+				w.invoke(getter);
+				w.invoke(setter);
+			}
+			w.returnNothing();;
+			w.end();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	private void createSetterWrappers() {
@@ -116,10 +143,18 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 			ce2.returnObject();
 			ce2.end();
 
+			MethodWriter ceToken = method(Access.Public, new MethodSignature(Mapping.class.getMethod("_getRelation", Token.class)));
+			ceToken.load(0);
+			ceToken.load(0);
+			ceToken.load(1);
+			ceToken.invoke(Mapping.class.getMethod("_getRelation", Object.class, Token.class));
+			ceToken.returnObject();
+			ceToken.end();
 
 
 			MethodWriter ce = method(Access.Public, new MethodSignature(Mapping.class.getMethod("_getRelation", Object.class, Token.class)));
 			ce.load(2);
+
 
 			ce.invoke(new MethodSignature(Token.class.getMethod("snake_case")));
 			ce.objectStore(4);
@@ -129,7 +164,7 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 				Method getter = getGetter(field, column);
 				Relation resolver = field.getAnnotation(Relation.class);
 				if (resolver != null) {
-					MethodSignature superMethod = new MethodSignature(getter).setOwner(mapperClazz).setName("_" + getter.getName() + "Super");
+					MethodSignature superMethod = new MethodSignature(mapperClazz, "_" + getter.getName() + "Super", Clazz.of(getter.getReturnType()));
 					MethodWriter superRelationReader = method(Access.Public, superMethod);
 					superRelationReader.load(0);
 					superRelationReader.invokeSuper(new MethodSignature(getter));
@@ -142,13 +177,22 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 					ce.invoke(new MethodSignature(String.class.getMethod("equals", Object.class)));
 
 					ce.ifThen(c -> {
+
+//						ce.cast(mapperClazz);
 						ce.load(1);
-						ce.cast(mapperClazz);
-						ce.invoke(superMethod);
+						ce.ifInstanceOf(mapperClazz, i -> {
+							i.load(1);
+							i.cast(mapperClazz);
+							i.invoke(superMethod);
+						}, e -> {
+							e.load(1);
+							e.cast(clazz);
+							e.invoke(getter);
+						});
+						ce.objectVar("superResult");
+						ce.load("superResult");
 						ce.ifNonNull(c2 -> {
-							ce.load(1);
-							ce.cast(mapperClazz);
-							ce.invoke(superMethod);
+							ce.load("superResult");
 							ce.cast(Clazz.of(field));
 							ce.returnObject();
 						});
@@ -634,8 +678,8 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 					MethodWriter ce = method(Access.of(fieldMethod.getModifiers()), sig);
 					{
 						// if (super.get{column.CamelBack()}() == null
-						ce.load(0);
-						ce.invokeSuper(sig);
+//						ce.load(0);
+//						ce.invokeSuper(sig);
 
 						ce.load(0);
 						ce.getField(getSelf(), relationLoaded, Clazz.of(boolean.class));

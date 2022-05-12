@@ -180,7 +180,7 @@ public abstract class TestDoubleQuery<T, Z extends CrudRepository.InlineQuery<T,
 		if (limit != null) {
 			list = list.subList(offset, offset+limit);
 		}
-		return list.stream();
+		return list.stream().map(e -> mappingHelper.makeCopy(clazz, e));
 	}
 
 	@Override
