@@ -161,6 +161,10 @@ public abstract class TestDoubleQuery<T, Z extends CrudRepository.InlineQuery<T,
 
 	@Override
 	public Stream<T> execute() {
+		return executeInternal().map(e -> mappingHelper.makeCopy(clazz, e));
+	}
+
+	protected Stream<T> executeInternal() {
 		Stream<T> values = testDoubleDb.getStore(clazz).values().stream();
 		for (Predicate<T> filter : filters) {
 			values = values.filter(filter);
@@ -180,7 +184,7 @@ public abstract class TestDoubleQuery<T, Z extends CrudRepository.InlineQuery<T,
 		if (limit != null) {
 			list = list.subList(offset, offset+limit);
 		}
-		return list.stream().map(e -> mappingHelper.makeCopy(clazz, e));
+		return list.stream();
 	}
 
 	@Override
