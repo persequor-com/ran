@@ -622,6 +622,7 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 			for (Field field : clazz.getRelationFields()) {
 				Token column = Token.camelHump(field.getName());
 				Method fieldMethod = getGetter(field, column);
+				Method setterMethod = getSetter(field);
 				Relation resolver = field.getAnnotation(Relation.class);
 				if (resolver != null) {
 					String relationLoaded = "_relationLoaded" + column.CamelBack();
@@ -632,7 +633,28 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 					Class<?> elementType = isCollection ? resolver.collectionElementType() : field.getType();
 					MethodSignature sig = new MethodSignature(fieldMethod);
 					MethodWriter ce = method(Access.of(fieldMethod.getModifiers()), sig);
-					{
+					MethodSignature setterSignature = new MethodSignature(setterMethod);
+					setterSignature.setOwner(mapperClazz);
+					MethodWriter setterWriter = method(Access.of(fieldMethod.getModifiers()), setterSignature);
+					{ // Write the setter method
+						{ // super.set${fieldName}(${firstParameter});
+							setterWriter.load(0);
+							setterWriter.load(1);
+							MethodSignature superSetterSignature = new MethodSignature(setterMethod);
+							setterWriter.invokeSuper(superSetterSignature);
+						}
+						{
+							// this._relationsLoaded${fieldName} = true;
+							setterWriter.load(0);
+							setterWriter.push(Boolean.TRUE);
+							setterWriter.putfield(mapperClazz, "_relationLoaded" + column.CamelBack(), Clazz.of(boolean.class));
+						}
+						{   // return;
+							setterWriter.returnNothing();
+							setterWriter.end();
+						}
+					}
+					{ // Write the getter method
 						// if (super.get{column.CamelBack()}() == null
 						ce.load(0);
 						ce.invokeSuper(sig);
@@ -666,9 +688,7 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 							c.invoke(fieldMethodSetter);
 
 							// _relationLoaded{column.CamelBack()}=true
-							c.load(0);
-							c.push(Boolean.TRUE);
-							c.putfield(mapperClazz, "_relationLoaded" + column.CamelBack(), Clazz.of(boolean.class));
+
 						});
 
 

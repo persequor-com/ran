@@ -12,4 +12,11 @@ public class HeadLights {
 	public void setOn(String on) {
 		this.on = on;
 	}
+
+	@Override
+	public String toString() {
+		return "HeadLights{" +
+				"on='" + on + '\'' +
+				'}';
+	}
 }

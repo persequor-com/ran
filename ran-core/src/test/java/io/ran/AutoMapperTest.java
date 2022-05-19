@@ -16,6 +16,10 @@ import java.time.ZonedDateTime;
 import java.util.*;
 
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class AutoMapperTest {
 	private AutoMapper mapper;
@@ -258,4 +262,49 @@ public class AutoMapperTest {
 		assertNull(gear.getBikes());
 	}
 
+	@Test
+	public void settersSetsLoadedFlag() throws Throwable {
+		Car car = helper.factory.get(Car.class);
+		car.setId("car id");
+
+
+		Mapping carMapping = (Mapping)car;
+		Resolver mockedResolver = mock(Resolver.class);
+		HeadLights existingHeadlights = helper.factory.get(HeadLights.class);
+		existingHeadlights.setOn("existing headlights on");
+		when(mockedResolver.get(any(), anyString(), any())).thenAnswer(i -> {
+			return existingHeadlights;
+		});
+		car.getClass().getMethod("_resolverInject", Resolver.class).invoke(car, mockedResolver);
+
+		HeadLights headLights = helper.factory.get(HeadLights.class);
+		headLights.setOn("car id");
+		car.setHeadLights(headLights);
+
+		assertSame(headLights, car.getHeadLights());
+
+	}
+
+	@Test
+	public void collectionSettersSetsLoadedFlag() throws Throwable {
+		Car car = helper.factory.get(Car.class);
+		car.setId("car id");
+
+
+		Mapping carMapping = (Mapping)car;
+		Resolver mockedResolver = mock(Resolver.class);
+		Door existingDoor = helper.factory.get(Door.class);
+		existingDoor.setId("existing door id");
+		when(mockedResolver.get(any(), anyString(), any())).thenAnswer(i -> {
+			return Arrays.asList(existingDoor);
+		});
+		car.getClass().getMethod("_resolverInject", Resolver.class).invoke(car, mockedResolver);
+
+		Door door = helper.factory.get(Door.class);
+		door.setId("new car id");
+		car.setDoors(Arrays.asList(door));
+
+		assertSame(door, car.getDoors().get(0));
+
+	}
 }
