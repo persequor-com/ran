@@ -16,7 +16,7 @@ import static org.junit.Assert.*;
 public class ClazzTest {
 	@Test
 	public void relations_via() {
-		List<RelationDescriber> relations = Clazz.of(RelationFrom.class).getRelations();
+		List<RelationDescriber> relations = TypeDescriberImpl.getTypeDescriber(RelationFrom.class).relations();
 
 		assertEquals(1, relations.size());
 		assertEquals(2, relations.get(0).getVia().size());
@@ -32,7 +32,7 @@ public class ClazzTest {
 
 	@Test
 	public void relations_via_graph() {
-		List<RelationDescriber> relations = Clazz.of(GraphNode.class).getRelations();
+		List<RelationDescriber> relations = TypeDescriberImpl.getTypeDescriber(GraphNode.class).relations();
 
 		assertEquals(2, relations.size());
 		assertEquals(2, relations.get(0).getVia().size());
@@ -61,7 +61,7 @@ public class ClazzTest {
 
 	@Test
 	public void relations_viaDescribed() {
-		List<RelationDescriber> relations = Clazz.of(DescribedRelationFrom.class).getRelations();
+		List<RelationDescriber> relations = TypeDescriberImpl.getTypeDescriber(DescribedRelationFrom.class).relations();
 
 		assertEquals(1, relations.size());
 		assertEquals(2, relations.get(0).getVia().size());
@@ -77,7 +77,7 @@ public class ClazzTest {
 
 	@Test
 	public void relations_inverse() {
-		List<RelationDescriber> relations = Clazz.of(DescribedRelationVia.class).getRelations();
+		List<RelationDescriber> relations = TypeDescriberImpl.getTypeDescriber(DescribedRelationVia.class).relations();
 
 		assertEquals(Token.of("muh"), relations.get(0).getToKeys().get(0).getToken());
 		assertEquals(Token.of("cat"), relations.get(0).getFromKeys().get(0).getToken());
@@ -106,7 +106,8 @@ public class ClazzTest {
 
 	@Test
 	public void classWithRelationAndOtherKey() {
-		List<RelationDescriber> relations = Clazz.of(ClassWithRelationAndOtherKey.class).getRelations();
+		List<RelationDescriber> relations = TypeDescriberImpl.getTypeDescriber(ClassWithRelationAndOtherKey.class).relations();
+
 		assertEquals(relations.get(0).getFromKeys().size(), relations.get(0).getToKeys().size());
 		assertEquals(1, relations.get(0).getToKeys().size());
 		assertEquals("class_with_relation_and_other_key_id", relations.get(0).getToKeys().get(0).getToken().snake_case());
@@ -340,6 +341,38 @@ public class ClazzTest {
 
 		@Relation(fields = "horse", relationFields = "id")
 		private transient RelationTo ninja;
+
+		public int getCat() {
+			return cat;
+		}
+
+		public void setCat(int cat) {
+			this.cat = cat;
+		}
+
+		public int getHorse() {
+			return horse;
+		}
+
+		public void setHorse(int horse) {
+			this.horse = horse;
+		}
+
+		public DescribedRelationFrom getSamurai() {
+			return samurai;
+		}
+
+		public void setSamurai(DescribedRelationFrom samurai) {
+			this.samurai = samurai;
+		}
+
+		public RelationTo getNinja() {
+			return ninja;
+		}
+
+		public void setNinja(RelationTo ninja) {
+			this.ninja = ninja;
+		}
 	}
 
 	public static class RelationTo {
