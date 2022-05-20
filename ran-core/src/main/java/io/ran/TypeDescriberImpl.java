@@ -170,7 +170,6 @@ public class TypeDescriberImpl<T> implements TypeDescriber<T> {
 						&&
 						viaRelations.get(0).getToKeys().matchesKeys(relationDescriber.getFromKeys());
 
-				System.out.println(keysMatchesStraight);
 				fromRelation = Optional.ofNullable(
 						keysMatchesStraight
 								? viaRelations.get(0)
