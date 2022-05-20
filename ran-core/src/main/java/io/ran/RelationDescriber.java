@@ -123,5 +123,10 @@ public class RelationDescriber {
 		public int hashCode() {
 			return Objects.hash(super.hashCode(), fromClass);
 		}
+
+		public RelationDescriberList addRelations(List<RelationDescriber> relations) {
+			addAll(relations);
+			return this;
+		}
 	}
 }

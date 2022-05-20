@@ -29,7 +29,14 @@ public class TypeDescriberImpl<T> implements TypeDescriber<T> {
 	}
 
 	public static <X> TypeDescriber<X> getTypeDescriber(Class<X> tClass) {
-		return descibers.computeIfAbsent(tClass, c -> new TypeDescriberImpl<>(Clazz.of(tClass)));
+		if (!descibers.containsKey(tClass)) {
+			synchronized (TypeDescriberImpl.class) {
+				if (!descibers.containsKey(tClass)) {
+					return descibers.computeIfAbsent(tClass, c -> new TypeDescriberImpl<>(Clazz.of(tClass)));
+				}
+			}
+		}
+		return descibers.get(tClass);
 	}
 
 	@Override
@@ -101,8 +108,7 @@ public class TypeDescriberImpl<T> implements TypeDescriber<T> {
 		if (relations == null) {
 			synchronized (this) {
 				if (relations == null) {
-					relations = new RelationDescriber.RelationDescriberList(clazz);
-					relations.addAll(clazz.getRelations());
+					relations = new RelationDescriber.RelationDescriberList(clazz).addRelations(clazz.getRelations());
 				}
 			}
 		}
