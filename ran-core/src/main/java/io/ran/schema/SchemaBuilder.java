@@ -1,5 +1,6 @@
 package io.ran.schema;
 
+import io.ran.TypeDescriber;
 import io.ran.token.TableToken;
 import io.ran.token.Token;
 
@@ -18,6 +19,7 @@ public abstract class SchemaBuilder<SB extends SchemaBuilder<SB, TB, CB, IB, ITB
 
 	abstract protected TB getTableBuilder();
 	abstract protected TableToken getTableToken(Token token);
+	abstract protected TableToken getTableToken(TypeDescriber<?> typeDescriber);
 	protected abstract TableActionDelegate create();
 	protected abstract TableActionDelegate modify();
 	protected abstract TableActionDelegate remove();
