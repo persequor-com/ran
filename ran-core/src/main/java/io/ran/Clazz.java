@@ -193,6 +193,7 @@ public class Clazz<T> {
 					}
 				}
 			}
+			getAnnotations();
 		}
 	}
 
