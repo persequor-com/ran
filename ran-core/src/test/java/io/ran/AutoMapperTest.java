@@ -267,14 +267,10 @@ public class AutoMapperTest {
 		Car car = helper.factory.get(Car.class);
 		car.setId("car id");
 
-
-		Mapping carMapping = (Mapping)car;
 		Resolver mockedResolver = mock(Resolver.class);
 		HeadLights existingHeadlights = helper.factory.get(HeadLights.class);
 		existingHeadlights.setOn("existing headlights on");
-		when(mockedResolver.get(any(), anyString(), any())).thenAnswer(i -> {
-			return existingHeadlights;
-		});
+		when(mockedResolver.get(any(), anyString(), any())).thenAnswer(i -> existingHeadlights);
 		car.getClass().getMethod("_resolverInject", Resolver.class).invoke(car, mockedResolver);
 
 		HeadLights headLights = helper.factory.get(HeadLights.class);
@@ -282,7 +278,6 @@ public class AutoMapperTest {
 		car.setHeadLights(headLights);
 
 		assertSame(headLights, car.getHeadLights());
-
 	}
 
 	@Test
@@ -290,21 +285,16 @@ public class AutoMapperTest {
 		Car car = helper.factory.get(Car.class);
 		car.setId("car id");
 
-
-		Mapping carMapping = (Mapping)car;
 		Resolver mockedResolver = mock(Resolver.class);
 		Door existingDoor = helper.factory.get(Door.class);
 		existingDoor.setId("existing door id");
-		when(mockedResolver.get(any(), anyString(), any())).thenAnswer(i -> {
-			return Arrays.asList(existingDoor);
-		});
+		when(mockedResolver.get(any(), anyString(), any())).thenAnswer(i -> Collections.singletonList(existingDoor));
 		car.getClass().getMethod("_resolverInject", Resolver.class).invoke(car, mockedResolver);
 
 		Door door = helper.factory.get(Door.class);
 		door.setId("new car id");
-		car.setDoors(Arrays.asList(door));
+		car.setDoors(Collections.singletonList(door));
 
 		assertSame(door, car.getDoors().get(0));
-
 	}
 }

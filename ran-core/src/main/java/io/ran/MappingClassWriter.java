@@ -686,9 +686,6 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 
 							// invoke setter of the field with the cast object
 							c.invoke(fieldMethodSetter);
-
-							// _relationLoaded{column.CamelBack()}=true
-
 						});
 
 
