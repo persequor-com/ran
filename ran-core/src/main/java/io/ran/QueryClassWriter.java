@@ -76,10 +76,11 @@ public class QueryClassWriter extends AutoMapperClassWriter {
 				String tokenSnake = Token.get(m.getName().replaceFirst("^(?:is|get|set)","")).snake_case();
 				MethodWriter mw = method(Access.of(m.getModifiers()), new MethodSignature(m));
 				mw.load(0);
-				mw.getField(getSelf(), "currentProperty", Clazz.of(Property.class));
+				mw.load(0);
+				mw.getField(getSelf(), "typeDescriber", Clazz.of(TypeDescriberImpl.class));
 				mw.push(tokenSnake);
-				mw.invoke(Token.class.getMethod("snake_case", String.class));
-				mw.invoke(Property.class.getMethod("setToken", Token.class));
+				mw.invoke(TypeDescriberImpl.class.getMethod("getPropertyFromSnakeCase", String.class));
+				mw.putfield(getSelf(), "currentProperty", Clazz.of(Property.class));
 				if (m.getReturnType() == void.class) {
 					mw.returnNothing();
 				} else if (m.getReturnType().isPrimitive()) {

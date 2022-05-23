@@ -9,6 +9,7 @@ import org.junit.Test;
 import javax.inject.Inject;
 import java.time.Duration;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -28,6 +29,7 @@ public class TestDoubleTest {
 
 	private Car car1;
 	private Car car2;
+	private Car car3;
 	private Engine engine1;
 	private Engine engine2;
 
@@ -54,6 +56,7 @@ public class TestDoubleTest {
 		car1.setCrashRating(2.0);
 		car1.setId("My car");
 		car1.setEngine(engine1);
+		car1.setTitle("SUV");
 		carRepo.save(car1);
 
 		car2 = new Car();
@@ -61,9 +64,45 @@ public class TestDoubleTest {
 		car2.setCrashRating(2.0);
 		car2.setConstructionDate(ZonedDateTime.now().plus(Duration.ofDays(1)));
 		car2.setId("My other car");
+		car2.setTitle("Sedan");
 		car2.setEngine(engine2);
 		carRepo.save(car2);
 	}
+
+	@Test
+	public void mixedMultiFieldSort_happy() throws Throwable {
+		car3 = new Car();
+		car3.setBrand(Brand.Porsche);
+		car3.setCrashRating(3.0);
+		car3.setConstructionDate(ZonedDateTime.now().plus(Duration.ofDays(1)));
+		car3.setId("My other other car");
+		car3.setEngine(engine2);
+		car3.setTitle("Sedan");
+		carRepo.save(car3);
+
+		List<List<?>> actual = carRepo.query()
+				.sortAscending(Car::getTitle).sortDescending(Car::getBrand)
+				.execute().map(car -> Arrays.asList(car.getTitle(), car.getBrand())).collect(Collectors.toList());
+
+		assertEquals(Arrays.asList(
+						Arrays.asList("Sedan", Brand.Porsche)
+						, Arrays.asList("Sedan", Brand.Hyundai)
+						, Arrays.asList("SUV", Brand.Porsche))
+				, actual
+		);
+
+		actual = carRepo.query()
+				.sortDescending(Car::getTitle).sortAscending(Car::getBrand)
+				.execute().map(car -> Arrays.asList(car.getTitle(), car.getBrand())).collect(Collectors.toList());
+
+		assertEquals(Arrays.asList(
+						Arrays.asList("SUV", Brand.Porsche)
+						, Arrays.asList("Sedan", Brand.Hyundai)
+						,Arrays.asList("Sedan", Brand.Porsche))
+				, actual
+		);
+	}
+
 
 	@Test
 	public void simpleQuery() {
@@ -110,6 +149,7 @@ public class TestDoubleTest {
 	@Test
 	public void limitAndMultipleSorts_firstSortDiffers() {
 		car2.setCrashRating(1.0);
+		carRepo.save(car2);
 		List<Car> actual = carRepo.query().sortAscending(Car::getCrashRating).sortAscending(Car::getConstructionDate).limit(1).execute().collect(Collectors.toList());
 		assertEquals(1, actual.size());
 		assertEquals("My other car", actual.get(0).getId());
@@ -127,6 +167,7 @@ public class TestDoubleTest {
 	@Test
 	public void isNull() {
 		car2.setBrand(null);
+		carRepo.save(car2);
 		Optional<Car> actual = carRepo.query().isNull(Car::getBrand).execute().findFirst();
 		assertTrue(actual.isPresent());
 		assertEquals("My other car", actual.get().getId());

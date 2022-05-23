@@ -24,99 +24,99 @@ public class PropertiesColumnizer implements ObjectMapColumnizer {
 		return values;
 	}
 
-	private <T> void setInternal(Token key, T value) {
+	private <T> void setInternal(Property key, T value) {
 		if(properties.contains(key)) {
-			values.add(((Property<T>)properties.get(key)).value((T)value));
+			values.add(((Property<T>)properties.get(key.getToken())).value((T)value));
 		}
 	}
 
 	@Override
-	public void set(Token key, String value) {
+	public void set(Property key, String value) {
 		setInternal(key, value);
 	}
 
 	@Override
-	public void set(Token key, Character value) {
+	public void set(Property key, Character value) {
 		setInternal(key, value);
 	}
 
 	@Override
-	public void set(Token key, ZonedDateTime value) {
+	public void set(Property key, ZonedDateTime value) {
 		setInternal(key, value);
 	}
 
 	@Override
-	public void set(Token key, LocalDateTime value) {
+	public void set(Property key, LocalDateTime value) {
 		setInternal(key, value);
 	}
 
 	@Override
-	public void set(Token key, Instant value) {
+	public void set(Property key, Instant value) {
 		setInternal(key, value);
 	}
 
 	@Override
-	public void set(Token key, LocalDate value) {
+	public void set(Property key, LocalDate value) {
 		setInternal(key, value);
 	}
 
 	@Override
-	public void set(Token key, Integer value) {
+	public void set(Property key, Integer value) {
 		setInternal(key, value);
 	}
 
 	@Override
-	public void set(Token key, Short value) {
+	public void set(Property key, Short value) {
 		setInternal(key, value);
 	}
 
 	@Override
-	public void set(Token key, Long value) {
+	public void set(Property key, Long value) {
 		setInternal(key, value);
 	}
 
 	@Override
-	public void set(Token key, UUID value) {
+	public void set(Property key, UUID value) {
 		setInternal(key, value);
 	}
 
 	@Override
-	public void set(Token key, Double value) {
+	public void set(Property key, Double value) {
 		setInternal(key, value);
 	}
 
 	@Override
-	public void set(Token key, BigDecimal value) {
+	public void set(Property key, BigDecimal value) {
 		setInternal(key, value);
 	}
 
 	@Override
-	public void set(Token key, Float value) {
+	public void set(Property key, Float value) {
 		setInternal(key, value);
 	}
 
 	@Override
-	public void set(Token key, Boolean value) {
+	public void set(Property key, Boolean value) {
 		setInternal(key, value);
 	}
 
 	@Override
-	public void set(Token key, Byte value) {
+	public void set(Property key, Byte value) {
 		setInternal(key, value);
 	}
 
 	@Override
-	public void set(Token key, byte[] value) {
+	public void set(Property key, byte[] value) {
 		setInternal(key, value);
 	}
 
 	@Override
-	public void set(Token key, Enum<?> value) {
+	public void set(Property key, Enum<?> value) {
 		setInternal(key, value);
 	}
 
 	@Override
-	public void set(Token key, Collection<?> value) {
+	public void set(Property key, Collection<?> value) {
 		setInternal(key, value);
 	}
 }

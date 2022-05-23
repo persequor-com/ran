@@ -1,5 +1,6 @@
 package io.ran.schema;
 
+import io.ran.Property;
 import io.ran.token.ColumnToken;
 import io.ran.token.IndexToken;
 import io.ran.token.Token;
@@ -26,6 +27,16 @@ class TestTableBuilder extends TableModifier<TestTableBuilder, TestColumnBuilder
 	@Override
 	protected IndexToken getIndexToken(Token token) {
 		return new TestIndexToken(token);
+	}
+
+	@Override
+	protected ColumnToken getColumnToken(Property property) {
+		return new TestColumnToken(property);
+	}
+
+	@Override
+	protected IndexToken getIndexToken(Property property) {
+		return new TestIndexToken(property);
 	}
 
 	@Override

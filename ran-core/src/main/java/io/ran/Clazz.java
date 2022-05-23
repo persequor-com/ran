@@ -193,6 +193,7 @@ public class Clazz<T> {
 					}
 				}
 			}
+			getAnnotations();
 		}
 	}
 
@@ -289,11 +290,19 @@ public class Clazz<T> {
 		return annotations;
 	}
 
+	public Property.PropertyList getAllFields() {
+		return getFields(true);
+	}
+
 	public Property.PropertyList getProperties() {
+		return getFields(false);
+	}
+
+	private Property.PropertyList getFields(boolean includeNonProperties) {
 		Property.PropertyList fields = Property.list();
 
 		for (Field field : getFields()) {
-			if(!isPropertyField(field)) {
+			if(isPublicStatic(field) || !includeNonProperties && !isPropertyField(field)) {
 				continue;
 			}
 			Token token = Token.camelHump(field.getName());
@@ -310,9 +319,7 @@ public class Clazz<T> {
 
 			property.setOn(this);
 			property.getAnnotations().addFrom(field);
-			if (isPropertyField(field)) {
-				fields.add(property);
-			}
+			fields.add(property);
 		}
 		return fields;
 	}
@@ -338,6 +345,11 @@ public class Clazz<T> {
 	public static boolean isPropertyField(Field field) {
 		return CamelHumpToken.is(field.getName()) && !Modifier.isTransient(field.getModifiers()) && field.getAnnotation(Relation.class) == null;
 	}
+
+	public static boolean isPublicStatic(Field field) {
+		return Modifier.isPublic(field.getModifiers()) && Modifier.isStatic(field.getModifiers());
+	}
+
 
 	public static boolean isRelationField(Field field) {
 		return CamelHumpToken.is(field.getName()) && field.getAnnotation(Relation.class) != null;
@@ -368,87 +380,8 @@ public class Clazz<T> {
 		return Stream.of(clazz.getDeclaredFields()).filter(Clazz::isPropertyField).collect(Collectors.toList());
 	}
 
-	private static RelationDescriber describeRelation(Clazz<?> from, Relation relationAnnotation, Token token, List<String> fields, List<String> relationFields, Clazz<?> relation, Clazz<?> collectionType, Clazz<?> via) {
-		RelationDescriber relationDescriber;
-		Property.PropertyList properties = from.getProperties();
 
 
-		KeySet selfKeys = KeySet.get();
-		KeySet relationKeys = KeySet.get();
-		if (relationFields.size() > 0) {
-			relationFields.stream().map(Token::get).map(t ->  relation.getProperties().get(t)).forEach(relationKeys::add);
-		}
-		if (fields.size() > 0) {
-			fields.stream().map(Token::get).map(properties::get).forEach(selfKeys::add);
-		}
-
-		if (relationKeys.isEmpty()) {
-			relationKeys.add(relation.getProperties().mapProperties(properties));
-		}
-		if (selfKeys.isEmpty()) {
-			selfKeys.add(properties.mapProperties(relation.getProperties()));
-		}
-
-		if (collectionType != null) {
-			relationDescriber = RelationDescriber.describer(from, relationAnnotation, token, relation, selfKeys, relationKeys, RelationType.OneToMany, collectionType);
-
-		} else {
-			relationDescriber = RelationDescriber.describer(from, relationAnnotation, token, relation, selfKeys, relationKeys, RelationType.OneToOne, null);
-		}
-
-		if (via.clazz != None.class) {
-			List<RelationDescriber> viaRelations = via.getRelations();
-			Optional<RelationDescriber> fromRelation = viaRelations.stream().filter(r -> r.getToClass().clazz.equals(from.clazz)).findFirst();
-			Optional<RelationDescriber> toRelation = viaRelations.stream().filter(r -> r.getToClass().clazz.equals(relation.clazz)).findFirst();
-
-			relationDescriber.getVia().add(RelationDescriber
-					.describer(from, relationAnnotation, token, via, fromRelation.map(RelationDescriber::getToKeys)
-					.orElse(from.getKeys().getPrimary())
-				, fromRelation
-					.map(RelationDescriber::getFromKeys)
-					.orElse(via.getKeys().getPrimary().toProperties().mapProperties(from.getKeys().getPrimary().toProperties()))
-				, RelationType.OneToMany
-				, fromRelation
-					.map(RelationDescriber::getCollectionType)
-					.orElse(null)));
-
-			relationDescriber.getVia().add(RelationDescriber
-					.describer(via, relationAnnotation, token, relation, toRelation.map(RelationDescriber::getFromKeys)
-					.orElse(via
-						.getKeys()
-						.getPrimary()
-						.toProperties()
-						.mapProperties(relation.getKeys().getPrimary().toProperties())
-					)
-					, toRelation
-						.map(RelationDescriber::getToKeys)
-						.orElse(relation.getKeys().getPrimary())
-					, RelationType.OneToMany
-					, toRelation.map(RelationDescriber::getCollectionType)
-						.orElse(null)
-				)
-			);
-		}
-		return relationDescriber;
-	}
-
-	public List<RelationDescriber> getRelations() {
-		Property.PropertyList fields = getProperties();
-		List<RelationDescriber> describers = new ArrayList<>();
-		for (Field field : clazz.getDeclaredFields()) {
-			Relation relation = field.getAnnotation(Relation.class);
-
-			if (relation != null) {
-				Token token = Token.camelHump(field.getName());
-				Token idToken = Token.camelHump(field.getName()+"Id");
-				boolean isCollection = field.getType().isAssignableFrom(Collection.class) || field.getType().isAssignableFrom(List.class);
-
-
-				describers.add(describeRelation(this, relation, token, Arrays.asList(relation.fields()), Arrays.asList(relation.relationFields()), isCollection ? Clazz.of(field).generics.get(0) : Clazz.of(field), isCollection ? Clazz.of(field) : null, Clazz.of(relation.via())));
-			}
-		}
-		return describers;
-	}
 
 	public Object getDefaultValue() {
 		if (isPrimitive()) {

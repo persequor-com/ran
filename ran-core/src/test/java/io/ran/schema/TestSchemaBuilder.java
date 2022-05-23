@@ -1,5 +1,6 @@
 package io.ran.schema;
 
+import io.ran.TypeDescriber;
 import io.ran.token.TableToken;
 import io.ran.token.Token;
 
@@ -16,6 +17,11 @@ class TestSchemaBuilder extends SchemaBuilder<TestSchemaBuilder, TestTableBuilde
 	@Override
 	protected TableToken getTableToken(Token token) {
 		return new TestTableToken(token);
+	}
+
+	@Override
+	protected TableToken getTableToken(TypeDescriber<?> typeDescriber) {
+		return getTableToken(Token.CamelCase(typeDescriber.clazz().getSimpleName()));
 	}
 
 	@Override

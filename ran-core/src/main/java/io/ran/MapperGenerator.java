@@ -12,19 +12,9 @@ import java.nio.file.Paths;
 public class MapperGenerator {
 
 	private static boolean ideaConfigFileGenerated = false;
-	private final String ideaXmlConfig = "<component name=\"libraryTable\">\n" +
-			"  <library name=\"tmp\">\n" +
-			"    <CLASSES>\n" +
-			"      <root url=\"file://%s\" />\n" +
-			"    </CLASSES>\n" +
-			"    <JAVADOC />\n" +
-			"    <SOURCES />\n" +
-			"  </library>\n" +
-			"</component>\n";
 
 	public Wrapped generate(AutoMapperClassLoader classLoader, Clazz clazz) {
 		try {
-
 			MappingClassWriter visitor = new MappingClassWriter(clazz.clazz);
 			byte[] bytes = visitor.toByteArray();
 			CheckClassAdapter.verify(new ClassReader(bytes),false, new PrintWriter(System.out));
@@ -35,6 +25,7 @@ public class MapperGenerator {
 
 			writeClasses(clazz, bytes, bytes2);
 			return new Wrapped(classLoader.define(visitor.getName(), bytes), classLoader.define(visitor2.getName(), bytes2));
+
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -65,6 +56,15 @@ public class MapperGenerator {
 				if (!Files.exists(Paths.get(ideaLibPath))) {
 					Files.createDirectory(Paths.get(ideaLibPath));
 				}
+				String ideaXmlConfig = "<component name=\"libraryTable\">\n" +
+						"  <library name=\"tmp\">\n" +
+						"    <CLASSES>\n" +
+						"      <root url=\"file://%s\" />\n" +
+						"    </CLASSES>\n" +
+						"    <JAVADOC />\n" +
+						"    <SOURCES />\n" +
+						"  </library>\n" +
+						"</component>\n";
 				Files.write(Paths.get(ideaLibPath + "/tmp.xml"), String.format(ideaXmlConfig, tmpDir).getBytes());
 				ideaConfigFileGenerated = true;
 			}

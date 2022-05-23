@@ -1,9 +1,13 @@
 package io.ran;
 
+import io.ran.testclasses.Brand;
 import io.ran.testclasses.Car;
 import io.ran.token.Token;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.time.ZonedDateTime;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 
@@ -61,5 +65,27 @@ public class MappingHelperTest {
 		mappingHelper.hydrate(car, map);
 
 		assertEquals("my id", car.getId());
+	}
+
+	@Test
+	public void happy_copy() {
+		Car car = new Car();
+		car.setBrand(Brand.Hyundai);
+		car.setCanBeSoldInEu(true);
+		car.setConstructionDate(ZonedDateTime.now());
+		car.setCrashRating(12.45);
+		car.setEngineId(UUID.randomUUID());
+		car.setTitle("The car");
+
+		Car newCar = new Car();
+		mappingHelper.copyValues(Car.class, car, newCar);
+
+		assertEquals(car.getBrand(), newCar.getBrand());
+		assertEquals(car.getCanBeSoldInEu(), newCar.getCanBeSoldInEu());
+		assertEquals(car.getConstructionDate(), newCar.getConstructionDate());
+		assertEquals(car.getCrashRating(), newCar.getCrashRating());
+		assertEquals(car.getEngineId(), newCar.getEngineId());
+		assertEquals(car.getTitle(), newCar.getTitle());
+
 	}
 }

@@ -55,7 +55,11 @@ public class MappingHelper {
 	}
 
 	public Object getRelation(Object obj, Token fieldToken) {
-		return ((Mapping)genericFactory.get(obj.getClass()))._getRelation(obj, fieldToken);
+		if (obj instanceof Mapping) {
+			return ((Mapping) obj)._getRelation(fieldToken);
+		} else {
+			return ((Mapping)genericFactory.get(obj.getClass()))._getRelation(obj, fieldToken);
+		}
 	}
 
 	public <T> ClazzMethod getMethod(Class<T> tClass, Function<T, ?> methodReference) {
@@ -70,5 +74,16 @@ public class MappingHelper {
 		T queryInstance = genericFactory.getQueryInstance(tClass);
 		methodReference.accept(queryInstance);
 		return ((QueryWrapper)queryInstance).getCurrentMethod();
+	}
+
+	public <T> void copyValues(Class<T> tClass, T from, T to) {
+		Mapping mapping = (Mapping) genericFactory.get(tClass);
+		mapping.copy(from, to);
+	}
+
+	public <T> T makeCopy(Class<T> tClass, T t) {
+		Mapping mapping = (Mapping) genericFactory.get(tClass);
+		mapping.copy(t, mapping);
+		return (T)mapping;
 	}
 }

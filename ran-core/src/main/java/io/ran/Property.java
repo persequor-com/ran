@@ -2,16 +2,12 @@ package io.ran;
 
 import io.ran.token.Token;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Property<T> {
 	private Token token;
+	private String snakeCase;
 	private Clazz<T> type;
 	private Clazz<?> on;
 	private List<KeyInfo> keys  = new ArrayList<>();
@@ -23,10 +19,18 @@ public class Property<T> {
 		return new Property<>();
 	}
 
+	public static <T> Property<T> get(Token token) {
+		Property<T> field = new Property<>();
+		field.token = token;
+		field.snakeCase = token.snake_case();
+		return field;
+	}
+
 	public static <T> Property<T> get(Token token, Clazz<T> type) {
 		Property<T> field = new Property<>();
 		field.token = token;
 		field.type = type;
+		field.snakeCase = token.snake_case();
 		return field;
 	}
 
@@ -34,6 +38,7 @@ public class Property<T> {
 		Property<T> field = new Property<>();
 		field.token = Token.snake_case(snakeCaseToken);
 		field.type = type;
+		field.snakeCase = snakeCaseToken;
 		return field;
 	}
 
@@ -82,6 +87,14 @@ public class Property<T> {
 		return this;
 	}
 
+	public boolean matchesSnakeCase(String snakeCase) {
+		return this.snakeCase.equals(snakeCase);
+	}
+
+	public String getSnakeCase() {
+		return snakeCase;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -105,7 +118,12 @@ public class Property<T> {
 	}
 
 	public Property<T> copy() {
-		return Property.get(token, type);
+		Property property = Property.get(token, type);
+		property.snakeCase = snakeCase;
+		property.on = on;
+		property.annotations = annotations;
+		property.keys = new ArrayList<>(keys);
+		return property;
 	}
 
 	public Annotations getAnnotations() {
@@ -113,7 +131,7 @@ public class Property<T> {
 	}
 
 	public static class PropertyList extends ArrayList<Property> {
-
+		private Map<String, Property> propertyMap = Collections.synchronizedMap(new HashMap<>());
 		public PropertyList(List<Property> properties) {
 			addAll(properties);
 		}
@@ -122,16 +140,54 @@ public class Property<T> {
 
 		}
 
+
+		@Override
+		public boolean addAll(int i, Collection<? extends Property> collection) {
+			throw new RuntimeException("Adding at position is unsupported by PropertyList");
+		}
+
+		@Override
+		public boolean addAll(Collection<? extends Property> collection) {
+			boolean changed = false;
+			for (Property property : collection) {
+				if (propertyMap.put(property.getSnakeCase(), property) == null) {
+					super.add(property);
+					changed = true;
+				}
+			}
+			return changed;
+		}
+
+
+		@Override
+		public void add(int i, Property property) {
+			throw new RuntimeException("Adding at position is unsupported by PropertyList");
+		}
+
+		@Override
+		public boolean add(Property property) {
+			if (propertyMap.put(property.getSnakeCase(), property) == null) {
+				return super.add(property);
+			}
+			return false;
+		}
+
 		public void add(String snakeCase, Clazz<?> type) {
-			add(Property.get(Token.snake_case(snakeCase),type));
+			Property<?> property = Property.get(Token.snake_case(snakeCase), type);
+			add(property);
 		}
 
 		public void add(Token token, Clazz<?> type) {
-			add(Property.get(token,type));
+			Property<?> property = Property.get(token, type);
+			add(property);
 		}
 
 		public boolean contains(Token token) {
-			return stream().filter(p -> p.getToken().equals(token)).findAny().isPresent();
+			return propertyMap.containsKey(token.snake_case());
+		}
+
+		public boolean contains(String snakeCase) {
+			return propertyMap.containsKey(snakeCase);
 		}
 
 		public PropertyList remove(PropertyList properties) {
@@ -149,7 +205,7 @@ public class Property<T> {
 				}
 			}
 			if (keys.isEmpty() && contains(Token.of("id"))) {
-				KeyInfo keyInfo = new KeyInfo(true, get(Token.of("id")),"", 0, true);
+				KeyInfo keyInfo = new KeyInfo(true, get("id"),"", 0, true);
 				keys.put(keyInfo.getMapKey(), KeySet.get().add(keyInfo));
 			}
 			return keys;
@@ -163,7 +219,7 @@ public class Property<T> {
 					Clazz<?> otherType = otherProperty.getOn();
 					Optional<Property> ownProperty = getOptional(Token.CamelCase(otherType.clazz.getSimpleName() + "Id"));
 					KeySets keys = keys();
-					if (otherProperty.getToken().equals(Token.of("id")) && ownProperty.isPresent()) {
+					if (otherProperty.matchesSnakeCase("id") && ownProperty.isPresent()) {
 						keySet.parts.clear();
 						keySet.add(ownProperty.get());
 						return keySet;
@@ -183,13 +239,25 @@ public class Property<T> {
 		}
 
 		public Optional<Property> getOptional(Token token) {
-			return stream().filter(p -> p.getToken().equals(token)).findFirst();
+			return Optional.ofNullable(propertyMap.get(token.snake_case()));
+		}
+
+		public Optional<Property> getOptional(String snakeCase) {
+			return Optional.ofNullable(propertyMap.get(snakeCase));
 		}
 
 		public Property<?> get(Token token) {
 			try {
 				return getOptional(token).orElseThrow(() -> new RuntimeException("Could not find property by token: " + token.toString() + " on " + stream().findAny().map(p -> p.getOn().clazz.getName()).orElse("unknown class")));
-			} catch (NullPointerException e) {
+			} catch (Exception e) {
+				throw e;
+			}
+		}
+
+		public Property<?> get(String snakeCase) {
+			try {
+				return getOptional(snakeCase).orElseThrow(() -> new RuntimeException("Could not find property by snake_case: " + snakeCase + " on " + stream().findAny().map(p -> p.getOn().clazz.getName()).orElse("unknown class")));
+			} catch (Exception e) {
 				throw e;
 			}
 		}

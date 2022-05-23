@@ -21,185 +21,184 @@ import java.util.UUID;
 public class ObjectMap extends HashMap<Token, Object> implements ObjectMapHydrator, ObjectMapColumnizer {
 
 	@Override
-	public void set(Token key, String value) {
-		put(key, value);
+	public void set(Property key, String value) {
+		put(key.getToken(), value);
 	}
 
 	@Override
-	public void set(Token key, Character value) {
-		put(key, value);
+	public void set(Property key, Character value) {
+		put(key.getToken(), value);
 	}
 
 	@Override
-	public void set(Token key, ZonedDateTime value) {
-		put(key, value);
+	public void set(Property key, ZonedDateTime value) {
+		put(key.getToken(), value);
 	}
 
 	@Override
-	public void set(Token key, LocalDateTime value) {
-		put(key, value);
+	public void set(Property key, LocalDateTime value) {
+		put(key.getToken(), value);
 	}
 
 	@Override
-	public void set(Token key, Instant value) {
-		put(key, value);
+	public void set(Property key, Instant value) {
+		put(key.getToken(), value);
 	}
 
 	@Override
-	public void set(Token key, LocalDate value) {
-		put(key, value);
+	public void set(Property key, LocalDate value) {
+		put(key.getToken(), value);
 	}
 
 	@Override
-	public void set(Token key, Integer value) {
-		put(key, value);
+	public void set(Property key, Integer value) {
+		put(key.getToken(), value);
 	}
 
 	@Override
-	public void set(Token key, Short value) {
-		put(key, value);
+	public void set(Property key, Short value) {
+		put(key.getToken(), value);
 	}
 
 	@Override
-	public void set(Token key, Long value) {
-		put(key, value);
+	public void set(Property key, Long value) {
+		put(key.getToken(), value);
 	}
 
 	@Override
-	public void set(Token key, UUID value) {
-		put(key, value);
+	public void set(Property key, UUID value) {
+		put(key.getToken(), value);
 	}
 
 	@Override
-	public void set(Token key, Double value) {
-		put(key, value);
+	public void set(Property key, Double value) {
+		put(key.getToken(), value);
 	}
 
 	@Override
-	public void set(Token key, BigDecimal value) {
-		put(key, value);
+	public void set(Property key, BigDecimal value) {
+		put(key.getToken(), value);
 	}
 
 	@Override
-	public void set(Token key, Float value) {
-		put(key, value);
+	public void set(Property key, Float value) {
+		put(key.getToken(), value);
 	}
 
 	@Override
-	public void set(Token key, Boolean value) {
-		put(key, value);
+	public void set(Property key, Boolean value) {
+		put(key.getToken(), value);
 	}
 
 	@Override
-	public void set(Token key, Byte value) {
-		put(key, value);
+	public void set(Property key, Byte value) {
+		put(key.getToken(), value);
 	}
 
 	@Override
-	public void set(Token key, byte[] value) {
-		put(key, value);
+	public void set(Property key, byte[] value) {
+		put(key.getToken(), value);
 	}
 
 	@Override
-	public void set(Token key, Enum<?> value) {
-		put(key, value);
+	public void set(Property key, Enum<?> value) {
+		put(key.getToken(), value);
 	}
 
 	@Override
-	public void set(Token key, Collection<?> value) {
-		put(key, value);
+	public void set(Property key, Collection<?> value) {
+		put(key.getToken(), value);
 	}
 
 	@Override
-	public String getString(Token key) {
-		return (String) get(key);
+	public String getString(Property key) {
+		return (String) get(key.getToken());
 	}
 
 	@Override
-	public Character getCharacter(Token key) {
-		return (Character)get(key);
+	public Character getCharacter(Property key) {
+		return (Character)get(key.getToken());
 	}
 
 	@Override
-	public ZonedDateTime getZonedDateTime(Token key) {
-		return (ZonedDateTime) get(key);
+	public ZonedDateTime getZonedDateTime(Property key) {
+		return (ZonedDateTime) get(key.getToken());
 	}
 
 	@Override
-	public Instant getInstant(Token key) {
-		return (Instant) get(key);
+	public Instant getInstant(Property key) {
+		return (Instant) get(key.getToken());
 	}
 
 	@Override
-	public LocalDateTime getLocalDateTime(Token key) {
-		return (LocalDateTime) get(key);
+	public LocalDateTime getLocalDateTime(Property key) {
+		return (LocalDateTime) get(key.getToken());
 	}
 
 	@Override
-	public LocalDate getLocalDate(Token key) {
-		return (LocalDate) get(key);
+	public LocalDate getLocalDate(Property key) {
+		return (LocalDate) get(key.getToken());
 	}
 
 	@Override
-	public Integer getInteger(Token key) {
-		return (Integer) get(key);
+	public Integer getInteger(Property key) {
+		return (Integer) get(key.getToken());
 	}
 
 	@Override
-	public Short getShort(Token key) {
-		return (Short)get(key);
+	public Short getShort(Property key) {
+		return (Short)get(key.getToken());
 	}
 
 	@Override
-	public Long getLong(Token key) {
-		return (Long) get(key);
+	public Long getLong(Property key) {
+		return (Long) get(key.getToken());
 	}
 
 	@Override
-	public UUID getUUID(Token key) {
-		return (UUID) get(key);
+	public UUID getUUID(Property key) {
+		return (UUID) get(key.getToken());
 	}
 
 	@Override
-	public Double getDouble(Token key) {
-		return (Double) get(key);
+	public Double getDouble(Property key) {
+		return (Double) get(key.getToken());
 	}
 
 	@Override
-	public BigDecimal getBigDecimal(Token key) {
-		return (BigDecimal) get(key);
+	public BigDecimal getBigDecimal(Property key) {
+		return (BigDecimal) get(key.getToken());
 	}
 
 	@Override
-	public Float getFloat(Token key) {
-		return (Float) get(key);
+	public Float getFloat(Property key) {
+		return (Float) get(key.getToken());
 	}
 
 	@Override
-	public Boolean getBoolean(Token key) {
-		return (Boolean)get(key);
+	public Boolean getBoolean(Property key) {
+		return (Boolean)get(key.getToken());
 	}
 
 	@Override
-	public Byte getByte(Token key) {
-		return (Byte)get(key);
+	public Byte getByte(Property key) {
+		return (Byte)get(key.getToken());
 	}
 
 	@Override
-	public byte[] getBytes(Token key) {
-		return (byte[]) get(key);
+	public byte[] getBytes(Property key) {
+		return (byte[]) get(key.getToken());
 	}
 
 	@Override
-	public <T extends Enum<T>> T getEnum(Token key, Class<T> enumType) {
-		return (T)get(key);
+	public <T extends Enum<T>> T getEnum(Property key, Class<T> enumType) {
+		return (T)get(key.getToken());
 	}
 
 	@Override
-	public <T> Collection<T> getCollection(Token key, Class<T> elementType, Class<? extends Collection<T>> collectionClass) {
-		return (Collection<T>)get(key);
+	public <T> Collection<T> getCollection(Property key, Class<T> elementType, Class<? extends Collection<T>> collectionClass) {
+		return (Collection<T>)get(key.getToken());
 	}
-
 
 	public void set(String key, String value) {
 		put(Token.CamelCase(key), value);

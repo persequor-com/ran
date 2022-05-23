@@ -5,18 +5,7 @@
  */
 package io.ran;
 
-import io.ran.testclasses.Bike;
-import io.ran.testclasses.BikeGear;
-import io.ran.testclasses.BikeType;
-import io.ran.testclasses.BikeWheel;
-import io.ran.testclasses.Brand;
-import io.ran.testclasses.Car;
-import io.ran.testclasses.Door;
-import io.ran.testclasses.Engine;
-import io.ran.testclasses.ObjectWithoutPrimaryKey;
-import io.ran.testclasses.Regular;
-import io.ran.testclasses.WithBinaryField;
-import io.ran.testclasses.WithCollections;
+import io.ran.testclasses.*;
 import io.ran.token.Token;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -24,15 +13,28 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class AutoMapperTest {
 	private GuiceHelper helper;
+
+	Resolver resolver = new Resolver() {
+		@Override
+		public <FROM, TO> TO get(Class<FROM> fromClass, String field, FROM obj) {
+			return null;
+		}
+
+		@Override
+		public <FROM, TO> Collection<TO> getCollection(Class<FROM> fromClass, String field, FROM obj) {
+			return null;
+		}
+	};
 
 	@BeforeClass
 	public static void beforeClass() throws IOException {
@@ -50,9 +52,9 @@ public class AutoMapperTest {
 		map.set("Id", "My id");
 		ZonedDateTime now = ZonedDateTime.now();
 		map.set("ConstructionDate", now);
-		map.set(Token.CamelCase("Brand"), Brand.Hyundai);
-		map.set(Token.CamelCase("CrashRating"), 4.4);
-		map.set(Token.CamelCase("TheBoolean"), false);
+		map.set(Property.get(Token.CamelCase("Brand")), Brand.Hyundai);
+		map.set(Property.get(Token.CamelCase("CrashRating")), 4.4);
+		map.set(Property.get(Token.CamelCase("TheBoolean")), false);
 
 		Car car = helper.factory.get(Car.class);
 		Mapping carMapping = (Mapping)car;
@@ -79,8 +81,8 @@ public class AutoMapperTest {
 
 		assertEquals("My id", result.getString("Id"));
 		assertEquals(now, result.getZonedDateTime("ConstructionDate"));
-		assertEquals(Brand.Hyundai, result.getEnum(Token.CamelCase("Brand"), Brand.class));
-		assertEquals(Double.valueOf(4.4), result.getDouble(Token.CamelCase("CrashRating")));
+		assertEquals(Brand.Hyundai, result.getEnum(Property.get(Token.CamelCase("Brand")) , Brand.class));
+		assertEquals(Double.valueOf(4.4), result.getDouble(Property.get(Token.CamelCase("CrashRating"))));
 	}
 
 	@Test
@@ -142,8 +144,8 @@ public class AutoMapperTest {
 		ObjectMap map = new ObjectMap();
 		mapping.columnize(map);
 
-		assertEquals("reg", map.getString(Token.of("reg")));
-		assertEquals("sup", map.getString(Token.of("sup")));
+		assertEquals("reg", map.getString(Property.get(Token.of("reg"))));
+		assertEquals("sup", map.getString(Property.get(Token.of("sup"))));
 
 		Regular r2 = helper.factory.get(Regular.class);
 		Mapping mapping2 = (Mapping) r2;
@@ -234,5 +236,64 @@ public class AutoMapperTest {
 		carMapping._setRelation(describer.relations().get(0), null);
 
 		assertNull(car.getEngine());
+	}
+
+	@Test
+	public void setRelationForObject_manyToMany() throws Throwable {
+		Bike bike = helper.factory.get(Bike.class);
+		BikeGear gear = helper.factory.get(BikeGear.class);
+		bike.setGears(Collections.singletonList(gear));
+		gear.setBikes(Collections.singletonList(bike));
+
+		Mapping bikeMapping = (Mapping)bike;
+		bike.getClass().getMethod("_resolverInject", Resolver.class).invoke(bike, resolver);
+		RelationDescriber gearsRelation = TypeDescriberImpl.getTypeDescriber(Bike.class).relations().get("gears");
+		bikeMapping._setRelation(gearsRelation, null);
+		bikeMapping._setRelationNotLoaded(gearsRelation);
+
+		Mapping gearMapping = (Mapping)gear;
+		gear.getClass().getMethod("_resolverInject", Resolver.class).invoke(gear, resolver);
+		RelationDescriber gearRelation = TypeDescriberImpl.getTypeDescriber(BikeGear.class).relations().get("bikes");
+		gearMapping._setRelation(gearRelation, null);
+		gearMapping._setRelationNotLoaded(gearRelation);
+
+		assertNull(bike.getGears());
+		assertNull(gear.getBikes());
+	}
+
+	@Test
+	public void settersSetsLoadedFlag() throws Throwable {
+		Car car = helper.factory.get(Car.class);
+		car.setId("car id");
+
+		Resolver mockedResolver = mock(Resolver.class);
+		HeadLights existingHeadlights = helper.factory.get(HeadLights.class);
+		existingHeadlights.setOn("existing headlights on");
+		when(mockedResolver.get(any(), anyString(), any())).thenAnswer(i -> existingHeadlights);
+		car.getClass().getMethod("_resolverInject", Resolver.class).invoke(car, mockedResolver);
+
+		HeadLights headLights = helper.factory.get(HeadLights.class);
+		headLights.setOn("car id");
+		car.setHeadLights(headLights);
+
+		assertSame(headLights, car.getHeadLights());
+	}
+
+	@Test
+	public void collectionSettersSetsLoadedFlag() throws Throwable {
+		Car car = helper.factory.get(Car.class);
+		car.setId("car id");
+
+		Resolver mockedResolver = mock(Resolver.class);
+		Door existingDoor = helper.factory.get(Door.class);
+		existingDoor.setId("existing door id");
+		when(mockedResolver.get(any(), anyString(), any())).thenAnswer(i -> Collections.singletonList(existingDoor));
+		car.getClass().getMethod("_resolverInject", Resolver.class).invoke(car, mockedResolver);
+
+		Door door = helper.factory.get(Door.class);
+		door.setId("new car id");
+		car.setDoors(Collections.singletonList(door));
+
+		assertSame(door, car.getDoors().get(0));
 	}
 }

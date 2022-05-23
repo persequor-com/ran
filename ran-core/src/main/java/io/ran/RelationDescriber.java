@@ -4,6 +4,7 @@ import io.ran.token.Token;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 public class RelationDescriber {
@@ -75,11 +76,23 @@ public class RelationDescriber {
 	}
 
 	public RelationDescriber inverse() {
-		return RelationDescriber.describer(toClass, null, null, fromClass, toKeys, fromKeys, null, null);
+		RelationDescriber inverse = RelationDescriber.describer(toClass, null, null, fromClass, toKeys, fromKeys, null, null);
+		if (!getVia().isEmpty()) {
+			inverse.getVia().add(getVia().get(1).inverse());
+			inverse.getVia().add(getVia().get(0).inverse());
+		}
+		return inverse;
 	}
 
 	public Relation getRelationAnnotation() {
 		return relationAnnotation;
+	}
+
+	public boolean requiredFieldsEquals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		RelationDescriber that = (RelationDescriber) o;
+		return Objects.equals(collectionType, that.collectionType) && Objects.equals(fromClass, that.fromClass) && Objects.equals(toClass, that.toClass) && Objects.equals(fromKeys, that.fromKeys) && Objects.equals(toKeys, that.toKeys) && Objects.equals(via, that.via);
 	}
 
 	public static class RelationDescriberList extends ArrayList<RelationDescriber> {
@@ -95,6 +108,25 @@ public class RelationDescriber {
 
 		public Optional<RelationDescriber> get(Class<?> toClass) {
 			return stream().filter(rd -> rd.getToClass().clazz.equals(toClass)).findFirst();
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) return true;
+			if (o == null || getClass() != o.getClass()) return false;
+			if (!super.equals(o)) return false;
+			RelationDescriberList that = (RelationDescriberList) o;
+			return fromClass.equals(that.fromClass);
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(super.hashCode(), fromClass);
+		}
+
+		public RelationDescriberList addRelations(List<RelationDescriber> relations) {
+			addAll(relations);
+			return this;
 		}
 	}
 }

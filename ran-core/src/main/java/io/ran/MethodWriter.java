@@ -8,6 +8,8 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MethodWriter {
 	private static final String CONSTRUCTOR = "<init>";
@@ -157,6 +159,22 @@ public class MethodWriter {
 
 	public void defineVar(Clazz<CompoundKey> of) {
 
+	}
+
+	Map<String, Integer> variableMap = new HashMap<>();
+
+	public void load(String name) {
+		load(variableMap.get(name));
+	}
+
+	public void defineVar(String name, int i) {
+		variableMap.put(name, i);
+	}
+
+	public void objectVar(String name) {
+		int i = locals++;
+		variableMap.put(name, i);
+		objectStore(i);
 	}
 
 	public void objectStore(int pos) {

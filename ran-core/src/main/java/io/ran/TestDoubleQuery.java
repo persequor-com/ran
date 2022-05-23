@@ -95,14 +95,24 @@ public abstract class TestDoubleQuery<T, Z extends CrudRepository.InlineQuery<T,
 
 	@Override
 	public <X extends Comparable<X>> Z sortAscending(Property<X> property) {
-		this.sorts.add(Comparator.comparing(o -> getValue(property, o)));
+		this.sorts.add(Comparator.comparing(o -> getSQLLikeValue(property, o)));
 		return (Z)this;
 	}
 
 	@Override
 	public <X extends Comparable<X>> Z sortDescending(Property<X> property) {
-		this.sorts.add(Comparator.comparing((T o) -> getValue(property, o)).reversed());
+		this.sorts.add(Comparator.comparing((T o) -> getSQLLikeValue(property, o)).reversed());
 		return (Z)this;
+	}
+
+	private <X extends Comparable<X>> X getSQLLikeValue(Property<X> property, T o) {
+		X value = getValue(property, o);
+		if (value instanceof String) {
+			return (X) ((String) value).toLowerCase();
+		} else if (value.getClass().isEnum()) {
+			return (X) value.toString().toLowerCase();
+		}
+		return value;
 	}
 
 	@Override
@@ -151,6 +161,10 @@ public abstract class TestDoubleQuery<T, Z extends CrudRepository.InlineQuery<T,
 
 	@Override
 	public Stream<T> execute() {
+		return executeInternal().map(e -> mappingHelper.makeCopy(clazz, e));
+	}
+
+	protected Stream<T> executeInternal() {
 		Stream<T> values = testDoubleDb.getStore(clazz).values().stream();
 		for (Predicate<T> filter : filters) {
 			values = values.filter(filter);

@@ -5,13 +5,15 @@
  */
 package io.ran.token;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Token {
 	List<String> parts = new ArrayList<>();
-
+	private static Map<String, Token> tokenMap = new ConcurrentHashMap<>();
+	private Map<Class, String> toStringMap = new ConcurrentHashMap<>();
 	private Token(List<String> parts) {
 		if (parts.stream().anyMatch(String::isEmpty)) {
 			throw new InvalidTokenException("Empty token part in: {"+String.join("}{",parts)+"}");
@@ -45,52 +47,49 @@ public class Token {
 	}
 
 	public static Token CamelCase(String tokenString) {
-		return new CamelCaseToken(tokenString).toToken();
+		return tokenMap.computeIfAbsent(tokenString+"_CamelCase", t -> {
+			return new CamelCaseToken(tokenString).toToken();
+		});
 	}
 
 	public static Token camelHump(String tokenString) {
-		return new CamelHumpToken(tokenString).toToken();
+		return tokenMap.computeIfAbsent(tokenString+"_camelHump", t -> {
+			return new CamelHumpToken(tokenString).toToken();
+		});
 	}
 
 	public static Token snake_case(String tokenString) {
-		return new SnakeCaseToken(tokenString).toToken();
+		return tokenMap.computeIfAbsent(tokenString+"_snake_case", t -> {
+			return new SnakeCaseToken(tokenString).toToken();
+		});
 	}
 
 	public static Token javaMethod(String tokenString) {
-		if (tokenString.substring(0,1).equals(tokenString.substring(0,1).toLowerCase())) {
-			return camelHump(tokenString);
-		} else {
-			return CamelCase(tokenString);
-		}
+		return tokenMap.computeIfAbsent(tokenString+"_javaMethod", t -> {
+			if (tokenString.substring(0, 1).equals(tokenString.substring(0, 1).toLowerCase())) {
+				return new CamelHumpToken(tokenString).toToken();
+			} else {
+				return new CamelCaseToken(tokenString).toToken();
+			}
+		});
 	}
 
 	public static Token humanReadable(String tokenString) {
 		return new HumanReadableToken(tokenString).toToken();
 	}
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-
-		Token token = (Token) o;
-
-		return parts != null ? parts.equals(token.parts) : token.parts == null;
-	}
-
-	@Override
-	public int hashCode() {
-		return parts != null ? parts.hashCode() : 0;
-	}
-
 	public <T extends TokenType> String toString(Class<T> type) {
-		try {
-			T tokenType = type.newInstance();
-			tokenType.setToken(this);
-			return tokenType.toString();
-		} catch (InstantiationException | IllegalAccessException e) {
-			throw new InvalidTokenException(e);
-		}
+
+		return toStringMap.computeIfAbsent(type, t -> {
+			try {
+				T tokenType = type.newInstance();
+				tokenType.setToken(this);
+				return tokenType.toString();
+			} catch (InstantiationException | IllegalAccessException e) {
+				throw new InvalidTokenException(e);
+			}
+		});
+
 	}
 
 	@Override
@@ -138,5 +137,18 @@ public class Token {
 		public void add(String snakeCase) {
 			add(Token.snake_case(snakeCase));
 		}
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		Token token = (Token) o;
+		return Objects.equals(parts, token.parts);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(parts);
 	}
 }

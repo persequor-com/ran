@@ -45,4 +45,11 @@ public class TokenTest {
 	public void withEmptyPart() {
 		Token.of("m","","p");
 	}
+
+	@Test
+	public void token_equals() {
+		Token token = Token.of("m","y","p");
+		Token other = Token.CamelCase("MYP");
+		assertEquals(token, other);
+	}
 }

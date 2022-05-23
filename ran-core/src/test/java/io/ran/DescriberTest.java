@@ -1,15 +1,13 @@
 package io.ran;
 
-import io.ran.testclasses.Brand;
-import io.ran.testclasses.Car;
-import io.ran.testclasses.Door;
-import io.ran.testclasses.Engine;
+import io.ran.testclasses.*;
 import io.ran.token.Token;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.Assert.*;
@@ -32,7 +30,7 @@ public class DescriberTest {
 	@Test
 	public void car() throws Throwable {
 		TypeDescriber<Car> describer = TypeDescriberImpl.getTypeDescriber(Car.class);
-		assertEquals(7, describer.fields().size());
+		assertEquals(8, describer.fields().size());
 		assertEquals(1, describer.primaryKeys().size());
 		assertEquals("id", describer.primaryKeys().get(0).getToken().snake_case());
 		assertEquals(String.class, describer.primaryKeys().get(0).getType().clazz);
@@ -156,5 +154,35 @@ public class DescriberTest {
 		car.setBrand(Brand.Porsche);
 
 		assertTrue(carMapping._isChanged());
+	}
+
+	@Test
+	public void handleGraphs() throws Throwable {
+		TypeDescriber<GraphNode> describer = TypeDescriberImpl.getTypeDescriber(GraphNode.class);
+		assertEquals(Clazz.of(GraphNodeLink.class),describer.relations().get("next_nodes").getToKeys().get(0).getOn());
+		assertEquals("from_id",describer.relations().get("next_nodes").getToKeys().get(0).getProperty().getSnakeCase());
+		assertEquals("id",describer.relations().get("next_nodes").getFromKeys().get(0).getProperty().getSnakeCase());
+		List<RelationDescriber> via = describer.relations().get("next_nodes").getVia();
+		assertEquals("id",via.get(0).getFromKeys().get(0).getProperty().getSnakeCase());
+		assertEquals(Clazz.of(GraphNode.class),via.get(0).getFromKeys().get(0).getOn());
+		assertEquals("from_id",via.get(0).getToKeys().get(0).getProperty().getSnakeCase());
+		assertEquals(Clazz.of(GraphNodeLink.class),via.get(0).getToKeys().get(0).getOn());
+		assertEquals("to_id",via.get(1).getFromKeys().get(0).getProperty().getSnakeCase());
+		assertEquals(Clazz.of(GraphNodeLink.class),via.get(1).getFromKeys().get(0).getOn());
+		assertEquals("id",via.get(1).getToKeys().get(0).getProperty().getSnakeCase());
+		assertEquals(Clazz.of(GraphNode.class),via.get(1).getToKeys().get(0).getOn());
+
+		assertEquals(Clazz.of(GraphNodeLink.class),describer.relations().get("previous_nodes").getToKeys().get(0).getOn());
+		assertEquals("to_id",describer.relations().get("previous_nodes").getToKeys().get(0).getProperty().getSnakeCase());
+		assertEquals("id",describer.relations().get("previous_nodes").getFromKeys().get(0).getProperty().getSnakeCase());
+		via = describer.relations().get("previous_nodes").getVia();
+		assertEquals("id",via.get(0).getFromKeys().get(0).getProperty().getSnakeCase());
+		assertEquals(Clazz.of(GraphNode.class),via.get(0).getFromKeys().get(0).getOn());
+		assertEquals("to_id",via.get(0).getToKeys().get(0).getProperty().getSnakeCase());
+		assertEquals(Clazz.of(GraphNodeLink.class),via.get(0).getToKeys().get(0).getOn());
+		assertEquals("from_id",via.get(1).getFromKeys().get(0).getProperty().getSnakeCase());
+		assertEquals(Clazz.of(GraphNodeLink.class),via.get(1).getFromKeys().get(0).getOn());
+		assertEquals("id",via.get(1).getToKeys().get(0).getProperty().getSnakeCase());
+		assertEquals(Clazz.of(GraphNode.class),via.get(1).getToKeys().get(0).getOn());
 	}
 }

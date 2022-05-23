@@ -29,14 +29,14 @@ public abstract class CrudRepositoryTestDoubleBase<T, K> implements CrudReposito
 
 	@Override
 	public Optional<T> get(K k) {
-		return Optional.ofNullable(getStore(modelType).get(getKeyFromKey(k)));
+		return Optional.ofNullable(getStore(modelType).get(getKeyFromKey(k))).map(this::mappingCopy);
 	}
 
 
 
 	@Override
 	public Stream<T> getAll() {
-		return getStore(modelType).values().stream();
+		return getStore(modelType).values().stream().map(this::mappingCopy);
 	}
 
 	@Override
@@ -53,10 +53,16 @@ public abstract class CrudRepositoryTestDoubleBase<T, K> implements CrudReposito
 				.sum();
 	}
 
+	private T mappingCopy(T t) {
+		T tc = genericFactory.get(modelType);
+		mappingHelper.copyValues(modelType, t, tc);
+		return tc;
+	}
+
 	@Override
 	public CrudRepository.CrudUpdateResult save(T t) {
 		Object key = getKey(t);
-		T existing = getStore(modelType).put((Object) key, t);
+		T existing = getStore(modelType).put((Object) key, mappingCopy(t));
 		return new CrudRepository.CrudUpdateResult() {
 			@Override
 			public int affectedRows() {
