@@ -60,16 +60,20 @@ public class InstanceMappingRegistry {
         return (List)mappingsCache.computeIfAbsent(new CacheTriple(context, fromClass, toClass), t -> {
             LinkedHashMap<Token, InstanceFieldMapper<?, ?, ?>> result = new LinkedHashMap<>();
             List<Class<?>> fromHierarchy = getSortedClassHierarchy(fromClass);
+            List<Class<?>> toHierarchy = getSortedClassHierarchy(toClass);
             List<Class<?>> contextHierarchy = getSortedClassHierarchy(context);
             for(Class<?> ctx : contextHierarchy) {
                 if(classSpecificMappings.containsKey(ctx)) {
-                    Map<Class<?>, Map<Token, InstanceFieldMapper>> mappings = classSpecificMappings.get(ctx).get(toClass);
-
-                    for (Class<?> c : fromHierarchy) {
-                        if (mappings.containsKey(c)) {
-                            mappings.get(c).forEach((token, instanceFieldMapper) -> {
-                                result.putIfAbsent(token, instanceFieldMapper);
-                            });
+                    for(Class<?> tc : toHierarchy) {
+                        if (classSpecificMappings.get(ctx).containsKey(tc)) {
+                            Map<Class<?>, Map<Token, InstanceFieldMapper>> mappings = classSpecificMappings.get(ctx).get(tc);
+                            for (Class<?> c : fromHierarchy) {
+                                if (mappings.containsKey(c)) {
+                                    mappings.get(c).forEach((token, instanceFieldMapper) -> {
+                                        result.putIfAbsent(token, instanceFieldMapper);
+                                    });
+                                }
+                            }
                         }
                     }
                 }
