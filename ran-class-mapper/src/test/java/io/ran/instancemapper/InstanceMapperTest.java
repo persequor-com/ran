@@ -22,6 +22,21 @@ public class InstanceMapperTest {
     }
 
     @Test
+    public void usingSetterForFieldReference() {
+        InstanceMapper<MyFrom, MyTo> mapper = new InstanceMapper<MyFrom, MyTo>(registry);
+        MyFrom from = new MyFrom();
+        from.setField1("field 1");
+        MyTo to = new MyTo();
+        registry.putIfAbsent(MyFrom.class, MyTo.class, MyTo::setOutField1, (f, t) -> {
+            t.setOutField1(f.getField1());
+        });
+        mapper.map(from, to);
+
+        assertEquals("field 1", to.getOutField1());
+    }
+
+
+    @Test
     public void putIfAbsent_onlyIfDoesntExist() {
         InstanceMapper<MyFrom, MyTo> mapper = new InstanceMapper<MyFrom, MyTo>(registry);
         MyFrom from = new MyFrom();

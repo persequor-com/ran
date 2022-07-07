@@ -6,6 +6,7 @@ import io.ran.token.Token;
 import javax.inject.Inject;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 public class InstanceMappingRegistry {
@@ -26,12 +27,28 @@ public class InstanceMappingRegistry {
         getMapForWriting(context, fromClass, toClass).putIfAbsent(getToken(toClass, field), mapper);
     }
 
+    public <FROM, TO, V> void putIfAbsent(Class<FROM> fromClass, Class<TO> toClass, BiConsumer<TO, V> field, InstanceFieldMapper<FROM, TO, V> mapper) {
+        getMapForWriting(Object.class, fromClass, toClass).putIfAbsent(getToken(toClass, field), mapper);
+    }
+
+    public <FROM, TO, V> void putIfAbsent(Class<?> context, Class<FROM> fromClass, Class<TO> toClass, BiConsumer<TO, V> field, InstanceFieldMapper<FROM, TO, V> mapper) {
+        getMapForWriting(context, fromClass, toClass).putIfAbsent(getToken(toClass, field), mapper);
+    }
+
 
     public <FROM, TO, V> void put(Class<FROM> fromClass, Class<TO> toClass, Function<TO, V> field, InstanceFieldMapper<FROM, TO, V> mapper) {
         getMapForWriting(Object.class, fromClass, toClass).put(getToken(toClass, field), mapper);
     }
 
     public <FROM, TO, V> void put(Class<?> context, Class<FROM> fromClass, Class<TO> toClass, Function<TO, V> field, InstanceFieldMapper<FROM, TO, V> mapper) {
+        getMapForWriting(context, fromClass, toClass).put(getToken(toClass, field), mapper);
+    }
+
+    public <FROM, TO, V> void put(Class<FROM> fromClass, Class<TO> toClass, BiConsumer<TO, V> field, InstanceFieldMapper<FROM, TO, V> mapper) {
+        getMapForWriting(Object.class, fromClass, toClass).put(getToken(toClass, field), mapper);
+    }
+
+    public <FROM, TO, V> void put(Class<?> context, Class<FROM> fromClass, Class<TO> toClass, BiConsumer<TO, V> field, InstanceFieldMapper<FROM, TO, V> mapper) {
         getMapForWriting(context, fromClass, toClass).put(getToken(toClass, field), mapper);
     }
 
@@ -69,6 +86,14 @@ public class InstanceMappingRegistry {
         } while((work = work.getSuperclass()) != null);
         return sortedHierarchy;
     }
+
+    private <TO, V> Token getToken(Class<TO> toClass, BiConsumer<TO, V> field) {
+        TO qi = genericFactory.getQueryInstance(toClass);
+        field.accept(qi, null);
+        Token token = ((QueryWrapper)qi).getCurrentProperty().getToken();
+        return token;
+    }
+
 
     private <TO, V> Token getToken(Class<TO> toClass, Function<TO, V> field) {
         TO qi = genericFactory.getQueryInstance(toClass);
