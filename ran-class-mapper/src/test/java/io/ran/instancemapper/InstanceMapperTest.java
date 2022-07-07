@@ -13,12 +13,46 @@ public class InstanceMapperTest {
         MyFrom from = new MyFrom();
         from.setField1("field 1");
         MyTo to = new MyTo();
-        registry.add(MyFrom.class, MyTo.class, MyFrom::getField1, (f,t) -> {
+        registry.putIfAbsent(MyFrom.class, MyTo.class, MyTo::getOutField1, (f, t) -> {
             t.setOutField1(f.getField1());
         });
         mapper.map(from, to);
 
         assertEquals("field 1", to.getOutField1());
+    }
+
+    @Test
+    public void putIfAbsent_onlyIfDoesntExist() {
+        InstanceMapper<MyFrom, MyTo> mapper = new InstanceMapper<MyFrom, MyTo>(registry);
+        MyFrom from = new MyFrom();
+        from.setField1("field 1");
+        MyTo to = new MyTo();
+        registry.putIfAbsent(MyFrom.class, MyTo.class, MyTo::getOutField1, (f, t) -> {
+            t.setOutField1(f.getField1()+" first");
+        });
+        registry.putIfAbsent(MyFrom.class, MyTo.class, MyTo::getOutField1, (f, t) -> {
+            t.setOutField1(f.getField1()+" second");
+        });
+        mapper.map(from, to);
+
+        assertEquals("field 1 first", to.getOutField1());
+    }
+
+    @Test
+    public void put_overridesExisting() {
+        InstanceMapper<MyFrom, MyTo> mapper = new InstanceMapper<MyFrom, MyTo>(registry);
+        MyFrom from = new MyFrom();
+        from.setField1("field 1");
+        MyTo to = new MyTo();
+        registry.putIfAbsent(MyFrom.class, MyTo.class, MyTo::getOutField1, (f, t) -> {
+            t.setOutField1(f.getField1()+" first");
+        });
+        registry.put(MyFrom.class, MyTo.class, MyTo::getOutField1, (f, t) -> {
+            t.setOutField1(f.getField1()+" second");
+        });
+        mapper.map(from, to);
+
+        assertEquals("field 1 second", to.getOutField1());
     }
 
     @Test
@@ -28,10 +62,10 @@ public class InstanceMapperTest {
         from.setField1("field 1");
         from.setField2(55);
         MyTo to = new MyTo();
-        registry.add(MyFrom.class, MyTo.class, MyFrom::getField1, (f,t) -> {
+        registry.putIfAbsent(MyFrom.class, MyTo.class, MyTo::getOutField1, (f, t) -> {
             t.setOutField1(f.getField1());
         });
-        registry.add(MyFrom.class, MyTo.class, MyFrom::getField2, (f,t) -> {
+        registry.putIfAbsent(MyFrom.class, MyTo.class, MyTo::getOutField2, (f, t) -> {
             t.setOutField2(String.valueOf(f.getField2()));
         });
         mapper.map(from, to);
@@ -47,7 +81,7 @@ public class InstanceMapperTest {
         MyFrom from = new MyFrom();
         from.setField1("field 1");
         MyTo to = new MyTo();
-        registry.add(BaseFrom.class, MyTo.class, BaseFrom::getField1, (f,t) -> {
+        registry.putIfAbsent(BaseFrom.class, MyTo.class, MyTo::getOutField1, (f, t) -> {
             t.setOutField1(f.getField1());
         });
         mapper.map(from, to);
@@ -61,10 +95,10 @@ public class InstanceMapperTest {
         MyFrom from = new MyFrom();
         from.setField1("field 1");
         MyTo to = new MyTo();
-        registry.add(BaseFrom.class, MyTo.class, BaseFrom::getField1, (f,t) -> {
+        registry.putIfAbsent(BaseFrom.class, MyTo.class, MyTo::getOutField1, (f, t) -> {
             t.setOutField1(f.getField1()+" from parent class");
         });
-        registry.add(MyFrom.class, MyTo.class, MyFrom::getField1, (f,t) -> {
+        registry.putIfAbsent(MyFrom.class, MyTo.class, MyTo::getOutField1, (f, t) -> {
             t.setOutField1(f.getField1()+" from class");
         });
         mapper.map(from, to);
@@ -78,10 +112,10 @@ public class InstanceMapperTest {
         MyFrom from = new MyFrom();
         from.setField1("field 1");
         MyTo to = new MyTo();
-        registry.add(MyFrom.class, MyTo.class, MyFrom::getField1, (f,t) -> {
+        registry.putIfAbsent(MyFrom.class, MyTo.class, MyTo::getOutField1, (f, t) -> {
             t.setOutField1(f.getField1()+" without context");
         });
-        registry.add(MyContext.class,MyFrom.class, MyTo.class, MyFrom::getField1, (f,t) -> {
+        registry.putIfAbsent(MyContext.class,MyFrom.class, MyTo.class, MyTo::getOutField1, (f, t) -> {
             t.setOutField1(f.getField1()+ " with context");
         });
         mapper.map(MyContext.class, from, to);
@@ -96,7 +130,7 @@ public class InstanceMapperTest {
         MyFrom from = new MyFrom();
         from.setField1("field 1");
         MyTo to = new MyTo();
-        registry.add(MyFrom.class, MyTo.class, MyFrom::getField1, (f,t) -> {
+        registry.putIfAbsent(MyFrom.class, MyTo.class, MyTo::getOutField1, (f, t) -> {
             t.setOutField1(f.getField1()+" in base context");
         });
         mapper.map(MyContext.class, from, to);
@@ -110,7 +144,7 @@ public class InstanceMapperTest {
         MyFrom from = new MyFrom();
         from.setField1("field 1");
         MyTo to = new MyTo();
-        registry.add(MyBaseContext.class,MyFrom.class, MyTo.class, MyFrom::getField1, (f,t) -> {
+        registry.putIfAbsent(MyBaseContext.class,MyFrom.class, MyTo.class, MyTo::getOutField1, (f, t) -> {
             t.setOutField1(f.getField1()+" in my base context");
         });
         mapper.map(MyContext.class, from, to);
