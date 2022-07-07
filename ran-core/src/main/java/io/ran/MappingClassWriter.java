@@ -359,6 +359,7 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 			} else {
 				ce.invoke(CompoundKey.class.getMethod("get"));
 				ce.returnObject();
+				ce.end();
 			}
 
 		} catch (Exception e) {

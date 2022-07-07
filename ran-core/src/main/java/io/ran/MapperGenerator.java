@@ -16,7 +16,7 @@ public class MapperGenerator {
 
 			MappingClassWriter visitor = new MappingClassWriter(clazz.clazz);
 			byte[] bytes = visitor.toByteArray();
-//			Files.write(path, bytes);
+			Files.write(path, bytes);
 			CheckClassAdapter.verify(new ClassReader(bytes),false, new PrintWriter(System.out));
 
 
