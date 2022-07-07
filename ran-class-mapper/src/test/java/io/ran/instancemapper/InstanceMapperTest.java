@@ -9,7 +9,7 @@ public class InstanceMapperTest {
 
     @Test
     public void happyPath() {
-        InstanceMapper<MyFrom, MyTo> mapper = new InstanceMapper<MyFrom, MyTo>(registry);
+        InstanceMapper mapper = new InstanceMapper(registry);
         MyFrom from = new MyFrom();
         from.setField1("field 1");
         MyTo to = new MyTo();
@@ -23,7 +23,7 @@ public class InstanceMapperTest {
 
     @Test
     public void usingSetterForFieldReference() {
-        InstanceMapper<MyFrom, MyTo> mapper = new InstanceMapper<MyFrom, MyTo>(registry);
+        InstanceMapper mapper = new InstanceMapper(registry);
         MyFrom from = new MyFrom();
         from.setField1("field 1");
         MyTo to = new MyTo();
@@ -38,7 +38,7 @@ public class InstanceMapperTest {
 
     @Test
     public void putIfAbsent_onlyIfDoesntExist() {
-        InstanceMapper<MyFrom, MyTo> mapper = new InstanceMapper<MyFrom, MyTo>(registry);
+        InstanceMapper mapper = new InstanceMapper(registry);
         MyFrom from = new MyFrom();
         from.setField1("field 1");
         MyTo to = new MyTo();
@@ -55,7 +55,7 @@ public class InstanceMapperTest {
 
     @Test
     public void put_overridesExisting() {
-        InstanceMapper<MyFrom, MyTo> mapper = new InstanceMapper<MyFrom, MyTo>(registry);
+        InstanceMapper mapper = new InstanceMapper(registry);
         MyFrom from = new MyFrom();
         from.setField1("field 1");
         MyTo to = new MyTo();
@@ -72,7 +72,7 @@ public class InstanceMapperTest {
 
     @Test
     public void multipleFieldBindings() {
-        InstanceMapper<MyFrom, MyTo> mapper = new InstanceMapper<MyFrom, MyTo>(registry);
+        InstanceMapper mapper = new InstanceMapper(registry);
         MyFrom from = new MyFrom();
         from.setField1("field 1");
         from.setField2(55);
@@ -92,7 +92,7 @@ public class InstanceMapperTest {
 
     @Test
     public void fieldRegisteredOnParentClass() {
-        InstanceMapper<MyFrom, MyTo> mapper = new InstanceMapper<MyFrom, MyTo>(registry);
+        InstanceMapper mapper = new InstanceMapper(registry);
         MyFrom from = new MyFrom();
         from.setField1("field 1");
         MyTo to = new MyTo();
@@ -106,7 +106,7 @@ public class InstanceMapperTest {
 
     @Test
     public void fieldOnClassTakesPrecedenceOverFieldOnParentClass() {
-        InstanceMapper<MyFrom, MyTo> mapper = new InstanceMapper<MyFrom, MyTo>(registry);
+        InstanceMapper mapper = new InstanceMapper(registry);
         MyFrom from = new MyFrom();
         from.setField1("field 1");
         MyTo to = new MyTo();
@@ -123,7 +123,7 @@ public class InstanceMapperTest {
 
     @Test
     public void separateContext() {
-        InstanceMapper<MyFrom, MyTo> mapper = new InstanceMapper<MyFrom, MyTo>(registry);
+        InstanceMapper mapper = new InstanceMapper(registry);
         MyFrom from = new MyFrom();
         from.setField1("field 1");
         MyTo to = new MyTo();
@@ -141,7 +141,7 @@ public class InstanceMapperTest {
 
     @Test
     public void separateContextWithoutBinding_usesMappingFromBaseContext() {
-        InstanceMapper<MyFrom, MyTo> mapper = new InstanceMapper<MyFrom, MyTo>(registry);
+        InstanceMapper mapper = new InstanceMapper(registry);
         MyFrom from = new MyFrom();
         from.setField1("field 1");
         MyTo to = new MyTo();
@@ -155,7 +155,7 @@ public class InstanceMapperTest {
 
     @Test
     public void separateContextWithoutBinding_usesMappingFromLocalBaseContext() {
-        InstanceMapper<MyFrom, MyTo> mapper = new InstanceMapper<MyFrom, MyTo>(registry);
+        InstanceMapper mapper = new InstanceMapper(registry);
         MyFrom from = new MyFrom();
         from.setField1("field 1");
         MyTo to = new MyTo();
