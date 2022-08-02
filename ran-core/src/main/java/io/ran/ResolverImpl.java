@@ -17,7 +17,12 @@ public class ResolverImpl implements Resolver {
 	}
 
 	private DbResolver<DbType> getDbResolver(RelationDescriber relationDescriber) {
-		return genericFactory.getResolver(TypeDescriberImpl.getTypeDescriber(relationDescriber.getToClass().clazz).annotations().get(Mapper.class).dbType());
+		Mapper mapperAnnotation = TypeDescriberImpl.getTypeDescriber(relationDescriber.getToClass().clazz).annotations().get(Mapper.class);
+		if (mapperAnnotation == null) {
+			throw new MissingDbTypeException("Unable to find db type from @Mapper annotation on target class: "+relationDescriber.getToClass().clazz.getName());
+		}
+
+		return genericFactory.getResolver(mapperAnnotation.dbType());
 	}
 
 	@Override

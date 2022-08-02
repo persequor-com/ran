@@ -30,7 +30,7 @@ public class AutoWrapper {
 	private <T, W extends T> Class<W> internalWrap(Class<W> wc, Class<T> tc) {
 		return wrapped.computeIfAbsent(wc, c -> {
 			try {
-				Path path = Paths.get("/tmp/" + wc.getSimpleName() + "Wrapper.class");
+//				Path path = Paths.get("/tmp/" + wc.getSimpleName() + "Wrapper.class");
 
 				AutoWrapperWriter visitor = new AutoWrapperWriter<W, T>(tc, wc);
 				byte[] bytes = visitor.toByteArray();

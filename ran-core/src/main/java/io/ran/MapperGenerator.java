@@ -11,7 +11,7 @@ import java.nio.file.Paths;
 public class MapperGenerator {
 	public Wrapped generate(AutoMapperClassLoader classLoader, Clazz clazz) {
 		try {
-			Path path = Paths.get("/tmp/ran/"+clazz.getSimpleName()+"Mapper.class");
+//			Path path = Paths.get("/tmp/ran/"+clazz.getSimpleName()+"Mapper.class");
 //			Path pathQuery = Paths.get("/tmp/ran/"+clazz.getSimpleName()+"Query.class");
 
 			MappingClassWriter visitor = new MappingClassWriter(clazz.clazz);
