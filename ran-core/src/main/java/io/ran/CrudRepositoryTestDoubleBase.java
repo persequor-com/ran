@@ -1,8 +1,6 @@
 package io.ran;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Stream;
 
 public abstract class CrudRepositoryTestDoubleBase<T, K> implements CrudRepository<T, K> {
@@ -23,7 +21,7 @@ public abstract class CrudRepositoryTestDoubleBase<T, K> implements CrudReposito
 		this.mappingHelper = mappingHelper;
 	}
 
-	Map<Object, T> getStore(Class<T> modelType) {
+	Store<Object, T> getStore(Class<T> modelType) {
 		return store.getStore(modelType);
 	}
 
@@ -62,7 +60,12 @@ public abstract class CrudRepositoryTestDoubleBase<T, K> implements CrudReposito
 	@Override
 	public CrudRepository.CrudUpdateResult save(T t) {
 		Object key = getKey(t);
-		T existing = getStore(modelType).put((Object) key, mappingCopy(t));
+		Store<Object, T> thisStore = getStore(modelType);
+		List<KeySet> keys = new ArrayList<>();
+		keys.add(typeDescriber.primaryKeys());
+		keys.addAll(typeDescriber.indexes());
+		T existing = thisStore.put(key, mappingCopy(t), keys);
+
 		return new CrudRepository.CrudUpdateResult() {
 			@Override
 			public int affectedRows() {

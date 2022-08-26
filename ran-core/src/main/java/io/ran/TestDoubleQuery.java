@@ -1,11 +1,9 @@
 package io.ran;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -13,6 +11,7 @@ public abstract class TestDoubleQuery<T, Z extends CrudRepository.InlineQuery<T,
 		extends CrudRepoBaseQuery<T, Z>
 		implements CrudRepository.InlineQuery<T, Z> {
 	protected List<Predicate<T>> filters = new ArrayList<>();
+	protected List<Supplier<List<T>>> indexLookups = new ArrayList<>();
 	protected List<Comparator<T>> sorts = new ArrayList<>();
 	protected Integer limit = null;
 	protected MappingHelper mappingHelper;
@@ -28,11 +27,18 @@ public abstract class TestDoubleQuery<T, Z extends CrudRepository.InlineQuery<T,
 	}
 
 	public Z eq(Property.PropertyValue<?> propertyValue) {
+		TestDoubleIndex idx = testDoubleDb.getStore(propertyValue.getProperty().getOn().clazz).index;
+
+		if (idx.contains(propertyValue.getProperty())) {
+			indexLookups.add(() -> {
+				return (List<T>) idx.get(propertyValue.getProperty(), propertyValue.getValue());
+			});
+		}
 		filters.add(t -> {
 			Object actualValue = getValue(propertyValue.getProperty(), t);
 			return Objects.equals(actualValue, propertyValue.getValue());
 		});
-		return (Z)this;
+		return (Z) this;
 	}
 
 	public Z gt(Property.PropertyValue<?> propertyValue) {
@@ -165,7 +171,14 @@ public abstract class TestDoubleQuery<T, Z extends CrudRepository.InlineQuery<T,
 	}
 
 	protected Stream<T> executeInternal() {
-		Stream<T> values = testDoubleDb.getStore(clazz).values().stream();
+		Stream<T> values;
+		if (!indexLookups.isEmpty()) {
+			values = indexLookups.stream().map(Supplier::get)
+					.min(Comparator.comparing(List::size)).map(Collection::stream).orElseGet(Stream::empty).map(pk -> testDoubleDb.getStore(clazz).get(pk));
+		} else {
+			values = testDoubleDb.getStore(clazz).values().stream();
+		}
+
 		for (Predicate<T> filter : filters) {
 			values = values.filter(filter);
 		}
@@ -213,6 +226,10 @@ public abstract class TestDoubleQuery<T, Z extends CrudRepository.InlineQuery<T,
 
 	private <X> X getValue(Property<X> property, T t) {
 		return (X)mappingHelper.getValue(t, property);
+	}
+
+	private Object getValueUntyped(Property property, Object t) {
+		return mappingHelper.getValue(t, property);
 	}
 
 }

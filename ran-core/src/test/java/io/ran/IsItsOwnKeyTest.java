@@ -15,8 +15,8 @@ public class IsItsOwnKeyTest {
 
 	@Before
 	public void setup() {
-		store = new TestDoubleDb();
 		helper = new GuiceHelper();
+		store = new TestDoubleDb(new MappingHelper(helper.factory));
 		repo = new IsItsOwnKeyRepository(helper.factory, new MappingHelper(helper.factory), store);
 	}
 

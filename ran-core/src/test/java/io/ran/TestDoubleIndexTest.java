@@ -1,0 +1,154 @@
+package io.ran;
+
+import io.ran.testclasses.*;
+import org.junit.Before;
+import org.junit.Test;
+
+import javax.inject.Inject;
+import java.time.Duration;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+public class TestDoubleIndexTest {
+    private GuiceHelper helper;
+    private TestCarRepo carRepo;
+    private TestEngineRepo engineRepo;
+
+    private IndexedEngine engine1;
+    private IndexedEngine engine2;
+    List<String> carIds = new ArrayList<>();
+
+    @Before
+    public void setup() {
+        helper = new GuiceHelper();
+
+        carRepo = helper.injector.getInstance(TestCarRepo.class);
+        engineRepo = helper.injector.getInstance(TestEngineRepo.class);
+
+        engine1 = new IndexedEngine();
+        engine1.setId(UUID.randomUUID());
+        engine1.setBrand(Brand.Hyundai);
+        engineRepo.save(engine1);
+
+        engine2 = new IndexedEngine();
+        engine2.setId(UUID.randomUUID());
+        engine2.setBrand(Brand.Porsche);
+        engineRepo.save(engine2);
+
+        for(int i=0;i<5;i++) {
+            IndexedCar car = new IndexedCar();
+            car.setBrand(i%2==1?Brand.Hyundai:Brand.Porsche);
+            car.setConstructionDate(ZonedDateTime.now().minus(Duration.ofDays(2)));
+            car.setCrashRating(2.0);
+            car.setId(UUID.randomUUID().toString());
+            car.setEngine(i%2==0?engine1:engine2);
+            car.setTitle("SUV "+i);
+
+            carRepo.save(car);
+            carIds.add(car.getId());
+        }
+
+    }
+
+    @Test
+    public void useIndexOnPrimaryKeyLookup() {
+        Optional<IndexedCar> foundCar = carRepo.query().eq(IndexedCar::getId, carIds.get(((int) (Math.random() * 4)))).execute().findFirst();
+        assertTrue(foundCar.isPresent());
+    }
+
+    @Test
+    public void useIndexOnNonExistingPrimaryKeyLookup() {
+        Optional<IndexedCar> foundCar = carRepo.query().eq(IndexedCar::getId, UUID.randomUUID().toString()).execute().findFirst();
+        assertFalse(foundCar.isPresent());
+    }
+
+    @Test
+    public void useIndexOnOtherKey() {
+        Optional<IndexedCar> foundCar = carRepo.query().eq(IndexedCar::getTitle, "SUV 1").execute().findFirst();
+        assertTrue(foundCar.isPresent());
+    }
+
+    @Test
+    public void useIndexOnNonExistingOtherKey() {
+        Optional<IndexedCar> foundCar = carRepo.query().eq(IndexedCar::getId, "SUV 151").execute().findFirst();
+        assertFalse(foundCar.isPresent());
+    }
+
+    @Test
+    public void useIndexOnJoins() {
+        Optional<IndexedCar> foundCar = carRepo.query().subQuery(IndexedCar::getEngine, engineQuery -> {
+            engineQuery.eq(IndexedEngine::getBrand, Brand.Porsche);
+        }).execute().findFirst();
+        assertTrue(foundCar.isPresent());
+    }
+
+
+
+    public static class TestCarRepo extends CrudRepositoryTestDoubleBase<IndexedCar, String> {
+        @Inject
+        public TestCarRepo(GenericFactory genericFactory, MappingHelper mappingHelper, TestDoubleDb store) {
+            super(genericFactory, IndexedCar.class, String.class, mappingHelper, store);
+        }
+
+        public TestQuery<IndexedCar> query() {
+            return new TestQuery<IndexedCar>(modelType, genericFactory, mappingHelper, store);
+        }
+    }
+
+    public static class TestEngineRepo extends CrudRepositoryTestDoubleBase<IndexedEngine, UUID> {
+        @Inject
+        public TestEngineRepo(GenericFactory genericFactory, MappingHelper mappingHelper, TestDoubleDb store) {
+            super(genericFactory, IndexedEngine.class, UUID.class, mappingHelper, store);
+        }
+
+        public TestQuery<IndexedEngine> query() {
+            return new TestQuery<IndexedEngine>(modelType, genericFactory, mappingHelper, store);
+        }
+    }
+
+    public static class TestQuery<T> extends TestDoubleQuery<T, TestQuery<T>> {
+
+        public TestQuery(Class<T> modelType, GenericFactory genericFactory, MappingHelper mappingHelper, TestDoubleDb testDoubleDb) {
+            super(modelType, genericFactory, mappingHelper, testDoubleDb);
+        }
+
+        @Override
+        protected TestQuery<T> getQuery(Class<?> queryClass) {
+            return new TestQuery(queryClass, genericFactory, mappingHelper, testDoubleDb);
+        }
+
+        public <X> TestQuery<T> subQuery(Function<T, X> field, Consumer<TestQuery<X>> subQuery) {
+            field.apply(instance);
+            this.subQuery(typeDescriber.relations().get(queryWrapper.getCurrentProperty().getToken().snake_case()), subQuery);
+            return this;
+        }
+
+        public <X> TestQuery<T> subQuery(BiConsumer<T, X> field, Consumer<TestQuery<X>> subQuery) {
+            field.accept(instance, null);
+            this.subQuery(typeDescriber.relations().get(queryWrapper.getCurrentProperty().getToken().snake_case()), subQuery);
+            return this;
+        }
+
+        public <X> TestQuery<T> subQueryList(Function<T, List<X>> field, Consumer<TestQuery<X>> subQuery) {
+            field.apply(instance);
+            this.subQuery(typeDescriber.relations().get(queryWrapper.getCurrentProperty().getToken().snake_case()), subQuery);
+            return this;
+        }
+
+        public <X> TestQuery<T> subQueryList(BiConsumer<T, List<X>> field, Consumer<TestQuery<X>> subQuery) {
+            field.accept(instance, null);
+            this.subQuery(typeDescriber.relations().get(queryWrapper.getCurrentProperty().getToken().snake_case()), subQuery);
+            return this;
+        }
+    }
+}
