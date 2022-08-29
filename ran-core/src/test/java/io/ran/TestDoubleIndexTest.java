@@ -3,8 +3,10 @@ package io.ran;
 import io.ran.testclasses.*;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import javax.inject.Inject;
+import java.beans.IndexedPropertyDescriptor;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -18,6 +20,9 @@ import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
 public class TestDoubleIndexTest {
     private GuiceHelper helper;
@@ -27,13 +32,31 @@ public class TestDoubleIndexTest {
     private IndexedEngine engine1;
     private IndexedEngine engine2;
     List<String> carIds = new ArrayList<>();
+    private TestDoubleDb testDoubleDb;
+    private Store<Object, IndexedCar> carStore;
+    private TestDoubleIndex carIndex;
+    private TypeDescriber<IndexedCar> carDescriber = TypeDescriberImpl.getTypeDescriber(IndexedCar.class);
+    private TypeDescriber<IndexedEngine> engineDescriber = TypeDescriberImpl.getTypeDescriber(IndexedEngine.class);
+    private Store<Object, IndexedEngine> engineStore;
+    private TestDoubleIndex engineIndex;
 
     @Before
     public void setup() {
         helper = new GuiceHelper();
+        testDoubleDb = helper.injector.getInstance(TestDoubleDb.class);
+        carStore = Mockito.spy(testDoubleDb.getStore(IndexedCar.class));
+        when(testDoubleDb.getStore(IndexedCar.class)).thenReturn(carStore);
+        carIndex = Mockito.spy(carStore.index);
+        when(carStore.getIndex()).thenReturn(carIndex);
+
+        engineStore = Mockito.spy(testDoubleDb.getStore(IndexedEngine.class));
+        when(testDoubleDb.getStore(IndexedEngine.class)).thenReturn(engineStore);
+        engineIndex = Mockito.spy(engineStore.index);
+        when(engineStore.getIndex()).thenReturn(engineIndex);
 
         carRepo = helper.injector.getInstance(TestCarRepo.class);
         engineRepo = helper.injector.getInstance(TestEngineRepo.class);
+
 
         engine1 = new IndexedEngine();
         engine1.setId(UUID.randomUUID());
@@ -62,26 +85,33 @@ public class TestDoubleIndexTest {
 
     @Test
     public void useIndexOnPrimaryKeyLookup() {
-        Optional<IndexedCar> foundCar = carRepo.query().eq(IndexedCar::getId, carIds.get(((int) (Math.random() * 4)))).execute().findFirst();
+        String id = carIds.get(((int) (Math.random() * 4)));
+        Optional<IndexedCar> foundCar = carRepo.query().eq(IndexedCar::getId, id).execute().findFirst();
         assertTrue(foundCar.isPresent());
+        carDescriber = TypeDescriberImpl.getTypeDescriber(IndexedCar.class);
+        verify(carIndex).get(eq(carDescriber.getPropertyFromSnakeCase("id")), eq(id));
     }
 
     @Test
     public void useIndexOnNonExistingPrimaryKeyLookup() {
-        Optional<IndexedCar> foundCar = carRepo.query().eq(IndexedCar::getId, UUID.randomUUID().toString()).execute().findFirst();
+        String id = UUID.randomUUID().toString();
+        Optional<IndexedCar> foundCar = carRepo.query().eq(IndexedCar::getId, id).execute().findFirst();
         assertFalse(foundCar.isPresent());
+        verify(carIndex).get(eq(carDescriber.getPropertyFromSnakeCase("id")), eq(id));
     }
 
     @Test
     public void useIndexOnOtherKey() {
         Optional<IndexedCar> foundCar = carRepo.query().eq(IndexedCar::getTitle, "SUV 1").execute().findFirst();
         assertTrue(foundCar.isPresent());
+        verify(carIndex).get(eq(carDescriber.getPropertyFromSnakeCase("title")), eq("SUV 1"));
     }
 
     @Test
     public void useIndexOnNonExistingOtherKey() {
-        Optional<IndexedCar> foundCar = carRepo.query().eq(IndexedCar::getId, "SUV 151").execute().findFirst();
+        Optional<IndexedCar> foundCar = carRepo.query().eq(IndexedCar::getTitle, "SUV 151").execute().findFirst();
         assertFalse(foundCar.isPresent());
+        verify(carIndex).get(eq(carDescriber.getPropertyFromSnakeCase("title")), eq("SUV 151"));
     }
 
     @Test
@@ -90,9 +120,36 @@ public class TestDoubleIndexTest {
             engineQuery.eq(IndexedEngine::getBrand, Brand.Porsche);
         }).execute().findFirst();
         assertTrue(foundCar.isPresent());
+        verify(engineIndex, atLeastOnce()).get(eq(engineDescriber.getPropertyFromSnakeCase("brand")), eq(Brand.Porsche));
     }
 
+    @Test
+    public void useIndexOnLessThan() {
+        Optional<IndexedCar> foundCar = carRepo.query().lt(IndexedCar::getCrashRating, 5.0).execute().findFirst();
+        assertTrue(foundCar.isPresent());
+        verify(carIndex).lt(eq(carDescriber.getPropertyFromSnakeCase("crash_rating")), eq(5.0));
+    }
 
+    @Test
+    public void useIndexOnLessThanOrEqual() {
+        Optional<IndexedCar> foundCar = carRepo.query().lte(IndexedCar::getCrashRating, 2.0).execute().findFirst();
+        assertTrue(foundCar.isPresent());
+        verify(carIndex).lte(eq(carDescriber.getPropertyFromSnakeCase("crash_rating")), eq(2.0));
+    }
+
+    @Test
+    public void useIndexOnGreaterThan() {
+        Optional<IndexedCar> foundCar = carRepo.query().gt(IndexedCar::getCrashRating, 1.0).execute().findFirst();
+        assertTrue(foundCar.isPresent());
+        verify(carIndex).gt(eq(carDescriber.getPropertyFromSnakeCase("crash_rating")), eq(1.0));
+    }
+
+    @Test
+    public void useIndexOnGreaterThanOrEqual() {
+        Optional<IndexedCar> foundCar = carRepo.query().gte(IndexedCar::getCrashRating, 2.0).execute().findFirst();
+        assertTrue(foundCar.isPresent());
+        verify(carIndex).gte(eq(carDescriber.getPropertyFromSnakeCase("crash_rating")), eq(2.0));
+    }
 
     public static class TestCarRepo extends CrudRepositoryTestDoubleBase<IndexedCar, String> {
         @Inject

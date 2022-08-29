@@ -27,7 +27,7 @@ public abstract class TestDoubleQuery<T, Z extends CrudRepository.InlineQuery<T,
 	}
 
 	public Z eq(Property.PropertyValue<?> propertyValue) {
-		TestDoubleIndex idx = testDoubleDb.getStore(propertyValue.getProperty().getOn().clazz).index;
+		TestDoubleIndex idx = testDoubleDb.getStore(propertyValue.getProperty().getOn().clazz).getIndex();
 
 		if (idx.contains(propertyValue.getProperty())) {
 			indexLookups.add(() -> {
@@ -42,6 +42,13 @@ public abstract class TestDoubleQuery<T, Z extends CrudRepository.InlineQuery<T,
 	}
 
 	public Z gt(Property.PropertyValue<?> propertyValue) {
+		TestDoubleIndex idx = testDoubleDb.getStore(propertyValue.getProperty().getOn().clazz).getIndex();
+
+		if (idx.contains(propertyValue.getProperty())) {
+			indexLookups.add(() -> {
+				return (List<T>) idx.gt(propertyValue.getProperty(), propertyValue.getValue());
+			});
+		}
 		filters.add(t -> {
 			Object actualValue = getValue(propertyValue.getProperty(), t);
 			if (actualValue instanceof Comparable) {
@@ -53,6 +60,13 @@ public abstract class TestDoubleQuery<T, Z extends CrudRepository.InlineQuery<T,
 	}
 
 	public Z gte(Property.PropertyValue<?> propertyValue) {
+		TestDoubleIndex idx = testDoubleDb.getStore(propertyValue.getProperty().getOn().clazz).getIndex();
+
+		if (idx.contains(propertyValue.getProperty())) {
+			indexLookups.add(() -> {
+				return (List<T>) idx.gte(propertyValue.getProperty(), propertyValue.getValue());
+			});
+		}
 		filters.add(t -> {
 			Object actualValue = getValue(propertyValue.getProperty(), t);
 			if (actualValue instanceof Comparable) {
@@ -64,6 +78,13 @@ public abstract class TestDoubleQuery<T, Z extends CrudRepository.InlineQuery<T,
 	}
 
 	public Z lt(Property.PropertyValue<?> propertyValue) {
+		TestDoubleIndex idx = testDoubleDb.getStore(propertyValue.getProperty().getOn().clazz).getIndex();
+
+		if (idx.contains(propertyValue.getProperty())) {
+			indexLookups.add(() -> {
+				return (List<T>) idx.lt(propertyValue.getProperty(), propertyValue.getValue());
+			});
+		}
 		filters.add(t -> {
 			Object actualValue = getValue(propertyValue.getProperty(), t);
 			if (actualValue instanceof Comparable) {
@@ -75,6 +96,13 @@ public abstract class TestDoubleQuery<T, Z extends CrudRepository.InlineQuery<T,
 	}
 
 	public Z lte(Property.PropertyValue<?> propertyValue) {
+		TestDoubleIndex idx = testDoubleDb.getStore(propertyValue.getProperty().getOn().clazz).getIndex();
+
+		if (idx.contains(propertyValue.getProperty())) {
+			indexLookups.add(() -> {
+				return (List<T>) idx.lte(propertyValue.getProperty(), propertyValue.getValue());
+			});
+		}
 		filters.add(t -> {
 			Object actualValue = getValue(propertyValue.getProperty(), t);
 			if (actualValue instanceof Comparable) {

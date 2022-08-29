@@ -22,6 +22,7 @@ public class IndexedCar {
 	private ZonedDateTime constructionDate;
 	private UUID engineId;
 	private Brand brand;
+	@Key(name = "crashrating_idx")
 	private Double crashRating;
 	private Boolean canBeSoldInEu;
 	private boolean theBoolean;

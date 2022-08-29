@@ -14,10 +14,12 @@ public class Store<K,V> {
         this.mappingHelper = mappingHelper;
     }
 
-    public void index(KeySet keySet, V obj, Object key) {
-        List<KeySet.Field> keys = keySet.stream().collect(Collectors.toList());
-        for(KeySet.Field field : keySet.parts) {
+    public TestDoubleIndex getIndex() {
+        return index;
+    }
 
+    public void index(KeySet keySet, V obj, Object key) {
+        for(KeySet.Field field : keySet.parts) {
             index.add(field.getProperty(), getValueUntyped(field.getProperty(), obj), key);
         }
     }

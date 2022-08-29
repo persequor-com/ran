@@ -21,13 +21,47 @@ public class TestDoubleIndex {
         return idx.getResult(value);
     }
 
+    public List<Object> lt(Property<?> property, Object value) {
+        IndexResult idx = index.get(property.getSnakeCase());
+        if (idx == null) {
+            return Collections.emptyList();
+        }
+        return idx.lt(value);
+    }
+
+    public List<Object> lte(Property<?> property, Object value) {
+        IndexResult idx = index.get(property.getSnakeCase());
+        if (idx == null) {
+            return Collections.emptyList();
+        }
+        return idx.lte(value);
+    }
+
+    public List<Object> gt(Property<?> property, Object value) {
+        IndexResult idx = index.get(property.getSnakeCase());
+        if (idx == null) {
+            return Collections.emptyList();
+        }
+        return idx.gt(value);
+    }
+
+    public List<Object> gte(Property<?> property, Object value) {
+        IndexResult idx = index.get(property.getSnakeCase());
+        if (idx == null) {
+            return Collections.emptyList();
+        }
+        List<Object> res = idx.gte(value);
+        res.addAll(get(property, value));
+        return res;
+    }
+
     public void add(Property<?> property, Object indexValue, Object key) {
         index.computeIfAbsent(property.getSnakeCase(), sc -> new IndexResult())
                 .add(indexValue, key);
     }
 
     public static class IndexResult {
-        Map<Object, List<Object>> result = new HashMap<>();
+        NavigableMap<Object, List<Object>> result = new TreeMap<>();
 
         public void add(Object indexValue, Object primaryKeyValue) {
             result.computeIfAbsent(indexValue, iv -> new ArrayList<>()).add(primaryKeyValue);
@@ -38,6 +72,22 @@ public class TestDoubleIndex {
                 return Collections.emptyList();
             }
             return result.get(indexKey);
+        }
+
+        public List<Object> lt(Object value) {
+            return result.headMap(value, false).values().stream().flatMap(Collection::stream).collect(Collectors.toList());
+        }
+
+        public List<Object> lte(Object value) {
+            return result.headMap(value, true).values().stream().flatMap(Collection::stream).collect(Collectors.toList());
+        }
+
+        public List<Object> gt(Object value) {
+            return result.tailMap(value, false).values().stream().flatMap(Collection::stream).collect(Collectors.toList());
+        }
+
+        public List<Object> gte(Object value) {
+            return result.tailMap(value, true).values().stream().flatMap(Collection::stream).collect(Collectors.toList());
         }
     }
 
