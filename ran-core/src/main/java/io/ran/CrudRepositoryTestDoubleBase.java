@@ -21,20 +21,20 @@ public abstract class CrudRepositoryTestDoubleBase<T, K> implements CrudReposito
 		this.mappingHelper = mappingHelper;
 	}
 
-	Store<Object, T> getStore(Class<T> modelType) {
+	<Z> Store<Object, Z> getStore(Class<Z> modelType) {
 		return store.getStore(modelType);
 	}
 
 	@Override
 	public Optional<T> get(K k) {
-		return Optional.ofNullable(getStore(modelType).get(getKeyFromKey(k))).map(this::mappingCopy);
+		return Optional.ofNullable(getStore(modelType).get(getKeyFromKey(k))).map(s -> mappingCopy(s, modelType));
 	}
 
 
 
 	@Override
 	public Stream<T> getAll() {
-		return getStore(modelType).values().stream().map(this::mappingCopy);
+		return getStore(modelType).values().stream().map(s -> mappingCopy(s, modelType));
 	}
 
 	@Override
@@ -51,20 +51,24 @@ public abstract class CrudRepositoryTestDoubleBase<T, K> implements CrudReposito
 				.sum();
 	}
 
-	private T mappingCopy(T t) {
-		T tc = genericFactory.get(modelType);
-		mappingHelper.copyValues(modelType, t, tc);
+	private <Z> Z mappingCopy(Z t, Class<Z> zClass) {
+		Z tc = genericFactory.get(zClass);
+		mappingHelper.copyValues(zClass, t, tc);
 		return tc;
 	}
 
 	@Override
 	public CrudRepository.CrudUpdateResult save(T t) {
+		return save(t, modelType);
+	}
+
+	protected <Z> CrudRepository.CrudUpdateResult save(Z t, Class<Z> zClass) {
 		Object key = getKey(t);
-		Store<Object, T> thisStore = getStore(modelType);
+		Store<Object, Z> thisStore = getStore(zClass);
 		List<KeySet> keys = new ArrayList<>();
 		keys.add(typeDescriber.primaryKeys());
 		keys.addAll(typeDescriber.indexes());
-		T existing = thisStore.put(key, mappingCopy(t), keys);
+		Z existing = thisStore.put(key, mappingCopy(t, zClass), keys);
 
 		return new CrudRepository.CrudUpdateResult() {
 			@Override
@@ -82,7 +86,7 @@ public abstract class CrudRepositoryTestDoubleBase<T, K> implements CrudReposito
 		}
 	}
 
-	private Object getKey(T t) {
+	private Object getKey(Object t) {
 		Object key;
 		CompoundKey k = getCompoundKeyFor(t);
 		if (keyType.equals(modelType)) {
