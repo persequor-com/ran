@@ -3,12 +3,7 @@ package io.ran;
 import io.ran.token.CamelHumpToken;
 import io.ran.token.Token;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
+import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -37,6 +32,9 @@ public class Clazz<T> {
 			return Clazz.ofClazzes((Class)((ParameterizedType) type).getRawType(), genericClasses);
 		} else if (type instanceof Class) {
 			return Clazz.of((Class)type);
+		} else if (type instanceof TypeVariable || type instanceof WildcardType) {
+//			TypeVariable typeVariable = (TypeVariable) type;
+			return Clazz.of(Object.class);
 		}
 		throw new RuntimeException("Don't know what to do with type: "+type.getClass().getName());
 	}
@@ -125,8 +123,11 @@ public class Clazz<T> {
 		if (isPrimitive()) {
 			return Primitives.get(clazz).getDescriptor();
 		}
-		if (clazz == byte[].class) {
-			return "[B";
+		if (clazz.isArray()) {
+			if (Clazz.of(clazz.getComponentType()).isPrimitive()) {
+				return "["+Primitives.get(clazz.getComponentType()).getDescriptor();
+			}
+			return getInternalName();
 		}
 		return "L"+getInternalName()+";";
 	}
@@ -135,8 +136,12 @@ public class Clazz<T> {
 		if (isPrimitive()) {
 			return Primitives.get(clazz).getDescriptor();
 		}
-		if (clazz == byte[].class) {
-			return "[B";
+
+		if (clazz.isArray()) {
+			if (Clazz.of(clazz.getComponentType()).isPrimitive()) {
+				return "["+Primitives.get(clazz.getComponentType()).getDescriptor();
+			}
+			return getInternalName();
 		}
 		return "L"+getInternalName()+(generics.isEmpty()?"":"<"+(generics.stream().map(Clazz::getSignature).collect(Collectors.joining()))+">")+";";
 	}
