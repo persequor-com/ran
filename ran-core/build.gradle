@@ -17,8 +17,8 @@ dependencies {
     testCompile group: 'com.google.inject', name: 'guice', version: '4.2.3'
     testCompile 'com.google.code.gson:gson:2.9.0'
     compile 'javax.inject:javax.inject:1'
-    compile group: 'org.ow2.asm', name: 'asm', version: '9.3'
-    compile group: 'org.ow2.asm', name: 'asm-util', version: '9.3'
+    compile group: 'org.ow2.asm', name: 'asm', version: '9.2'
+    compile group: 'org.ow2.asm', name: 'asm-util', version: '9.2'
     compile 'cglib:cglib:3.3.0'
 
 }
