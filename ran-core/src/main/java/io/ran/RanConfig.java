@@ -6,10 +6,10 @@ import java.util.Arrays;
 import java.util.Objects;
 
 public class RanConfig {
-	public static boolean enableRanClassesDebugging = true;
-	public static String projectBasePath = null;
+	private boolean enableRanClassesDebugging = true;
+	private String projectBasePath = null;
 
-	static {
+	public RanConfig() {
 		try {
 			StringBuilder baseProjectPath = new StringBuilder("./");
 			File baseProjectDir = new File(baseProjectPath.toString());
@@ -25,5 +25,21 @@ public class RanConfig {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public boolean isEnableRanClassesDebugging() {
+		return enableRanClassesDebugging;
+	}
+
+	public void setEnableRanClassesDebugging(boolean enableRanClassesDebugging) {
+		this.enableRanClassesDebugging = enableRanClassesDebugging;
+	}
+
+	public String getProjectBasePath() {
+		return projectBasePath;
+	}
+
+	public void setProjectBasePath(String projectBasePath) {
+		this.projectBasePath = projectBasePath;
 	}
 }

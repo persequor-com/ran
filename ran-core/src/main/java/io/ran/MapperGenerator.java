@@ -11,9 +11,8 @@ import java.nio.file.Paths;
 
 public class MapperGenerator {
 
-	private static boolean ideaConfigFileGenerated = false;
-
-	public Wrapped generate(AutoMapperClassLoader classLoader, Clazz clazz) {
+	private final RanConfig ranConfig = new RanConfig();
+	public Wrapped generate(AutoMapperClassLoader classLoader, Clazz<?> clazz) {
 		try {
 			MappingClassWriter visitor = new MappingClassWriter(clazz.clazz);
 			byte[] bytes = visitor.toByteArray();
@@ -31,48 +30,31 @@ public class MapperGenerator {
 		}
 	}
 
-	public static class Wrapped {
-		Class mapping;
-		Class query;
+	private void writeClasses(Clazz<?> clazz, byte[] bytes, byte[] bytes2) throws IOException {
+		if (ranConfig.isEnableRanClassesDebugging()) {
+			Path path = buildPathForType(clazz, "Mapper");
+			Path pathQuery = buildPathForType(clazz, "Query");
+			String tmpDir = ranConfig.getProjectBasePath() + "/tmp";
+			Path tmpDirPath = Paths.get(tmpDir);
+			if (!Files.exists(tmpDirPath)) {
+				Files.createDirectory(tmpDirPath);
+			}
+			Files.write(path, bytes);
+			Files.write(pathQuery, bytes2);
+		}
+	}
 
-		public Wrapped(Class mapping, Class query) {
+	private Path buildPathForType(Clazz<?> clazz, String type) {
+		return Paths.get(ranConfig.getProjectBasePath() + "/tmp/" + clazz.getSimpleName()+ type + ".class");
+	}
+
+	public static class Wrapped {
+		Class<?> mapping;
+		Class<?> query;
+
+		public Wrapped(Class<?> mapping, Class<?> query) {
 			this.mapping = mapping;
 			this.query = query;
 		}
 	}
-
-	private void writeClasses(Clazz clazz, byte[] bytes, byte[] bytes2) throws IOException {
-		if (RanConfig.enableRanClassesDebugging) {
-			Path path = buildPathForType(clazz, "Mapper");
-			Path pathQuery = buildPathForType(clazz, "Query");
-			String tmpDir = RanConfig.projectBasePath + "/tmp";
-			if (!Files.exists(Paths.get(tmpDir))) {
-				Files.createDirectory(Paths.get(tmpDir));
-			}
-			Files.write(path, bytes);
-			Files.write(pathQuery, bytes2);
-			if (!ideaConfigFileGenerated) {
-				String ideaLibPath = RanConfig.projectBasePath + "/.idea/libraries";
-				if (!Files.exists(Paths.get(ideaLibPath))) {
-					Files.createDirectory(Paths.get(ideaLibPath));
-				}
-				String ideaXmlConfig = "<component name=\"libraryTable\">\n" +
-						"  <library name=\"tmp\">\n" +
-						"    <CLASSES>\n" +
-						"      <root url=\"file://%s\" />\n" +
-						"    </CLASSES>\n" +
-						"    <JAVADOC />\n" +
-						"    <SOURCES />\n" +
-						"  </library>\n" +
-						"</component>\n";
-				Files.write(Paths.get(ideaLibPath + "/tmp.xml"), String.format(ideaXmlConfig, tmpDir).getBytes());
-				ideaConfigFileGenerated = true;
-			}
-		}
-	}
-
-	private Path buildPathForType(Clazz clazz, String type) {
-		return Paths.get(RanConfig.projectBasePath + "/tmp/" + clazz.getSimpleName()+ type + ".class");
-	}
-
 }
