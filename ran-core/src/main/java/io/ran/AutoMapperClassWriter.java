@@ -32,6 +32,9 @@ public class AutoMapperClassWriter extends ClassWriter {
 		), signature.getParameterCount());
 	}
 
+	public void addAnnotation(Clazz annotation, boolean visibleAtRuntime) {
+		visitAnnotation(annotation.getDescriptor(), visibleAtRuntime);
+	}
 
 	public void field(Access access, String name, Clazz type, Object value) {
 		visitField(access.getOpCode(), name, type.getDescriptor(), type.generics.isEmpty() ? null : type.getSignature(), value);

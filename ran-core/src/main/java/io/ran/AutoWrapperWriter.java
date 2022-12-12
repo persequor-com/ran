@@ -2,21 +2,38 @@ package io.ran;
 
 import org.objectweb.asm.Opcodes;
 
+import javax.inject.Inject;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
-import java.util.Optional;
+import java.util.stream.Stream;
 
 public class AutoWrapperWriter<WRAPPER extends WRAPPEE, WRAPPEE> extends AutoMapperClassWriter {
+	private Clazz superClazz;
 	Clazz wrapperGenerated;
 	Clazz wrappeeClass;
+
 	public AutoWrapperWriter(Class<WRAPPEE> wrappee, Class<WRAPPER> wrapper) {
+		this(Clazz.of(wrappee).getInternalName()+"$Wrapper", wrappee, wrapper, null, null);
+	}
+
+	public AutoWrapperWriter(String className, Class<WRAPPEE> wrappee, Class<WRAPPER> wrapper, Class<? extends AutoWrappedFactory> factory, String identifier) {
 		super(wrapper);
-		postFix = "Wrapper";
+		postFix = "$Wrapper";
 		this.wrappeeClass = Clazz.of(wrappee);
-		wrapperGenerated = Clazz.of(this.clazz.getInternalName()+postFix);
-		visit(Opcodes.V1_8, Access.Public.getOpCode(), this.clazz.getInternalName()+postFix, this.clazz.generics.isEmpty() ? null : this.clazz.getSignature(), this.clazz.getInternalName(), new String[]{Clazz.ofClazzes(Wrappee.class, clazz, wrappeeClass).getInternalName()});
+		wrapperGenerated = Clazz.of(className);
+		this.superClazz = this.clazz.isInterface() ? Clazz.of(Object.class) : this.clazz;
+		visit(Opcodes.V1_8
+				, Access.Public.getOpCode()
+				, className
+				, this.clazz.generics.isEmpty() ? null : this.clazz.getSignature()
+				, superClazz.getInternalName()
+				, Stream.concat(
+					Stream.of(Clazz.ofClazzes(Wrappee.class, clazz, wrappeeClass).getInternalName())
+					, this.clazz.isInterface() ? Stream.of(this.clazz.getInternalName()) : Stream.empty()).toArray(String[]::new)
+		);
 
 		field(Access.Private, "_wrappee", wrappeeClass, false);
+
 
 		Arrays.asList(clazz.clazz.getConstructors()).forEach(c -> {
 			MethodWriter mw = method(Access.of(c.getModifiers()), new MethodSignature(c));
@@ -27,9 +44,40 @@ public class AutoWrapperWriter<WRAPPER extends WRAPPEE, WRAPPEE> extends AutoMap
 			mw.load(0);
 			mw.invoke(new MethodSignature(c));
 			mw.returnNothing();
+
 			mw.end();
 		});
+
+		if (factory != null) {
+			addFactoryMethodInjection(factory, identifier);
+		}
 		build();
+	}
+
+
+	public void addFactoryMethodInjection(Class<? extends AutoWrappedFactory> factory, String identifier) {
+		try {
+			MethodSignature ms = new MethodSignature(clazz, "<init>", Clazz.getVoid(), Clazz.of(factory));
+
+			MethodWriter m = method(Access.Public, ms);
+			m.load(0);
+			m.invoke(new MethodSignature(superClazz, "<init>", Clazz.getVoid()));
+			m.load(0);
+			{
+				m.load(1);
+				m.push(identifier);
+				m.addAnnotation(Clazz.of(Inject.class), true);
+				m.invoke(new MethodSignature(AutoWrappedFactory.class.getMethod("get", String.class)));
+				m.cast(wrappeeClass);
+			}
+			m.putfield(wrapperGenerated, "_wrappee", wrappeeClass);
+
+
+			m.returnNothing();
+			m.end();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	protected void build() {
@@ -66,7 +114,7 @@ public class AutoWrapperWriter<WRAPPER extends WRAPPEE, WRAPPEE> extends AutoMap
 	private void buildMethods() {
 		wrappeeClass.methods().forEach(cm -> {
 			try {
-				if (!clazz.declaresMethod(cm)) {
+				if (!clazz.declaresMethod(cm) || wrappeeClass.equals(clazz)) {
 					MethodWriter mw = method(cm.getAccess(), cm.getSignature());
 					mw.load(0);
 					mw.invoke(Wrappee.class.getMethod("wrappee"));
@@ -85,4 +133,5 @@ public class AutoWrapperWriter<WRAPPER extends WRAPPEE, WRAPPEE> extends AutoMap
 		});
 
 	}
+
 }

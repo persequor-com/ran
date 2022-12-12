@@ -20,7 +20,7 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 	public MappingClassWriter(Class clazz) {
 		super(clazz);
 		try {
-			postFix = "Mapper";
+			postFix = "$Mapper";
 			mapperClazz = Clazz.of(this.clazz.getInternalName() + postFix);
 			visit(Opcodes.V1_8, Access.Public.getOpCode(), this.clazz.getInternalName() + postFix, this.clazz.generics.isEmpty() ? null : this.clazz.getSignature(), this.clazz.getInternalName(), new String[]{Clazz.of(Mapping.class).getInternalName()});
 			field(Access.Private, "_changed", Clazz.of(boolean.class), false);
@@ -62,6 +62,7 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 
 	protected void build() {
 		createGetValue();
+		createSetValue();
 		createOther();
 		createHydrator();
 		createKeyGetter();
@@ -583,6 +584,71 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 
 	private Method getGetter(Field field, Token column) throws NoSuchMethodException {
 		return aClass.getMethod((field.getType().isPrimitive() && field.getType().equals(boolean.class) ? "is" : "get") + column.javaGetter());
+	}
+
+	private void createSetValue() {
+		try {
+			MethodWriter w = method(Access.Public, new MethodSignature(Mapping.class.getMethod("_setValue", Property.class, Object.class)));
+			w.load(0);
+			w.load(0);
+			w.load(1);
+			w.load(2);
+			w.invoke(new MethodSignature(Mapping.class.getMethod("_setValue", Object.class, Property.class, Object.class)));
+			w.returnNothing();
+			w.end();
+
+			MethodWriter gvce = method(Access.Public, new MethodSignature(Mapping.class.getMethod("_setValue", Object.class, Property.class, Object.class)));
+
+			gvce.load(1); // instance
+			gvce.cast(clazz); // cast instance
+			gvce.objectStore(4); // store cast instance into slot 4
+
+			List<String> fields = new ArrayList<>();
+
+			for (Field field : clazz.getPropertyFields()) {
+				Method fieldMethod = getSetter(field);
+				gvce.load(2);
+				fields.add(Token.camelHump(field.getName()).snake_case());
+				gvce.push(Token.camelHump(field.getName()).snake_case());
+				gvce.invoke(Property.class.getMethod("matchesSnakeCase", String.class));
+				gvce.ifThen(c -> {
+					c.load(4);
+					c.load(3);
+
+//					if (field.getType().isPrimitive()) {
+//						c.box(Clazz.of(field));
+//					}
+					if (Clazz.of(field).isPrimitive()) {
+						c.unbox(Clazz.of(field));
+					} else {
+						c.cast(Clazz.of(field));
+					}
+					c.invoke(fieldMethod);
+					c.returnNothing();
+				});
+			}
+			{
+
+				gvce.throwException(Clazz.of(RuntimeException.class), mw -> {
+					mw.newInstance(Clazz.of(StringBuilder.class));
+					mw.dup();
+					mw.invoke(new MethodSignature(StringBuilder.class.getConstructor()));
+					mw.push("Could not find field: ");
+					mw.invoke(StringBuilder.class.getMethod("append", String.class));
+					mw.load(2);
+					mw.invoke(Property.class.getMethod("getSnakeCase"));
+					mw.invoke(StringBuilder.class.getMethod("append", String.class));
+					mw.push(". Must be one of: "+String.join(", ",fields));
+					mw.invoke(StringBuilder.class.getMethod("append", String.class));
+					mw.invoke(StringBuilder.class.getMethod("toString"));
+				});
+				gvce.end();
+
+			}
+		} catch (Exception e) {
+			throw  new RuntimeException(e);
+		}
+
 	}
 
 	private void createGetValue() {

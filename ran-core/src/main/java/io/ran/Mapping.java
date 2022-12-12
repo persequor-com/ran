@@ -1,7 +1,7 @@
 /* Copyright (C) Persequor ApS - All Rights Reserved
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
- * Written by Persequor Development Team <partnersupport@persequor.com>, 
+ * Written by Persequor Development Team <partnersupport@persequor.com>,
  */
 package io.ran;
 
@@ -10,6 +10,8 @@ import io.ran.token.Token;
 public interface Mapping {
 	Object _getValue(Property property);
 	Object _getValue(Object obj, Property property);
+	void _setValue(Property property, Object value);
+	void _setValue(Object obj, Property property, Object value);
 	void hydrate(ObjectMapHydrator hydrator);
 	void hydrate(Object obj, ObjectMapHydrator hydrator);
 	void columnize(ObjectMapColumnizer columnizer);
