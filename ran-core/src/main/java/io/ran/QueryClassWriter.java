@@ -13,11 +13,11 @@ import java.util.Arrays;
 public class QueryClassWriter extends AutoMapperClassWriter {
 	public QueryClassWriter(Class clazz) {
 		super(clazz);
-		postFix = "Query";
-		this.name = this.clazz.getInternalName().replace('/','.')+postFix;
+		postFix = "$Ran$Query";
+		this.name = this.wrapperClazz.getInternalName().replace('/','.')+postFix;
 		this.shortName = clazz.getSimpleName()+postFix;
 
-		visit(Opcodes.V1_8, Access.Public.getOpCode(), this.clazz.getInternalName()+"Query", this.clazz.generics.isEmpty() ? null : this.clazz.getSignature(), this.clazz.getInternalName(), new String[]{Clazz.of(QueryWrapper.class).getInternalName()});
+		visit(Opcodes.V1_8, Access.Public.getOpCode(), this.wrapperClazz.getInternalName()+"$Ran$Query", this.wrapperClazz.generics.isEmpty() ? null : this.wrapperClazz.getSignature(), this.wrapperClazz.getInternalName(), new String[]{Clazz.of(QueryWrapper.class).getInternalName()});
 
 
 		buildConstructor();
@@ -27,7 +27,7 @@ public class QueryClassWriter extends AutoMapperClassWriter {
 
 	private void buildConstructor() {
 		try {
-			for (Constructor<?> c : clazz.clazz.getConstructors()) {
+			for (Constructor<?> c : wrapperClazz.clazz.getConstructors()) {
 				MethodWriter mw = method(Access.of(c.getModifiers()), new MethodSignature(c));
 
 				if (c.getAnnotation(Inject.class) != null) {
@@ -44,7 +44,7 @@ public class QueryClassWriter extends AutoMapperClassWriter {
 				mw.invoke(Property.class.getMethod("get"));
 				mw.putfield(getSelf(), "currentProperty", Clazz.of(Property.class));
 				mw.load(0);
-				mw.push(clazz);
+				mw.push(wrapperClazz);
 				mw.invoke(TypeDescriberImpl.class.getMethod("getTypeDescriber", Class.class));
 				mw.cast(Clazz.of(TypeDescriberImpl.class));
 				mw.putfield(getSelf(), "typeDescriber", Clazz.of(TypeDescriberImpl.class));
@@ -69,7 +69,7 @@ public class QueryClassWriter extends AutoMapperClassWriter {
 
 			field(Access.Private, "currentProperty", Clazz.of(Property.class), null);
 
-			for (Method m : Arrays.asList(clazz.clazz.getMethods())) {
+			for (Method m : Arrays.asList(wrapperClazz.clazz.getMethods())) {
 				if (!m.getName().matches("^(?:is|get|set).+") || m.getDeclaringClass() == Object.class ) {
 					continue;
 				}
@@ -109,7 +109,7 @@ public class QueryClassWriter extends AutoMapperClassWriter {
 			field(Access.Private, "typeDescriber", Clazz.of(TypeDescriberImpl.class), null);
 
 
-			for (ClazzMethod m : clazz.methods()) {
+			for (ClazzMethod m : wrapperClazz.methods()) {
 				if (m.getMethod().getDeclaringClass() == Object.class || m.getName().matches("^(?:is|get|set).+")
 						|| Access.isSyntheticMethod(m.getModifiers())) {
 					continue;

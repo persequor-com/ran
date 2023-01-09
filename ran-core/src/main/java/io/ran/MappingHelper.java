@@ -39,10 +39,28 @@ public class MappingHelper {
 	}
 
 	public Object getValue(Object obj, Property property) {
+		return getValue(obj, property, null);
+	}
+
+	public Object getValue(Object obj, Property property, Object defaultValue) {
+		Object value;
 		if (obj instanceof Mapping) {
-			return ((Mapping) obj)._getValue(property);
+			value = ((Mapping) obj)._getValue(property);
 		} else {
-			return ((Mapping)genericFactory.get(obj.getClass()))._getValue(obj, property);
+			value = ((Mapping)genericFactory.get(obj.getClass()))._getValue(obj, property);
+		}
+		if (value == null && !property.getType().isPrimitive()) {
+			return defaultValue;
+		} else {
+			return value;
+		}
+	}
+
+	public void setValue(Object obj, Property property, Object value) {
+		if (obj instanceof Mapping) {
+			((Mapping) obj)._setValue(property, value);
+		} else {
+			((Mapping)genericFactory.get(obj.getClass()))._setValue(obj, property, value);
 		}
 	}
 
