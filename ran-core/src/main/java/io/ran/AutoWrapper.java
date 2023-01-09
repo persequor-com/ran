@@ -30,13 +30,13 @@ public class AutoWrapper {
 	public  <W> Class<W> wrapToClassWithFactoryInjector(String className, Class<W> interfaceClass, Class<? extends AutoWrappedFactory> factory, String identifier) {
 		return wrapped.computeIfAbsent(className, c -> {
 			try {
-				Path path = Paths.get("/tmp/" + className + "$Wrapper.class");
+//				Path path = Paths.get("/tmp/" + className + "$Wrapper.class");
 
 				AutoWrapperWriter<W, W> visitor = new AutoWrapperWriter<>(className, interfaceClass, interfaceClass, factory, identifier);
 				byte[] bytes = visitor.toByteArray();
-				try(FileOutputStream outputStream = new FileOutputStream(path.toFile())) {
-					outputStream.write(bytes);
-				}
+//				try(FileOutputStream outputStream = new FileOutputStream(path.toFile())) {
+//					outputStream.write(bytes);
+//				}
 
 				CheckClassAdapter.verify(new ClassReader(bytes), false, new PrintWriter(System.out));
 				return classLoader.define(visitor.getName(), bytes);

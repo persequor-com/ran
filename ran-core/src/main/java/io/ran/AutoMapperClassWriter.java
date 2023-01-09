@@ -5,14 +5,14 @@ import org.objectweb.asm.ClassWriter;
 public class AutoMapperClassWriter extends ClassWriter {
 	protected String name;
 	protected String shortName;
-	protected Class<?> aClass;
-	protected Clazz<?> clazz;
+	protected Class<?> wrapperClass;
+	protected Clazz<?> wrapperClazz;
 	protected String postFix;
 
-	public AutoMapperClassWriter(Class aClass) {
+	public AutoMapperClassWriter(Class wrapperClass) {
 		super(COMPUTE_FRAMES);
-		this.aClass = aClass;
-		this.clazz = Clazz.of(aClass);
+		this.wrapperClass = wrapperClass;
+		this.wrapperClazz = Clazz.of(wrapperClass);
 	}
 
 	public AutoMapperClassWriter() {
@@ -20,11 +20,11 @@ public class AutoMapperClassWriter extends ClassWriter {
 	}
 
 	protected Clazz getSelf() {
-		return Clazz.of(clazz.getInternalName()+postFix);
+		return Clazz.of(wrapperClazz.getInternalName()+postFix);
 	}
 
 	public MethodWriter method(Access access, MethodSignature signature) {
-		return new MethodWriter(getSelf(), clazz, visitMethod(access.getOpCode(),
+		return new MethodWriter(getSelf(), wrapperClazz, visitMethod(access.getOpCode(),
 				signature.getName(),
 				signature.getMethodDescriptor(),
 				signature.getMethodSignature(),
