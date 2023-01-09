@@ -13,11 +13,11 @@ import java.util.Arrays;
 public class QueryClassWriter extends AutoMapperClassWriter {
 	public QueryClassWriter(Class clazz) {
 		super(clazz);
-		postFix = "$Query";
+		postFix = "$Ran$Query";
 		this.name = this.wrapperClazz.getInternalName().replace('/','.')+postFix;
 		this.shortName = clazz.getSimpleName()+postFix;
 
-		visit(Opcodes.V1_8, Access.Public.getOpCode(), this.wrapperClazz.getInternalName()+"$Query", this.wrapperClazz.generics.isEmpty() ? null : this.wrapperClazz.getSignature(), this.wrapperClazz.getInternalName(), new String[]{Clazz.of(QueryWrapper.class).getInternalName()});
+		visit(Opcodes.V1_8, Access.Public.getOpCode(), this.wrapperClazz.getInternalName()+"$Ran$Query", this.wrapperClazz.generics.isEmpty() ? null : this.wrapperClazz.getSignature(), this.wrapperClazz.getInternalName(), new String[]{Clazz.of(QueryWrapper.class).getInternalName()});
 
 
 		buildConstructor();

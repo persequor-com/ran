@@ -13,12 +13,12 @@ public class AutoWrapperWriter<WRAPPER extends WRAPPEE, WRAPPEE> extends AutoMap
 	Clazz wrappeeClass;
 
 	public AutoWrapperWriter(Class<WRAPPEE> wrappee, Class<WRAPPER> wrapper) {
-		this(Clazz.of(wrappee).getInternalName()+"$Wrapper", wrappee, wrapper, null, null);
+		this(Clazz.of(wrappee).getInternalName()+"$Ran$Wrapper", wrappee, wrapper, null, null);
 	}
 
 	public AutoWrapperWriter(String className, Class<WRAPPEE> wrappee, Class<WRAPPER> wrapper, Class<? extends AutoWrappedFactory> factory, String identifier) {
 		super(wrapper);
-		postFix = "$Wrapper";
+		postFix = "$Ran$Wrapper";
 		this.wrappeeClass = Clazz.of(wrappee);
 		wrapperGenerated = Clazz.of(className);
 		this.superClazz = this.wrapperClazz.isInterface() ? Clazz.of(Object.class) : this.wrapperClazz;

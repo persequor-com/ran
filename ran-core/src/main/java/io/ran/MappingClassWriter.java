@@ -20,7 +20,7 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 	public MappingClassWriter(Class clazz) {
 		super(clazz);
 		try {
-			postFix = "$Mapper";
+			postFix = "$Ran$Mapper";
 			mapperClazz = Clazz.of(this.wrapperClazz.getInternalName() + postFix);
 			visit(Opcodes.V1_8, Access.Public.getOpCode(), this.wrapperClazz.getInternalName() + postFix, this.wrapperClazz.generics.isEmpty() ? null : this.wrapperClazz.getSignature(), this.wrapperClazz.getInternalName(), new String[]{Clazz.of(Mapping.class).getInternalName()});
 			field(Access.Private, "_changed", Clazz.of(boolean.class), false);
