@@ -3,6 +3,7 @@ package io.ran;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.util.CheckClassAdapter;
 
+import javax.inject.Inject;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.nio.file.Path;
@@ -14,9 +15,10 @@ public class AutoWrapper {
 	private static Map<String, Class> wrapped = new HashMap<>();
 	private static AutoMapperClassLoader classLoader = new AutoMapperClassLoader(AutoMapper.class.getClassLoader());
 
-	private GenericFactory factory;
+	private AutoWrapperGenericFactory factory;
 
-	public AutoWrapper(GenericFactory factory) {
+	@Inject
+	public AutoWrapper(AutoWrapperGenericFactory factory) {
 		this.factory = factory;
 	}
 

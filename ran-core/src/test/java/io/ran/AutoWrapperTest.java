@@ -14,7 +14,7 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 
 public class AutoWrapperTest {
-	GenericFactory factory;
+	GuiceHelper.GuiceGenericFactory factory;
 	private Injector injector;
 	private AutoMapper autoMapper;
 	private AutoWrapper autoWrapper;
