@@ -279,8 +279,8 @@ public class MethodWriter {
 		}
 	}
 
-	public void addAnnotation(Clazz annotation, boolean b) {
-		mv.visitAnnotation(annotation.getDescriptor(), b);
+	public void addAnnotation(Clazz annotation, boolean visibleAtRuntime) {
+		mv.visitAnnotation(annotation.getDescriptor(), visibleAtRuntime);
 	}
 
 	public void putfield(Clazz clazz, String name, Clazz of) {

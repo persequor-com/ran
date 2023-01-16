@@ -15,7 +15,7 @@ public class GuiceHelper {
 		factory = injector.getInstance(GuiceGenericFactory.class);
 	}
 
-	public static class GuiceGenericFactory implements GenericFactory {
+	public static class GuiceGenericFactory implements GenericFactory, AutoWrapperGenericFactory {
 		private AutoMapper ormMapper;
 		private Injector injector;
 

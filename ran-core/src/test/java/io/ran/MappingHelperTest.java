@@ -84,6 +84,23 @@ public class MappingHelperTest {
 		assertEquals(car.getCrashRating(), newCar.getCrashRating());
 		assertEquals(car.getEngineId(), newCar.getEngineId());
 		assertEquals(car.getTitle(), newCar.getTitle());
+	}
 
+	@Test
+	public void getAndSetValue() {
+		Car car = new Car();
+		TypeDescriber<Car> typeDescriber = TypeDescriberImpl.getTypeDescriber(Car.class);
+		mappingHelper.setValue(car, typeDescriber.getPropertyFromSnakeCase("id"), "my id");
+		assertEquals("my id", mappingHelper.getValue(car, typeDescriber.getPropertyFromSnakeCase("id")));
+		mappingHelper.setValue(car, typeDescriber.getPropertyFromSnakeCase("brand"), Brand.Porsche);
+		assertEquals(Brand.Porsche, mappingHelper.getValue(car, typeDescriber.getPropertyFromSnakeCase("brand")));
+		mappingHelper.setValue(car, typeDescriber.getPropertyFromSnakeCase("can_be_sold_in_eu"), true);
+		assertEquals(true, mappingHelper.getValue(car, typeDescriber.getPropertyFromSnakeCase("can_be_sold_in_eu")));
+		mappingHelper.setValue(car, typeDescriber.getPropertyFromSnakeCase("construction_date"), ZonedDateTime.parse("2022-01-01T12:15:45Z"));
+		assertEquals(ZonedDateTime.parse("2022-01-01T12:15:45Z"), mappingHelper.getValue(car, typeDescriber.getPropertyFromSnakeCase("construction_date")));
+		mappingHelper.setValue(car, typeDescriber.getPropertyFromSnakeCase("engine_id"), UUID.fromString("170b8575-9885-40dc-82a2-7ab49fcd6579"));
+		assertEquals(UUID.fromString("170b8575-9885-40dc-82a2-7ab49fcd6579"), mappingHelper.getValue(car, typeDescriber.getPropertyFromSnakeCase("engine_id")));
+		mappingHelper.setValue(car, typeDescriber.getPropertyFromSnakeCase("crash_rating"), 12.34);
+		assertEquals(12.34, mappingHelper.getValue(car, typeDescriber.getPropertyFromSnakeCase("crash_rating")));
 	}
 }
