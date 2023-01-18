@@ -54,7 +54,6 @@ public class AutoWrapperWriter<WRAPPER extends WRAPPEE, WRAPPEE> extends AutoMap
 		build();
 	}
 
-
 	public void addFactoryMethodInjection(Class<? extends AutoWrappedFactory> factory, String identifier) {
 		try {
 			MethodSignature ms = new MethodSignature(wrapperClazz, "<init>", Clazz.getVoid(), Clazz.of(factory));
@@ -65,7 +64,8 @@ public class AutoWrapperWriter<WRAPPER extends WRAPPEE, WRAPPEE> extends AutoMap
 			m.load(0);
 			{
 				m.load(1);
-				m.push(DynamicClassIdentifier.create(identifier));
+				m.push(identifier);
+				m.invoke(new MethodSignature(DynamicClassIdentifier.class.getMethod("create", String.class)));
 				m.addAnnotation(Clazz.of(Inject.class), true);
 				m.invoke(new MethodSignature(AutoWrappedFactory.class.getMethod("get", DynamicClassIdentifier.class)));
 				m.cast(wrappeeClass);
