@@ -65,9 +65,9 @@ public class AutoWrapperWriter<WRAPPER extends WRAPPEE, WRAPPEE> extends AutoMap
 			m.load(0);
 			{
 				m.load(1);
-				m.push(identifier);
+				m.push(DynamicClassIdentifier.create(identifier));
 				m.addAnnotation(Clazz.of(Inject.class), true);
-				m.invoke(new MethodSignature(AutoWrappedFactory.class.getMethod("get", String.class)));
+				m.invoke(new MethodSignature(AutoWrappedFactory.class.getMethod("get", DynamicClassIdentifier.class)));
 				m.cast(wrappeeClass);
 			}
 			m.putfield(wrapperGenerated, "_wrappee", wrappeeClass);

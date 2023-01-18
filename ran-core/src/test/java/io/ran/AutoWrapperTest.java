@@ -78,13 +78,9 @@ public class AutoWrapperTest {
 	public static class MyTestFactory implements AutoWrappedFactory {
 		Map<String, Object> map = new HashMap<>();
 
-		@Inject
-		public MyTestFactory() {
-
-		}
 		@Override
-		public <T> T get(String identifier) {
-			return (T) map.get(identifier);
+		public <T> T get(DynamicClassIdentifier identifier) {
+			return (T) map.get(identifier.get());
 		}
 	}
 
