@@ -34,7 +34,7 @@ public class CompoundKey {
 		if (values.size() != that.values.size()) {
 			return false;
 		}
-		return !values.stream().noneMatch(that.values::contains);
+		return values.containsAll(that.values);
 	}
 
 	@Override
