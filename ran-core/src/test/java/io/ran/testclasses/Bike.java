@@ -18,7 +18,7 @@ public class Bike {
 	private BikeWheel frontWheel;
 	@Relation(fields = {"bikeType", "wheelSize"}, relationFields = {"bikeType", "size"}, autoSave = true)
 	private BikeWheel backWheel;
-	@Relation(collectionElementType = BikeGear.class,via = BikeGearBike.class, autoSave = true)
+	@Relation(collectionElementType = BikeGear.class, via = BikeGearBike.class, autoSave = true)
 	private List<BikeGear> gears;
 
 	public String getId() {

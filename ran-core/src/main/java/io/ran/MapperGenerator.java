@@ -17,12 +17,12 @@ public class MapperGenerator {
 			MappingClassWriter visitor = new MappingClassWriter(clazz.clazz);
 			byte[] bytes = visitor.toByteArray();
 //			Files.write(path, bytes);
-			CheckClassAdapter.verify(new ClassReader(bytes),false, new PrintWriter(System.out));
+			CheckClassAdapter.verify(new ClassReader(bytes), false, new PrintWriter(System.out));
 
 
 			QueryClassWriter visitor2 = new QueryClassWriter(clazz.clazz);
 			byte[] bytes2 = visitor2.toByteArray();
-			CheckClassAdapter.verify(new ClassReader(bytes2),false, new PrintWriter(System.out));
+			CheckClassAdapter.verify(new ClassReader(bytes2), false, new PrintWriter(System.out));
 //			Files.write(pathQuery, bytes2);
 
 

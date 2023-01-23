@@ -1,5 +1,5 @@
 package io.ran;
 
 public interface AutoWrapperGenericFactory {
-    <T> T wrapped(Class<T> aClass);
+	<T> T wrapped(Class<T> aClass);
 }

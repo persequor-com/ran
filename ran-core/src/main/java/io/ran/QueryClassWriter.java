@@ -14,10 +14,10 @@ public class QueryClassWriter extends AutoMapperClassWriter {
 	public QueryClassWriter(Class clazz) {
 		super(clazz);
 		postFix = "$Ran$Query";
-		this.name = this.wrapperClazz.getInternalName().replace('/','.')+postFix;
-		this.shortName = clazz.getSimpleName()+postFix;
+		this.name = this.wrapperClazz.getInternalName().replace('/', '.') + postFix;
+		this.shortName = clazz.getSimpleName() + postFix;
 
-		visit(Opcodes.V1_8, Access.Public.getOpCode(), this.wrapperClazz.getInternalName()+"$Ran$Query", this.wrapperClazz.generics.isEmpty() ? null : this.wrapperClazz.getSignature(), this.wrapperClazz.getInternalName(), new String[]{Clazz.of(QueryWrapper.class).getInternalName()});
+		visit(Opcodes.V1_8, Access.Public.getOpCode(), this.wrapperClazz.getInternalName() + "$Ran$Query", this.wrapperClazz.generics.isEmpty() ? null : this.wrapperClazz.getSignature(), this.wrapperClazz.getInternalName(), new String[]{Clazz.of(QueryWrapper.class).getInternalName()});
 
 
 		buildConstructor();
@@ -70,10 +70,10 @@ public class QueryClassWriter extends AutoMapperClassWriter {
 			field(Access.Private, "currentProperty", Clazz.of(Property.class), null);
 
 			for (Method m : Arrays.asList(wrapperClazz.clazz.getMethods())) {
-				if (!m.getName().matches("^(?:is|get|set).+") || m.getDeclaringClass() == Object.class ) {
+				if (!m.getName().matches("^(?:is|get|set).+") || m.getDeclaringClass() == Object.class) {
 					continue;
 				}
-				String tokenSnake = Token.get(m.getName().replaceFirst("^(?:is|get|set)","")).snake_case();
+				String tokenSnake = Token.get(m.getName().replaceFirst("^(?:is|get|set)", "")).snake_case();
 				MethodWriter mw = method(Access.of(m.getModifiers()), new MethodSignature(m));
 				mw.load(0);
 				mw.load(0);

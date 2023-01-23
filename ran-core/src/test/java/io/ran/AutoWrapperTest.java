@@ -23,7 +23,7 @@ public class AutoWrapperTest {
 	public void setup() {
 		injector = Guice.createInjector();
 		autoMapper = new AutoMapper();
-		factory = new GuiceHelper.GuiceGenericFactory(autoMapper,injector);
+		factory = new GuiceHelper.GuiceGenericFactory(autoMapper, injector);
 		autoWrapper = new AutoWrapper(factory);
 	}
 
@@ -53,7 +53,7 @@ public class AutoWrapperTest {
 		instance.setaLong(3);
 		instance.setId("muh");
 		TestClassWrapper wrapped = autoWrapper.wrap(TestClassWrapper.class, instance);
-		wrapped.setNumbers(4,5,6);
+		wrapped.setNumbers(4, 5, 6);
 		assertEquals("muh4-5-6", wrapped.toString());
 		assertEquals(4, instance.getaShort());
 		assertEquals(5, instance.getInteger());
@@ -62,7 +62,7 @@ public class AutoWrapperTest {
 
 	@Test
 	public void wrapEmptyClass_withFactory() {
-		Class<IMyValueInterface> wrapped = autoWrapper.wrapToClassWithFactoryInjector("TestClassName1",IMyValueInterface.class, MyTestFactory.class, "My identifier");
+		Class<IMyValueInterface> wrapped = autoWrapper.wrapToClassWithFactoryInjector("TestClassName1", IMyValueInterface.class, MyTestFactory.class, "My identifier");
 		System.out.println(wrapped.getName());
 		Class<IMyValueInterface> wrapped2 = autoWrapper.wrapToClassWithFactoryInjector("TestClassName2", IMyValueInterface.class, MyTestFactory.class, "My second identifier");
 		System.out.println(wrapped2.getName());
@@ -100,7 +100,7 @@ public class AutoWrapperTest {
 		}
 
 		public String hello(String name) {
-			return dependency.morphId(name)+extra;
+			return dependency.morphId(name) + extra;
 		}
 
 		public MyValueInstance blah(String extra) {

@@ -8,5 +8,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface Serialized {
-    Class<? extends ISerializer> serializer();
+	Class<? extends ISerializer> serializer();
 }

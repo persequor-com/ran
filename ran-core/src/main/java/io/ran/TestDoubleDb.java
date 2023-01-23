@@ -10,6 +10,6 @@ public class TestDoubleDb {
 	public Map<Class<?>, Map<Object, Object>> store = Collections.synchronizedMap(new HashMap<>());
 
 	public <T> Map<Object, T> getStore(Class<T> modelType) {
-		return (Map<Object, T>)store.computeIfAbsent(modelType, t -> Collections.synchronizedMap(new HashMap<>()));
+		return (Map<Object, T>) store.computeIfAbsent(modelType, t -> Collections.synchronizedMap(new HashMap<>()));
 	}
 }

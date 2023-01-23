@@ -22,11 +22,11 @@ public class ClazzTest {
 		assertEquals(2, relations.get(0).getVia().size());
 		assertEquals(RelationFrom.class, relations.get(0).getVia().get(0).getFromClass().clazz);
 		assertEquals(Token.of("id"), relations.get(0).getVia().get(0).getFromKeys().get(0).getToken());
-		assertEquals(Token.of("relation","from","id"), relations.get(0).getVia().get(0).getToKeys().get(0).getToken());
+		assertEquals(Token.of("relation", "from", "id"), relations.get(0).getVia().get(0).getToKeys().get(0).getToken());
 		assertEquals(RelationVia.class, relations.get(0).getVia().get(0).getToClass().clazz);
 		assertEquals(RelationVia.class, relations.get(0).getVia().get(1).getFromClass().clazz);
 		assertEquals(RelationTo.class, relations.get(0).getVia().get(1).getToClass().clazz);
-		assertEquals(Token.of("relation","to","id"), relations.get(0).getVia().get(1).getFromKeys().get(0).getToken());
+		assertEquals(Token.of("relation", "to", "id"), relations.get(0).getVia().get(1).getFromKeys().get(0).getToken());
 		assertEquals(Token.of("id"), relations.get(0).getVia().get(1).getToKeys().get(0).getToken());
 	}
 
@@ -47,16 +47,16 @@ public class ClazzTest {
 		assertEquals("id", relations.get(0).getVia().get(1).getToKeys().get(0).getToken().snake_case());
 
 		assertEquals("next_nodes", relations.get(1).getField().snake_case());
-		assertEquals("id", relations.get(1)     .getFromKeys().get(0).getToken().snake_case());
+		assertEquals("id", relations.get(1).getFromKeys().get(0).getToken().snake_case());
 		assertEquals("from_id", relations.get(1).getToKeys().get(0).getToken().snake_case());
-		assertEquals("id", relations.get(1)     .getVia().get(0).getFromKeys().get(0).getToken().snake_case());
+		assertEquals("id", relations.get(1).getVia().get(0).getFromKeys().get(0).getToken().snake_case());
 		System.out.println(relations.get(1).getVia().get(0).getFromKeys().get(0).getToken().snake_case());
 		System.out.println(relations.get(1).getVia().get(0).getToKeys().get(0).getToken().snake_case());
-		System.out.println(relations.get(1)  .getVia().get(1).getFromKeys().get(0).getToken().snake_case());
-		System.out.println(relations.get(1)     .getVia().get(1).getToKeys().get(0).getToken().snake_case());
+		System.out.println(relations.get(1).getVia().get(1).getFromKeys().get(0).getToken().snake_case());
+		System.out.println(relations.get(1).getVia().get(1).getToKeys().get(0).getToken().snake_case());
 		assertEquals("from_id", relations.get(1).getVia().get(0).getToKeys().get(0).getToken().snake_case());
-		assertEquals("to_id", relations.get(1)  .getVia().get(1).getFromKeys().get(0).getToken().snake_case());
-		assertEquals("id", relations.get(1)     .getVia().get(1).getToKeys().get(0).getToken().snake_case());
+		assertEquals("to_id", relations.get(1).getVia().get(1).getFromKeys().get(0).getToken().snake_case());
+		assertEquals("id", relations.get(1).getVia().get(1).getToKeys().get(0).getToken().snake_case());
 	}
 
 	@Test
@@ -92,8 +92,8 @@ public class ClazzTest {
 		KeySet keys = Clazz.of(RelationVia.class).getKeys().getPrimary();
 
 		assertEquals(2, keys.size());
-		assertEquals(Token.of("relation","from","id"), keys.get(0).getToken());
-		assertEquals(Token.of("relation","to","id"), keys.get(1).getToken());
+		assertEquals(Token.of("relation", "from", "id"), keys.get(0).getToken());
+		assertEquals(Token.of("relation", "to", "id"), keys.get(1).getToken());
 	}
 
 	@Test
@@ -230,7 +230,6 @@ public class ClazzTest {
 			this.relationToId = relationToId;
 		}
 	}
-
 
 
 	public static class DescribedRelationFrom {
@@ -411,9 +410,11 @@ public class ClazzTest {
 	public interface NonGenericInterface extends GenericInterface<String> {
 		// This can be left empty, since method(T) is now method(String)
 	}
+
 	public interface NonGenericInterface2 extends NonGenericInterface {
 		// This one is tricky because the method is declared deeper
 	}
+
 	public interface NonGenericInterfaceExplicit extends GenericInterface<String> {
 		void method(String myString);
 	}

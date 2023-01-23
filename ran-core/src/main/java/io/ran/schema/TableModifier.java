@@ -10,14 +10,14 @@ import java.util.function.Consumer;
 public abstract class TableModifier<TM extends TableModifier<TM, CB, IB>, CB extends ColumnBuilder<CB>, IB extends IndexBuilder<IB>> extends TableBuilder<TM, CB, IB> implements ITableBuilder<TM, CB, IB> {
 
 	public TM modifyColumn(Property property) {
-		ColumnAction column = new ColumnAction(getColumnToken(property.getToken()),property, property.getType().clazz, (t,ca) -> modify().execute(t, ca));
+		ColumnAction column = new ColumnAction(getColumnToken(property.getToken()), property, property.getType().clazz, (t, ca) -> modify().execute(t, ca));
 		CB columnBuilder = getColumnBuilder(column);
 		actions.add(column);
 		return (TM) this;
 	}
 
 	public TM modifyColumn(Property property, Consumer<CB> consumer) {
-		ColumnAction column = new ColumnAction(getColumnToken(property.getToken()), property, property.getType().clazz, (t,ca) -> modify().execute(t, ca));
+		ColumnAction column = new ColumnAction(getColumnToken(property.getToken()), property, property.getType().clazz, (t, ca) -> modify().execute(t, ca));
 		CB columnBuilder = getColumnBuilder(column);
 		consumer.accept(columnBuilder);
 		actions.add(column);
@@ -25,7 +25,7 @@ public abstract class TableModifier<TM extends TableModifier<TM, CB, IB>, CB ext
 	}
 
 	public TM removeColumn(Token token) {
-		ColumnAction column = new ColumnAction(getColumnToken(token), null, null, (t,ca) -> remove().execute(t, ca));
+		ColumnAction column = new ColumnAction(getColumnToken(token), null, null, (t, ca) -> remove().execute(t, ca));
 		actions.add(column);
 		return (TM) this;
 	}

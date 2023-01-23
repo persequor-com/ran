@@ -44,6 +44,7 @@ public class IndexAction implements OnTableAction {
 	public void addProperty(String name, Object value) {
 		properties.put(name, value);
 	}
+
 	public Object getProperty(String name) {
 		return properties.getOrDefault(name, new Object());
 	}

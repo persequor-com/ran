@@ -47,7 +47,7 @@ public class MappingHelperTest {
 
 		ObjectMap map = new ObjectMap();
 		map.put(Token.of("id"), "my id");
-		map.put(Token.of("the","boolean"), true);
+		map.put(Token.of("the", "boolean"), true);
 		mappingHelper.hydrate(car, map);
 
 		assertEquals("my id", car.getId());
@@ -59,7 +59,7 @@ public class MappingHelperTest {
 
 		ObjectMap map = new ObjectMap();
 		map.put(Token.of("id"), "my id");
-		map.put(Token.of("the","boolean"), true);
+		map.put(Token.of("the", "boolean"), true);
 		mappingHelper.hydrate(car, map);
 
 		assertEquals("my id", car.getId());

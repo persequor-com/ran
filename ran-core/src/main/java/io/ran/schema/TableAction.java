@@ -41,7 +41,7 @@ public class TableAction {
 
 	public List<String> getActions() {
 		List<String> tableActions = new ArrayList<>();
-		actions.stream().map(ca -> ca.apply(this,ca)).forEach(tableActions::add);
+		actions.stream().map(ca -> ca.apply(this, ca)).forEach(tableActions::add);
 		return tableActions;
 	}
 

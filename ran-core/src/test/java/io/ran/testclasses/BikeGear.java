@@ -11,7 +11,7 @@ import java.util.List;
 public class BikeGear {
 	@PrimaryKey
 	int gearNum;
-	@Relation(collectionElementType = Bike.class,via = BikeGearBike.class/*, fields = {"gear_num"}, relationFields = "gear_num"*/, autoSave = true)
+	@Relation(collectionElementType = Bike.class, via = BikeGearBike.class/*, fields = {"gear_num"}, relationFields = "gear_num"*/, autoSave = true)
 	private List<Bike> bikes;
 
 	public int getGearNum() {

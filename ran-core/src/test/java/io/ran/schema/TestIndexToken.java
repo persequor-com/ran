@@ -15,7 +15,7 @@ public class TestIndexToken extends IndexToken {
 
 	@Override
 	public String toSql() {
-		return "'"+token.camelHump()+"'";
+		return "'" + token.camelHump() + "'";
 	}
 
 	@Override

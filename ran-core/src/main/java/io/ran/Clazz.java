@@ -26,7 +26,7 @@ public class Clazz<T> {
 	public String className;
 	public Class<T> clazz;
 	public List<Clazz<?>> generics = new ArrayList<>();
-	public Map<String,Clazz<?>> genericMap = new HashMap<>();
+	public Map<String, Clazz<?>> genericMap = new HashMap<>();
 	private Annotations annotations = null;
 
 	public static Clazz of(Type type) {
@@ -34,11 +34,11 @@ public class Clazz<T> {
 			ParameterizedType parameterizedType = ((ParameterizedType) type);
 			List<Clazz> genericClasses = Arrays.asList(parameterizedType.getActualTypeArguments()).stream().map(Clazz::of).collect(Collectors.toList());
 
-			return Clazz.ofClazzes((Class)((ParameterizedType) type).getRawType(), genericClasses);
+			return Clazz.ofClazzes((Class) ((ParameterizedType) type).getRawType(), genericClasses);
 		} else if (type instanceof Class) {
-			return Clazz.of((Class)type);
+			return Clazz.of((Class) type);
 		}
-		throw new RuntimeException("Don't know what to do with type: "+type.getClass().getName());
+		throw new RuntimeException("Don't know what to do with type: " + type.getClass().getName());
 	}
 
 	public static Clazz getShort() {
@@ -71,7 +71,7 @@ public class Clazz<T> {
 		if (clazz == null) {
 			return className;
 		}
-		return clazz.getName().replace('.','/');
+		return clazz.getName().replace('.', '/');
 	}
 
 	public boolean isPrimitive() {
@@ -110,9 +110,6 @@ public class Clazz<T> {
 	}
 
 
-
-
-
 	public static Clazz getVoid() {
 		return Clazz.of(void.class);
 	}
@@ -128,7 +125,7 @@ public class Clazz<T> {
 		if (clazz == byte[].class) {
 			return "[B";
 		}
-		return "L"+getInternalName()+";";
+		return "L" + getInternalName() + ";";
 	}
 
 	public String getSignature() {
@@ -138,7 +135,7 @@ public class Clazz<T> {
 		if (clazz == byte[].class) {
 			return "[B";
 		}
-		return "L"+getInternalName()+(generics.isEmpty()?"":"<"+(generics.stream().map(Clazz::getSignature).collect(Collectors.joining()))+">")+";";
+		return "L" + getInternalName() + (generics.isEmpty() ? "" : "<" + (generics.stream().map(Clazz::getSignature).collect(Collectors.joining())) + ">") + ";";
 	}
 
 	public Clazz(String className) {
@@ -165,7 +162,7 @@ public class Clazz<T> {
 		Clazz<T> newClazz = new Clazz<T>(clazz);
 		if (type instanceof ParameterizedType) {
 			ParameterizedType paraType = (ParameterizedType) type;
-			Arrays.stream(paraType.getActualTypeArguments()).map(t -> (Class<?>)t).map(Clazz::of).forEach(c -> newClazz.generics.add(c));
+			Arrays.stream(paraType.getActualTypeArguments()).map(t -> (Class<?>) t).map(Clazz::of).forEach(c -> newClazz.generics.add(c));
 		}
 		return newClazz;
 	}
@@ -230,9 +227,9 @@ public class Clazz<T> {
 		if (clazz != null) {
 			String simpleName = getSimpleName();
 			if (clazz.getEnclosingClass() != null) {
-				simpleName = clazz.getEnclosingClass().getSimpleName()+"."+simpleName;
+				simpleName = clazz.getEnclosingClass().getSimpleName() + "." + simpleName;
 			}
-			return simpleName+(generics.isEmpty() ? "" : "<"+generics.stream().map(Clazz::classRepresentation).collect(Collectors.joining(", "))+">");
+			return simpleName + (generics.isEmpty() ? "" : "<" + generics.stream().map(Clazz::classRepresentation).collect(Collectors.joining(", ")) + ">");
 		} else {
 			return className;
 		}
@@ -257,7 +254,7 @@ public class Clazz<T> {
 		if (generics.isEmpty()) {
 			return "Clazz.of(" + getSimpleName() + ".class)";
 		} else {
-			return "(Clazz)Clazz.ofClasses(" + clazz.getSimpleName() + ".class, " + generics.stream().map(c -> c.name()+".class").collect(Collectors.joining(", ")) + ")";
+			return "(Clazz)Clazz.ofClasses(" + clazz.getSimpleName() + ".class, " + generics.stream().map(c -> c.name() + ".class").collect(Collectors.joining(", ")) + ")";
 		}
 	}
 
@@ -273,7 +270,7 @@ public class Clazz<T> {
 			if (clazz.equals(char.class)) {
 				return "Character";
 			}
-			return clazz.getSimpleName().substring(0,1).toUpperCase()+clazz.getSimpleName().substring(1);
+			return clazz.getSimpleName().substring(0, 1).toUpperCase() + clazz.getSimpleName().substring(1);
 		}
 		return clazz.getSimpleName();
 	}
@@ -302,12 +299,12 @@ public class Clazz<T> {
 		Property.PropertyList fields = Property.list();
 
 		for (Field field : getFields()) {
-			if(isPublicStatic(field) || !includeNonProperties && !isPropertyField(field)) {
+			if (isPublicStatic(field) || !includeNonProperties && !isPropertyField(field)) {
 				continue;
 			}
 			Token token = Token.camelHump(field.getName());
 			Clazz<?> fieldType = Clazz.of(field);
-			Property<?> property = Property.get(token,fieldType);
+			Property<?> property = Property.get(token, fieldType);
 			Key[] keys = field.getAnnotationsByType(Key.class);
 			Arrays.asList(keys).forEach(key -> {
 				property.addKey(new KeyInfo(false, property, key.name(), key.order(), key.unique()));
@@ -338,7 +335,7 @@ public class Clazz<T> {
 				});
 			}
 			working = working.getSuper();
-		} while(working.clazz != null && !Object.class.equals(working.clazz));
+		} while (working.clazz != null && !Object.class.equals(working.clazz));
 		return new ClazzMethodList(result.values());
 	}
 
@@ -356,11 +353,10 @@ public class Clazz<T> {
 	}
 
 
-
 	public List<Field> getFields() {
 		List<Field> fields = new ArrayList<>();
 		Class working = clazz;
-		while(working != Object.class) {
+		while (working != Object.class) {
 			fields.addAll(Arrays.asList(working.getDeclaredFields()));
 			working = working.getSuperclass();
 		}
@@ -379,8 +375,6 @@ public class Clazz<T> {
 	public List<Field> getDeclaredPropertyFields() {
 		return Stream.of(clazz.getDeclaredFields()).filter(Clazz::isPropertyField).collect(Collectors.toList());
 	}
-
-
 
 
 	public Object getDefaultValue() {

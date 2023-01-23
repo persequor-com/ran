@@ -10,7 +10,7 @@ public class TestTableToken extends TableToken {
 
 	@Override
 	public String toSql() {
-		return "'"+token.CamelBack()+"'";
+		return "'" + token.CamelBack() + "'";
 	}
 
 	@Override

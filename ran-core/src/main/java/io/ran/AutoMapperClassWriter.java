@@ -20,7 +20,7 @@ public class AutoMapperClassWriter extends ClassWriter {
 	}
 
 	protected Clazz getSelf() {
-		return Clazz.of(wrapperClazz.getInternalName()+postFix);
+		return Clazz.of(wrapperClazz.getInternalName() + postFix);
 	}
 
 	public MethodWriter method(Access access, MethodSignature signature) {

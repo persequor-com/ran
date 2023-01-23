@@ -16,7 +16,7 @@ public enum Access {
 	public static Access of(Integer modifiers) {
 		return Arrays.stream(values())
 				.filter(a -> (modifiers & a.opCode) == a.opCode).
-				findFirst().orElseThrow(() -> new RuntimeException("Could not find access for modifier: "+modifiers));
+				findFirst().orElseThrow(() -> new RuntimeException("Could not find access for modifier: " + modifiers));
 	}
 
 	public int getOpCode() {

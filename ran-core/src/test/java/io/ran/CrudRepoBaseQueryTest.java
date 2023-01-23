@@ -33,7 +33,7 @@ public class CrudRepoBaseQueryTest {
 	@Test
 	public void awarmup() {
 		long s = System.currentTimeMillis();
-		for(int i=0;i<1000;i++) {
+		for (int i = 0; i < 1000; i++) {
 			TestRepoQuery<Car> query = new TestRepoQuery<>(Car.class, helper.factory)
 					.eq(Car::getBrand, Brand.Hyundai)
 //					.subQuery(Car::getEngine, sq -> {
@@ -48,7 +48,7 @@ public class CrudRepoBaseQueryTest {
 	@Test
 	public void performance() {
 		long s = System.currentTimeMillis();
-		for(int i=0;i<1000;i++) {
+		for (int i = 0; i < 1000; i++) {
 			TestRepoQuery<Car> query = new TestRepoQuery<>(Car.class, helper.factory)
 					.eq(Car::getBrand, Brand.Hyundai)
 //					.subQuery(Car::getEngine, sq -> {
@@ -56,13 +56,13 @@ public class CrudRepoBaseQueryTest {
 //					})
 					.isNull(Car::getCrashRating);
 		}
-		System.out.println("time cglib: "+(System.currentTimeMillis()-s));
+		System.out.println("time cglib: " + (System.currentTimeMillis() - s));
 	}
 
 	@Test
 	public void performanceGenerated() {
 		long s = System.currentTimeMillis();
-		for(int i=0;i<1000;i++) {
+		for (int i = 0; i < 1000; i++) {
 			TestRepoQuery<Car> query = new TestRepoQuery<>(Car.class, helper.factory)
 					.eq(Car::getBrand, Brand.Hyundai)
 //					.subQuery(Car::getEngine, sq -> {
@@ -70,7 +70,7 @@ public class CrudRepoBaseQueryTest {
 //					})
 					.isNull(Car::getCrashRating);
 		}
-		System.out.println("time generated: "+(System.currentTimeMillis()-s));
+		System.out.println("time generated: " + (System.currentTimeMillis() - s));
 	}
 
 	class TestRepoQuery<T> extends CrudRepoBaseQuery<T, TestRepoQuery<T>> {
@@ -258,7 +258,7 @@ public class CrudRepoBaseQueryTest {
 
 			@Override
 			public Double getCrashRating() {
-				property.setToken(Token.of("crash","rating"));
+				property.setToken(Token.of("crash", "rating"));
 				return null;
 			}
 		}

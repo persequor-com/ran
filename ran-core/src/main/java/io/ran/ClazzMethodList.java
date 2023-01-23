@@ -17,7 +17,7 @@ public class ClazzMethodList extends ArrayList<ClazzMethod> {
 			if (cm.parameters().size() != parameterTypes.size()) {
 				return false;
 			}
-			for(int i=0;i<cm.parameters().size();i++) {
+			for (int i = 0; i < cm.parameters().size(); i++) {
 				if (!cm.parameters().get(i).getBestEffortClazz().clazz.equals(parameterTypes.get(i))) {
 					return false;
 				}

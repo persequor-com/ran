@@ -98,7 +98,7 @@ public class TestDoubleTest {
 		assertEquals(Arrays.asList(
 						Arrays.asList("SUV", Brand.Porsche)
 						, Arrays.asList("Sedan", Brand.Hyundai)
-						,Arrays.asList("Sedan", Brand.Porsche))
+						, Arrays.asList("Sedan", Brand.Porsche))
 				, actual
 		);
 	}
@@ -194,7 +194,6 @@ public class TestDoubleTest {
 		List<Car> actual = carRepo.query().execute().collect(Collectors.toList());
 		assertEquals(1, actual.size());
 	}
-
 
 
 	public static class TestCarRepo extends CrudRepositoryTestDoubleBase<Car, String> {

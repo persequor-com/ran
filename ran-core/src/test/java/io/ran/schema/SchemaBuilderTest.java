@@ -18,7 +18,7 @@ public class SchemaBuilderTest {
 
 	@Test
 	public void buildSimpleSchema() {
-		builder.addTable(Token.of("the","table"), tb -> {
+		builder.addTable(Token.of("the", "table"), tb -> {
 			tb.addColumn(Property.get(Token.get("id"), Clazz.of(UUID.class)));
 			tb.addColumn(Property.get(Token.get("title"), Clazz.of(String.class)));
 			tb.addPrimaryKey(Property.get(Token.get("id")));
@@ -88,6 +88,7 @@ public class SchemaBuilderTest {
 
 	private static class TestExecutor implements SchemaExecutor {
 		StringBuilder result = new StringBuilder();
+
 		@Override
 		public void execute(Collection<TableAction> values) {
 			values.forEach(ta -> {

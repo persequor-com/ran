@@ -19,7 +19,7 @@ public class QueryElement {
 		return new QueryElement(eq, value);
 	}
 
-	public static QueryElement of(QueryType eq, Property.PropertyValueList  values) {
+	public static QueryElement of(QueryType eq, Property.PropertyValueList values) {
 		return new QueryElement(eq, values);
 	}
 

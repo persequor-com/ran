@@ -7,7 +7,7 @@ public class IndexBuilder<IB extends IndexBuilder<IB>> {
 	private TableBuilder<?, ?, IB> tableBuilder;
 	protected IndexAction action;
 
-	public IndexBuilder(TableBuilder<?,?, IB> tableBuilder, IndexAction action) {
+	public IndexBuilder(TableBuilder<?, ?, IB> tableBuilder, IndexAction action) {
 		this.tableBuilder = tableBuilder;
 		this.action = action;
 	}

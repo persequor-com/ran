@@ -27,7 +27,7 @@ public class GuiceHelper {
 
 		@Override
 		public <T> T get(Class<T> clazz) {
-			return (T)injector.getInstance(ormMapper.get(clazz));
+			return (T) injector.getInstance(ormMapper.get(clazz));
 		}
 
 		@Override

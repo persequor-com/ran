@@ -41,42 +41,42 @@ class TestTableBuilder extends TableModifier<TestTableBuilder, TestColumnBuilder
 
 	@Override
 	protected ColumnActionDelegate create() {
-		return (t,ca) -> {
-			return (t.getType() == TableActionType.MODIFY ? "ADD COLUMN " : "")+ca.getName()+" "+ca.getType().getSimpleName().toLowerCase();
+		return (t, ca) -> {
+			return (t.getType() == TableActionType.MODIFY ? "ADD COLUMN " : "") + ca.getName() + " " + ca.getType().getSimpleName().toLowerCase();
 		};
 	}
 
 	@Override
 	protected ColumnActionDelegate modify() {
-		return (t,ca) -> {
-			return "COLUMN "+ca.getName()+" "+ca.getType().getSimpleName().toLowerCase();
+		return (t, ca) -> {
+			return "COLUMN " + ca.getName() + " " + ca.getType().getSimpleName().toLowerCase();
 		};
 	}
 
 	@Override
 	protected ColumnActionDelegate remove() {
-		return (t,ca) -> {
-			return "DROP COLUMN "+ca.getName();
+		return (t, ca) -> {
+			return "DROP COLUMN " + ca.getName();
 		};
 	}
 
 	@Override
 	protected IndexActionDelegate createIndex() {
-		return (t,ia) -> {
+		return (t, ia) -> {
 			String indexType = "INDEX ";
 			if (ia.isPrimary()) {
 				indexType = "PRIMARY KEY";
 			} else if (ia.getProperty("isUnique").equals(true)) {
 				indexType = "UNIQUE ";
 			}
-			return (t.getType() == TableActionType.MODIFY ? "ADD " : "")+(ia.isPrimary() ? "PRIMARY KEY ":indexType+ia.getName()+" ")+"("+ia.getFields().join(", ") +")";
+			return (t.getType() == TableActionType.MODIFY ? "ADD " : "") + (ia.isPrimary() ? "PRIMARY KEY " : indexType + ia.getName() + " ") + "(" + ia.getFields().join(", ") + ")";
 		};
 	}
 
 	@Override
 	protected IndexActionDelegate removeIndex() {
-		return (t,ia) -> {
-			return (ia.isPrimary() ? "DROP PRIMARY KEY":"DROP INDEX "+ia.getName());
+		return (t, ia) -> {
+			return (ia.isPrimary() ? "DROP PRIMARY KEY" : "DROP INDEX " + ia.getName());
 		};
 	}
 }

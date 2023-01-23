@@ -1,7 +1,7 @@
 /* Copyright (C) Persequor ApS - All Rights Reserved
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
- * Written by Persequor Development Team <partnersupport@persequor.com>, 
+ * Written by Persequor Development Team <partnersupport@persequor.com>,
  */
 package io.ran.token;
 
@@ -14,9 +14,10 @@ public class Token {
 	List<String> parts = new ArrayList<>();
 	private static Map<String, Token> tokenMap = new ConcurrentHashMap<>();
 	private Map<Class, String> toStringMap = new ConcurrentHashMap<>();
+
 	private Token(List<String> parts) {
 		if (parts.stream().anyMatch(String::isEmpty)) {
-			throw new InvalidTokenException("Empty token part in: {"+String.join("}{",parts)+"}");
+			throw new InvalidTokenException("Empty token part in: {" + String.join("}{", parts) + "}");
 		}
 		this.parts.addAll(parts);
 	}
@@ -25,7 +26,7 @@ public class Token {
 		if (anyFormat.toLowerCase().contains(" ")) {
 			return humanReadable(anyFormat);
 		}
-		if (anyFormat.substring(0,1).toUpperCase().equals(anyFormat.substring(0,1))) {
+		if (anyFormat.substring(0, 1).toUpperCase().equals(anyFormat.substring(0, 1))) {
 			return CamelCase(anyFormat);
 		}
 		if (anyFormat.toLowerCase().equals(anyFormat)) {
@@ -47,25 +48,25 @@ public class Token {
 	}
 
 	public static Token CamelCase(String tokenString) {
-		return tokenMap.computeIfAbsent(tokenString+"_CamelCase", t -> {
+		return tokenMap.computeIfAbsent(tokenString + "_CamelCase", t -> {
 			return new CamelCaseToken(tokenString).toToken();
 		});
 	}
 
 	public static Token camelHump(String tokenString) {
-		return tokenMap.computeIfAbsent(tokenString+"_camelHump", t -> {
+		return tokenMap.computeIfAbsent(tokenString + "_camelHump", t -> {
 			return new CamelHumpToken(tokenString).toToken();
 		});
 	}
 
 	public static Token snake_case(String tokenString) {
-		return tokenMap.computeIfAbsent(tokenString+"_snake_case", t -> {
+		return tokenMap.computeIfAbsent(tokenString + "_snake_case", t -> {
 			return new SnakeCaseToken(tokenString).toToken();
 		});
 	}
 
 	public static Token javaMethod(String tokenString) {
-		return tokenMap.computeIfAbsent(tokenString+"_javaMethod", t -> {
+		return tokenMap.computeIfAbsent(tokenString + "_javaMethod", t -> {
 			if (tokenString.substring(0, 1).equals(tokenString.substring(0, 1).toLowerCase())) {
 				return new CamelHumpToken(tokenString).toToken();
 			} else {
@@ -94,7 +95,7 @@ public class Token {
 
 	@Override
 	public String toString() {
-		return "{"+String.join("}{",parts)+"}";
+		return "{" + String.join("}{", parts) + "}";
 	}
 
 	public int stringLength() {
@@ -130,7 +131,7 @@ public class Token {
 	}
 
 	public boolean endsWith(String id) {
-		return parts.get(parts.size()-1).equals(id);
+		return parts.get(parts.size() - 1).equals(id);
 	}
 
 	public static class TokenList extends ArrayList<Token> {

@@ -33,7 +33,6 @@ public abstract class CrudRepositoryTestDoubleBase<T, K> implements CrudReposito
 	}
 
 
-
 	@Override
 	public Stream<T> getAll() {
 		return getStore(modelType).values().stream().map(this::mappingCopy);
@@ -85,7 +84,7 @@ public abstract class CrudRepositoryTestDoubleBase<T, K> implements CrudReposito
 		if (keyType.equals(modelType)) {
 			key = mappingHelper.getKey(t);
 		} else {
-			key = (K)((Property.PropertyValueList<?>)k.getValues()).get(0).getValue();
+			key = (K) ((Property.PropertyValueList<?>) k.getValues()).get(0).getValue();
 		}
 		return key;
 	}

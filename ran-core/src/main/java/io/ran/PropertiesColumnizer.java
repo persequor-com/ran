@@ -22,8 +22,8 @@ public class PropertiesColumnizer implements ObjectMapColumnizer {
 	}
 
 	private <T> void setInternal(Property key, T value) {
-		if(properties.contains(key)) {
-			values.add(((Property<T>)properties.get(key.getToken())).value((T)value));
+		if (properties.contains(key)) {
+			values.add(((Property<T>) properties.get(key.getToken())).value((T) value));
 		}
 	}
 

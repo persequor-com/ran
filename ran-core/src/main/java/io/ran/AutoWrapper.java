@@ -23,13 +23,13 @@ public class AutoWrapper {
 	}
 
 	public <T, W extends T> W wrap(Class<W> wc, T t) {
-		 W tw = factory.wrapped(wrapToClass(wc, (Class<T>)t.getClass()));
-		 Wrappee<W,T> wrappee = (Wrappee<W,T>)tw;
-		 wrappee.wrappee(t);
-		 return tw;
+		W tw = factory.wrapped(wrapToClass(wc, (Class<T>) t.getClass()));
+		Wrappee<W, T> wrappee = (Wrappee<W, T>) tw;
+		wrappee.wrappee(t);
+		return tw;
 	}
 
-	public  <W> Class<W> wrapToClassWithFactoryInjector(String className, Class<W> interfaceClass, Class<? extends AutoWrappedFactory> factory, String identifier) {
+	public <W> Class<W> wrapToClassWithFactoryInjector(String className, Class<W> interfaceClass, Class<? extends AutoWrappedFactory> factory, String identifier) {
 		return wrapped.computeIfAbsent(className, c -> {
 			try {
 //				Path path = Paths.get("/tmp/" + className + "$Ran$Wrapper.class");
@@ -48,7 +48,7 @@ public class AutoWrapper {
 		});
 	}
 
-	public  <T, W extends T> Class<W> wrapToClass(Class<W> wc, Class<T> tc) {
+	public <T, W extends T> Class<W> wrapToClass(Class<W> wc, Class<T> tc) {
 		return wrapped.computeIfAbsent(wc.getName(), c -> {
 			try {
 //				Path path = Paths.get("/tmp/" + wc.getSimpleName() + "Wrapper.class");

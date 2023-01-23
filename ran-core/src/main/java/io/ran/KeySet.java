@@ -33,8 +33,8 @@ public class KeySet {
 		return new KeySet(Arrays.stream(fields).collect(Collectors.toList()));
 	}
 
-	public Field get(Token token)  {
-		return parts.stream().filter(f -> f.getToken().equals(token)).findFirst().orElseThrow(() -> new RuntimeException("Non existing field in key: "+token.toString()));
+	public Field get(Token token) {
+		return parts.stream().filter(f -> f.getToken().equals(token)).findFirst().orElseThrow(() -> new RuntimeException("Non existing field in key: " + token.toString()));
 	}
 
 	public KeySet add(KeySet keys) {
@@ -43,8 +43,8 @@ public class KeySet {
 	}
 
 	public KeySet add(Field field) {
-		if(field.order == -1) {
-			field.order = parts.size()-1;
+		if (field.order == -1) {
+			field.order = parts.size() - 1;
 		}
 		parts.add(field);
 		return this;
@@ -64,7 +64,7 @@ public class KeySet {
 
 	public KeySet add(Property<?> property, String name, int order) {
 		if (this.name != null && name != null && !this.name.equals(name)) {
-			throw new RuntimeException("Adding a key part with name: "+name+" to a key with name: "+this.name+" is invalid");
+			throw new RuntimeException("Adding a key part with name: " + name + " to a key with name: " + this.name + " is invalid");
 		}
 		if (name != null) {
 			this.name = name;
@@ -72,7 +72,7 @@ public class KeySet {
 
 		Field field = new Field(property, order == -1 ? parts.size() : order);
 		if (parts.contains(field)) {
-			throw new RuntimeException(order+" position was already used in key. Ensure your key orders are unique.");
+			throw new RuntimeException(order + " position was already used in key. Ensure your key orders are unique.");
 		}
 		parts.add(field);
 		return this;
@@ -87,7 +87,7 @@ public class KeySet {
 	}
 
 	public Field get(int i) {
-		return parts.stream().skip(i).findFirst().orElseThrow(() -> new RuntimeException("Could not find  index"+i+" in key set"));
+		return parts.stream().skip(i).findFirst().orElseThrow(() -> new RuntimeException("Could not find  index" + i + " in key set"));
 	}
 
 	public Stream<Field> stream() {
@@ -118,7 +118,7 @@ public class KeySet {
 		return name;
 	}
 
-	public  boolean isPrimary() {
+	public boolean isPrimary() {
 		return primary;
 	}
 
@@ -129,7 +129,7 @@ public class KeySet {
 		if (parts.size() != keySet.parts.size()) return false;
 		Iterator<Field> itt1 = parts.iterator();
 		Iterator<Field> itt2 = keySet.parts.iterator();
-		while(itt1.hasNext()) {
+		while (itt1.hasNext()) {
 			if (!itt1.next().equals(itt2.next())) return false;
 		}
 		return true;

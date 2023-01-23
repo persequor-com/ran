@@ -39,5 +39,6 @@ public abstract class FormattingToken {
 	}
 
 	public abstract String toSql();
+
 	public abstract String unescaped();
 }

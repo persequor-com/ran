@@ -10,10 +10,11 @@ public class Property<T> {
 	private String snakeCase;
 	private Clazz<T> type;
 	private Clazz<?> on;
-	private List<KeyInfo> keys  = new ArrayList<>();
+	private List<KeyInfo> keys = new ArrayList<>();
 	private Annotations annotations = new Annotations();
 
-	private Property() {}
+	private Property() {
+	}
 
 	public static <T> Property<T> get() {
 		return new Property<>();
@@ -132,6 +133,7 @@ public class Property<T> {
 
 	public static class PropertyList extends ArrayList<Property> {
 		private Map<String, Property> propertyMap = Collections.synchronizedMap(new HashMap<>());
+
 		public PropertyList(List<Property> properties) {
 			addAll(properties);
 		}
@@ -197,15 +199,15 @@ public class Property<T> {
 		public KeySets keys() {
 			KeySets keys = new KeySets();
 
-			for(Property<?> property : this) {
-				for(KeyInfo keyInfo : property.getKeys()) {
+			for (Property<?> property : this) {
+				for (KeyInfo keyInfo : property.getKeys()) {
 					keys
-						.computeIfAbsent(keyInfo.getMapKey(), k -> KeySet.get())
-						.add(keyInfo);
+							.computeIfAbsent(keyInfo.getMapKey(), k -> KeySet.get())
+							.add(keyInfo);
 				}
 			}
 			if (keys.isEmpty() && contains(Token.of("id"))) {
-				KeyInfo keyInfo = new KeyInfo(true, get("id"),"", 0, true);
+				KeyInfo keyInfo = new KeyInfo(true, get("id"), "", 0, true);
 				keys.put(keyInfo.getMapKey(), KeySet.get().add(keyInfo));
 			}
 			return keys;
@@ -214,7 +216,7 @@ public class Property<T> {
 		public KeySet mapProperties(PropertyList other) {
 			KeySet keySet = KeySet.get();
 
-			for(Property otherProperty : other) {
+			for (Property otherProperty : other) {
 				try {
 					Clazz<?> otherType = otherProperty.getOn();
 					Optional<Property> ownProperty = getOptional(Token.CamelCase(otherType.clazz.getSimpleName() + "Id"));
@@ -309,6 +311,7 @@ public class Property<T> {
 
 	public static class PropertyValueList<T> extends ArrayList<PropertyValue<T>> {
 		private Property<T> property;
+
 		public PropertyValueList() {
 		}
 
@@ -318,7 +321,7 @@ public class Property<T> {
 		}
 
 		public PropertyValue get(Token token) {
-			return stream().filter(pv -> pv.getProperty().getToken().equals(token)).map(pv -> (PropertyValue)pv).findFirst().get();
+			return stream().filter(pv -> pv.getProperty().getToken().equals(token)).map(pv -> (PropertyValue) pv).findFirst().get();
 		}
 
 		public Property<T> getProperty() {

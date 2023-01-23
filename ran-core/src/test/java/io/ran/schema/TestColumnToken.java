@@ -15,7 +15,7 @@ public class TestColumnToken extends ColumnToken {
 
 	@Override
 	public String toSql() {
-		return "'"+token.snake_case()+"'";
+		return "'" + token.snake_case() + "'";
 	}
 
 	@Override

@@ -31,7 +31,7 @@ public class ColumnAction implements OnTableAction {
 		return type;
 	}
 
-	public BiFunction<TableAction,ColumnAction, String> getColumnAction() {
+	public BiFunction<TableAction, ColumnAction, String> getColumnAction() {
 		return columnAction;
 	}
 

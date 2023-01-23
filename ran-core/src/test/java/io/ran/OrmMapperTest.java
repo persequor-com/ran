@@ -31,7 +31,7 @@ public class OrmMapperTest {
 	public void getValueFromProperty() throws Throwable {
 		TypeDescriber<TestClass> describer = TypeDescriberImpl.getTypeDescriber(TestClass.class);
 		TestClass t = mapper.get(TestClass.class).newInstance();
-		Mapping tMapping = (Mapping)t;
+		Mapping tMapping = (Mapping) t;
 		t.setId("my id");
 
 		Object actual = tMapping._getValue(describer.fields().get(Token.of("id")));

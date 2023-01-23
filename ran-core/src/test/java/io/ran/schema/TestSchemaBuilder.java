@@ -27,21 +27,21 @@ class TestSchemaBuilder extends SchemaBuilder<TestSchemaBuilder, TestTableBuilde
 	@Override
 	protected TableActionDelegate create() {
 		return ta -> {
-			return "CREATE TABLE "+ta.getName()+" ("+ String.join(", ", ta.getActions()) +");";
+			return "CREATE TABLE " + ta.getName() + " (" + String.join(", ", ta.getActions()) + ");";
 		};
 	}
 
 	@Override
 	protected TableActionDelegate modify() {
 		return ta -> {
-			return "ALTER TABLE "+ta.getName()+" "+ String.join(", ", ta.getActions()) +";";
+			return "ALTER TABLE " + ta.getName() + " " + String.join(", ", ta.getActions()) + ";";
 		};
 	}
 
 	@Override
 	protected TableActionDelegate remove() {
 		return ta -> {
-			return "DROP TABLE "+ta.getName()+";";
+			return "DROP TABLE " + ta.getName() + ";";
 		};
 	}
 }

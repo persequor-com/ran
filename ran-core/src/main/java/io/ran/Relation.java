@@ -9,8 +9,12 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface Relation {
 	Class<?> collectionElementType() default None.class;
+
 	Class<?> via() default None.class;
+
 	String[] fields() default {};
+
 	String[] relationFields() default {};
+
 	boolean autoSave() default false;
 }
