@@ -99,7 +99,6 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 				w.invoke(setter);
 			}
 			w.returnNothing();
-			;
 			w.end();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
