@@ -1,3 +1,8 @@
+/* Copyright (C) Persequor ApS - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Persequor Development Team <partnersupport@persequor.com>, 2022-02-22
+ */
 package io.ran;
 
 import org.objectweb.asm.Opcodes;
@@ -16,7 +21,7 @@ public enum Access {
 	public static Access of(Integer modifiers) {
 		return Arrays.stream(values())
 				.filter(a -> (modifiers & a.opCode) == a.opCode).
-				findFirst().orElseThrow(() -> new RuntimeException("Could not find access for modifier: "+modifiers));
+				findFirst().orElseThrow(() -> new RuntimeException("Could not find access for modifier: " + modifiers));
 	}
 
 	public int getOpCode() {

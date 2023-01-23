@@ -1,18 +1,18 @@
 /* Copyright (C) Persequor ApS - All Rights Reserved
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
- * Written by Persequor Development Team <partnersupport@persequor.com>, 
+ * Written by Persequor Development Team <partnersupport@persequor.com>,
  */
 package io.ran.token;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class TokenTest {
 	@Test
 	public void happyPath_toString() {
-		Token token = Token.of("my","parts");
+		Token token = Token.of("my", "parts");
 		assertEquals("{my}{parts}", token.toString());
 		assertEquals("MyParts", token.CamelBack());
 		assertEquals("myParts", token.camelHump());
@@ -34,7 +34,7 @@ public class TokenTest {
 
 	@Test
 	public void shortStringParts() {
-		Token token = Token.of("m","y","p");
+		Token token = Token.of("m", "y", "p");
 		assertEquals("{m}{y}{p}", token.toString());
 		assertEquals("MYP", token.toString(CamelCaseToken.class));
 		assertEquals("mYP", token.toString(CamelHumpToken.class));
@@ -43,12 +43,12 @@ public class TokenTest {
 
 	@Test(expected = InvalidTokenException.class)
 	public void withEmptyPart() {
-		Token.of("m","","p");
+		Token.of("m", "", "p");
 	}
 
 	@Test
 	public void token_equals() {
-		Token token = Token.of("m","y","p");
+		Token token = Token.of("m", "y", "p");
 		Token other = Token.CamelCase("MYP");
 		assertEquals(token, other);
 	}

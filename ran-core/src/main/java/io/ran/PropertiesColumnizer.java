@@ -1,9 +1,16 @@
+/* Copyright (C) Persequor ApS - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Persequor Development Team <partnersupport@persequor.com>, 2022-02-22
+ */
 package io.ran;
 
-import io.ran.token.Token;
-
 import java.math.BigDecimal;
-import java.time.*;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -22,8 +29,8 @@ public class PropertiesColumnizer implements ObjectMapColumnizer {
 	}
 
 	private <T> void setInternal(Property key, T value) {
-		if(properties.contains(key)) {
-			values.add(((Property<T>)properties.get(key.getToken())).value((T)value));
+		if (properties.contains(key)) {
+			values.add(((Property<T>) properties.get(key.getToken())).value((T) value));
 		}
 	}
 

@@ -1,3 +1,8 @@
+/* Copyright (C) Persequor ApS - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Persequor Development Team <partnersupport@persequor.com>, 2022-02-22
+ */
 package io.ran;
 
 
@@ -91,21 +96,21 @@ public class MethodWriter {
 
 	public <E extends Throwable> void ifNonNull(ThrowingConsumer<MethodWriter, E> o) throws E {
 		Label endif = new Label();
-		mv.visitJumpInsn(Opcodes.IFNULL,endif);
+		mv.visitJumpInsn(Opcodes.IFNULL, endif);
 		o.accept(this);
 		mv.visitLabel(endif);
 	}
 
 	public <E extends Throwable> void ifNegateBoolean(ThrowingConsumer<MethodWriter, E> o) throws E {
 		Label endif = new Label();
-		mv.visitJumpInsn(Opcodes.IFNE,endif);
+		mv.visitJumpInsn(Opcodes.IFNE, endif);
 		o.accept(this);
 		mv.visitLabel(endif);
 	}
 
 	public <E extends Throwable> void ifNull(ThrowingConsumer<MethodWriter, E> o) throws E {
 		Label endif = new Label();
-		mv.visitJumpInsn(Opcodes.IFNONNULL,endif);
+		mv.visitJumpInsn(Opcodes.IFNONNULL, endif);
 		o.accept(this);
 		mv.visitLabel(endif);
 	}
@@ -113,7 +118,7 @@ public class MethodWriter {
 	public <E extends Throwable> void ifThen(ThrowingConsumer<MethodWriter, E> o) throws E {
 //		push(false);
 		Label endif = new Label();
-		mv.visitJumpInsn(Opcodes.IFEQ,endif);
+		mv.visitJumpInsn(Opcodes.IFEQ, endif);
 		o.accept(this);
 		mv.visitLabel(endif);
 	}
@@ -121,7 +126,7 @@ public class MethodWriter {
 	public <E extends Throwable> void ifElse(ThrowingConsumer<MethodWriter, E> t, ThrowingConsumer<MethodWriter, E> f) throws E {
 //		push(false);
 		Label endif = new Label();
-		mv.visitJumpInsn(Opcodes.IFEQ,endif);
+		mv.visitJumpInsn(Opcodes.IFEQ, endif);
 		t.accept(this);
 		mv.visitLabel(endif);
 	}
@@ -129,9 +134,9 @@ public class MethodWriter {
 	public <E extends Throwable> void ifSame(ThrowingConsumer<MethodWriter, E> i, ThrowingConsumer<MethodWriter, E> e) throws E {
 		Label endif = new Label();
 		Label elseBlock = new Label();
-		mv.visitJumpInsn(Opcodes.IF_ACMPEQ,elseBlock);
+		mv.visitJumpInsn(Opcodes.IF_ACMPEQ, elseBlock);
 		i.accept(this);
-		mv.visitJumpInsn(Opcodes.GOTO,endif);
+		mv.visitJumpInsn(Opcodes.GOTO, endif);
 		mv.visitLabel(elseBlock);
 		e.accept(this);
 		mv.visitLabel(endif);
@@ -141,9 +146,9 @@ public class MethodWriter {
 		Label endif = new Label();
 		Label elseBlock = new Label();
 		mv.visitTypeInsn(Opcodes.INSTANCEOF, clazz.getInternalName());
-		mv.visitJumpInsn(Opcodes.IFEQ,elseBlock);
+		mv.visitJumpInsn(Opcodes.IFEQ, elseBlock);
 		i.accept(this);
-		mv.visitJumpInsn(Opcodes.GOTO,endif);
+		mv.visitJumpInsn(Opcodes.GOTO, endif);
 		mv.visitLabel(elseBlock);
 		e.accept(this);
 		mv.visitLabel(endif);
@@ -179,14 +184,14 @@ public class MethodWriter {
 
 	public void objectStore(int pos) {
 		if (locals <= pos) {
-			locals = pos+1;
+			locals = pos + 1;
 		}
 		mv.visitVarInsn(Opcodes.ASTORE, pos);
 	}
 
 	public void iStore(int pos) {
 		if (locals <= pos) {
-			locals = pos+1;
+			locals = pos + 1;
 		}
 		mv.visitVarInsn(Opcodes.ISTORE, pos);
 	}
@@ -206,7 +211,7 @@ public class MethodWriter {
 
 
 	public void returnPrimitive(Clazz of) {
-		mv.visitInsn(Opcodes.IRETURN+of.getPrimitiveOffset());
+		mv.visitInsn(Opcodes.IRETURN + of.getPrimitiveOffset());
 	}
 
 	public void returnOf(Clazz<?> returnType) {
@@ -220,7 +225,7 @@ public class MethodWriter {
 	}
 
 	public void end() {
-		mv.visitMaxs(30,locals);
+		mv.visitMaxs(30, locals);
 		mv.visitEnd();
 
 	}
@@ -267,7 +272,7 @@ public class MethodWriter {
 		}
 	}
 
-	public void throwException(Clazz ex, ThrowingConsumer<MethodWriter,ReflectiveOperationException> messageGenerator) {
+	public void throwException(Clazz ex, ThrowingConsumer<MethodWriter, ReflectiveOperationException> messageGenerator) {
 		try {
 			mv.visitTypeInsn(Opcodes.NEW, ex.getInternalName());
 			dup();

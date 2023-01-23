@@ -1,3 +1,8 @@
+/* Copyright (C) Persequor ApS - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Persequor Development Team <partnersupport@persequor.com>, 2022-02-22
+ */
 package io.ran;
 
 import io.ran.token.Token;
@@ -18,7 +23,8 @@ public class RelationDescriber {
 	private RelationDescriberList via;
 	private Relation relationAnnotation;
 
-	private RelationDescriber() {}
+	private RelationDescriber() {
+	}
 
 	public static RelationDescriberList list(Clazz fromClass) {
 		return new RelationDescriberList(fromClass);
@@ -103,7 +109,7 @@ public class RelationDescriber {
 		}
 
 		public RelationDescriber get(String snakeCaseField) {
-			return stream().filter(rd -> rd.getField().snake_case().equals(snakeCaseField)).findFirst().orElseThrow(() -> new RuntimeException("Could not find field "+snakeCaseField));
+			return stream().filter(rd -> rd.getField().snake_case().equals(snakeCaseField)).findFirst().orElseThrow(() -> new RuntimeException("Could not find field " + snakeCaseField));
 		}
 
 		public Optional<RelationDescriber> get(Class<?> toClass) {

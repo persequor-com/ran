@@ -1,6 +1,10 @@
+/* Copyright (C) Persequor ApS - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Persequor Development Team <partnersupport@persequor.com>, 2022-02-22
+ */
 package io.ran;
 
-import javax.inject.Named;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -16,12 +20,12 @@ public class ClazzMethod {
 	private final Method method;
 	private final String methodToken;
 
-	public ClazzMethod(Clazz<?> actualClass,Method method) {
+	public ClazzMethod(Clazz<?> actualClass, Method method) {
 		this.method = method;
 		this.name = method.getName();
 		this.methodToken = method.toString();
 		this.annotations = Arrays.asList(method.getAnnotations());
-		parameters = Stream.of(method.getParameters()).map(p -> new ClazzMethodParameter(actualClass,method, p)).collect(Collectors.toList());
+		parameters = Stream.of(method.getParameters()).map(p -> new ClazzMethodParameter(actualClass, method, p)).collect(Collectors.toList());
 	}
 
 	public String getName() {

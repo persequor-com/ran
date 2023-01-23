@@ -1,7 +1,11 @@
+/* Copyright (C) Persequor ApS - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Persequor Development Team <partnersupport@persequor.com>, 2022-02-22
+ */
 package io.ran.schema;
 
 import io.ran.token.TableToken;
-import io.ran.token.Token;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +45,7 @@ public class TableAction {
 
 	public List<String> getActions() {
 		List<String> tableActions = new ArrayList<>();
-		actions.stream().map(ca -> ca.apply(this,ca)).forEach(tableActions::add);
+		actions.stream().map(ca -> ca.apply(this, ca)).forEach(tableActions::add);
 		return tableActions;
 	}
 

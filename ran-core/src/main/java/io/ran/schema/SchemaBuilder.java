@@ -1,3 +1,8 @@
+/* Copyright (C) Persequor ApS - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Persequor Development Team <partnersupport@persequor.com>, 2022-02-22
+ */
 package io.ran.schema;
 
 import io.ran.TypeDescriber;
@@ -18,10 +23,15 @@ public abstract class SchemaBuilder<SB extends SchemaBuilder<SB, TB, CB, IB, ITB
 	private List<TableAction> tableActions = new ArrayList<>();
 
 	abstract protected TB getTableBuilder();
+
 	abstract protected TableToken getTableToken(Token token);
+
 	abstract protected TableToken getTableToken(TypeDescriber<?> typeDescriber);
+
 	protected abstract TableActionDelegate create();
+
 	protected abstract TableActionDelegate modify();
+
 	protected abstract TableActionDelegate remove();
 
 	public SB addTable(TableToken name, Consumer<ITB> consumer) {
@@ -48,7 +58,7 @@ public abstract class SchemaBuilder<SB extends SchemaBuilder<SB, TB, CB, IB, ITB
 	}
 
 	public SB modifyTable(Token name, Consumer<TB> consumer) {
-		return modifyTable(getTableToken(name),consumer);
+		return modifyTable(getTableToken(name), consumer);
 	}
 
 	public SB removeTable(Token name) {

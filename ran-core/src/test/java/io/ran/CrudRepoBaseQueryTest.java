@@ -1,3 +1,8 @@
+/* Copyright (C) Persequor ApS - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Persequor Development Team <partnersupport@persequor.com>, 2022-02-22
+ */
 package io.ran;
 
 import io.ran.testclasses.Brand;
@@ -12,8 +17,6 @@ import org.junit.runners.MethodSorters;
 
 import java.util.function.Consumer;
 import java.util.stream.Stream;
-
-import static org.junit.Assert.assertEquals;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class CrudRepoBaseQueryTest {
@@ -33,7 +36,7 @@ public class CrudRepoBaseQueryTest {
 	@Test
 	public void awarmup() {
 		long s = System.currentTimeMillis();
-		for(int i=0;i<1000;i++) {
+		for (int i = 0; i < 1000; i++) {
 			TestRepoQuery<Car> query = new TestRepoQuery<>(Car.class, helper.factory)
 					.eq(Car::getBrand, Brand.Hyundai)
 //					.subQuery(Car::getEngine, sq -> {
@@ -48,7 +51,7 @@ public class CrudRepoBaseQueryTest {
 	@Test
 	public void performance() {
 		long s = System.currentTimeMillis();
-		for(int i=0;i<1000;i++) {
+		for (int i = 0; i < 1000; i++) {
 			TestRepoQuery<Car> query = new TestRepoQuery<>(Car.class, helper.factory)
 					.eq(Car::getBrand, Brand.Hyundai)
 //					.subQuery(Car::getEngine, sq -> {
@@ -56,13 +59,13 @@ public class CrudRepoBaseQueryTest {
 //					})
 					.isNull(Car::getCrashRating);
 		}
-		System.out.println("time cglib: "+(System.currentTimeMillis()-s));
+		System.out.println("time cglib: " + (System.currentTimeMillis() - s));
 	}
 
 	@Test
 	public void performanceGenerated() {
 		long s = System.currentTimeMillis();
-		for(int i=0;i<1000;i++) {
+		for (int i = 0; i < 1000; i++) {
 			TestRepoQuery<Car> query = new TestRepoQuery<>(Car.class, helper.factory)
 					.eq(Car::getBrand, Brand.Hyundai)
 //					.subQuery(Car::getEngine, sq -> {
@@ -70,7 +73,7 @@ public class CrudRepoBaseQueryTest {
 //					})
 					.isNull(Car::getCrashRating);
 		}
-		System.out.println("time generated: "+(System.currentTimeMillis()-s));
+		System.out.println("time generated: " + (System.currentTimeMillis() - s));
 	}
 
 	class TestRepoQuery<T> extends CrudRepoBaseQuery<T, TestRepoQuery<T>> {
@@ -258,7 +261,7 @@ public class CrudRepoBaseQueryTest {
 
 			@Override
 			public Double getCrashRating() {
-				property.setToken(Token.of("crash","rating"));
+				property.setToken(Token.of("crash", "rating"));
 				return null;
 			}
 		}

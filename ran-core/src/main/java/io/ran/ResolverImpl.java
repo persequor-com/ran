@@ -1,3 +1,8 @@
+/* Copyright (C) Persequor ApS - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Persequor Development Team <partnersupport@persequor.com>, 2022-02-22
+ */
 package io.ran;
 
 import javax.inject.Inject;
@@ -19,7 +24,7 @@ public class ResolverImpl implements Resolver {
 	private DbResolver<DbType> getDbResolver(RelationDescriber relationDescriber) {
 		Mapper mapperAnnotation = TypeDescriberImpl.getTypeDescriber(relationDescriber.getToClass().clazz).annotations().get(Mapper.class);
 		if (mapperAnnotation == null) {
-			throw new MissingDbTypeException("Unable to find db type from @Mapper annotation on target class: "+relationDescriber.getToClass().clazz.getName());
+			throw new MissingDbTypeException("Unable to find db type from @Mapper annotation on target class: " + relationDescriber.getToClass().clazz.getName());
 		}
 
 		return genericFactory.getResolver(mapperAnnotation.dbType());

@@ -1,3 +1,8 @@
+/* Copyright (C) Persequor ApS - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Persequor Development Team <partnersupport@persequor.com>, 2022-02-22
+ */
 package io.ran;
 
 import java.util.ArrayList;
@@ -17,7 +22,7 @@ public class ClazzMethodList extends ArrayList<ClazzMethod> {
 			if (cm.parameters().size() != parameterTypes.size()) {
 				return false;
 			}
-			for(int i=0;i<cm.parameters().size();i++) {
+			for (int i = 0; i < cm.parameters().size(); i++) {
 				if (!cm.parameters().get(i).getBestEffortClazz().clazz.equals(parameterTypes.get(i))) {
 					return false;
 				}

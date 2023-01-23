@@ -1,16 +1,18 @@
 /* Copyright (C) Persequor ApS - All Rights Reserved
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
- * Written by Persequor Development Team <partnersupport@persequor.com>, 
+ * Written by Persequor Development Team <partnersupport@persequor.com>,
  */
 package io.ran;
 
-import io.ran.ObjectMapColumnizer;
-import io.ran.ObjectMapHydrator;
 import io.ran.token.Token;
 
 import java.math.BigDecimal;
-import java.time.*;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.UUID;
@@ -119,7 +121,7 @@ public class ObjectMap extends HashMap<Token, Object> implements ObjectMapHydrat
 
 	@Override
 	public Character getCharacter(Property key) {
-		return (Character)get(key.getToken());
+		return (Character) get(key.getToken());
 	}
 
 	@Override
@@ -154,7 +156,7 @@ public class ObjectMap extends HashMap<Token, Object> implements ObjectMapHydrat
 
 	@Override
 	public Short getShort(Property key) {
-		return (Short)get(key.getToken());
+		return (Short) get(key.getToken());
 	}
 
 	@Override
@@ -184,12 +186,12 @@ public class ObjectMap extends HashMap<Token, Object> implements ObjectMapHydrat
 
 	@Override
 	public Boolean getBoolean(Property key) {
-		return (Boolean)get(key.getToken());
+		return (Boolean) get(key.getToken());
 	}
 
 	@Override
 	public Byte getByte(Property key) {
-		return (Byte)get(key.getToken());
+		return (Byte) get(key.getToken());
 	}
 
 	@Override
@@ -199,12 +201,12 @@ public class ObjectMap extends HashMap<Token, Object> implements ObjectMapHydrat
 
 	@Override
 	public <T extends Enum<T>> T getEnum(Property key, Class<T> enumType) {
-		return (T)get(key.getToken());
+		return (T) get(key.getToken());
 	}
 
 	@Override
 	public <T> Collection<T> getCollection(Property key, Class<T> elementType, Class<? extends Collection<T>> collectionClass) {
-		return (Collection<T>)get(key.getToken());
+		return (Collection<T>) get(key.getToken());
 	}
 
 	public void set(String key, String value) {

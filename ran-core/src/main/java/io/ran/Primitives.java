@@ -1,3 +1,8 @@
+/* Copyright (C) Persequor ApS - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Persequor Development Team <partnersupport@persequor.com>, 2022-02-22
+ */
 package io.ran;
 
 import org.objectweb.asm.Opcodes;
@@ -16,8 +21,8 @@ public class Primitives {
 	private static double DEFAULT_DOUBLE;
 	private static char DEFAULT_CHAR = Character.MIN_VALUE;
 
-	private static final Map<Class,Primitive> primitives = new HashMap<>();
-	private static final Map<Class,Class> boxedToPrimitive = new HashMap<>();
+	private static final Map<Class, Primitive> primitives = new HashMap<>();
+	private static final Map<Class, Class> boxedToPrimitive = new HashMap<>();
 
 	private static void add(Primitive primitive) {
 		primitives.put(primitive.primitive, primitive);
@@ -49,15 +54,15 @@ public class Primitives {
 
 	static {
 		try {
-			add(new Primitive(boolean.class, Boolean.class, "Z", Boolean.class.getMethod("booleanValue"),0));
-			add(new Primitive(byte.class, Byte.class, "B", Byte.class.getMethod("byteValue"),0));
-			add(new Primitive(char.class, Character.class, "C", Character.class.getMethod("charValue"),0));
-			add(new Primitive(double.class, Double.class, "D", Double.class.getMethod("doubleValue"),(Opcodes.DALOAD - Opcodes.IALOAD)));
-			add(new Primitive(float.class, Float.class, "F", Float.class.getMethod("floatValue"),(Opcodes.FALOAD - Opcodes.IALOAD)));
-			add(new Primitive(int.class, Integer.class, "I", Integer.class.getMethod("intValue"),0));
-			add(new Primitive(long.class, Long.class, "J", Long.class.getMethod("longValue"),(Opcodes.LALOAD - Opcodes.IALOAD)));
-			add(new Primitive(short.class, Short.class, "S", Short.class.getMethod("shortValue"),0));
-			add(new Primitive(void.class, Void.class, "V", null,4));
+			add(new Primitive(boolean.class, Boolean.class, "Z", Boolean.class.getMethod("booleanValue"), 0));
+			add(new Primitive(byte.class, Byte.class, "B", Byte.class.getMethod("byteValue"), 0));
+			add(new Primitive(char.class, Character.class, "C", Character.class.getMethod("charValue"), 0));
+			add(new Primitive(double.class, Double.class, "D", Double.class.getMethod("doubleValue"), (Opcodes.DALOAD - Opcodes.IALOAD)));
+			add(new Primitive(float.class, Float.class, "F", Float.class.getMethod("floatValue"), (Opcodes.FALOAD - Opcodes.IALOAD)));
+			add(new Primitive(int.class, Integer.class, "I", Integer.class.getMethod("intValue"), 0));
+			add(new Primitive(long.class, Long.class, "J", Long.class.getMethod("longValue"), (Opcodes.LALOAD - Opcodes.IALOAD)));
+			add(new Primitive(short.class, Short.class, "S", Short.class.getMethod("shortValue"), 0));
+			add(new Primitive(void.class, Void.class, "V", null, 4));
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -120,7 +125,7 @@ public class Primitives {
 
 	public static class NonExistingPrimitiveException extends RuntimeException {
 		public NonExistingPrimitiveException(Class clazz) {
-			super("Could not find primitive by: "+clazz.getName()+". This is a coding error.");
+			super("Could not find primitive by: " + clazz.getName() + ". This is a coding error.");
 		}
 	}
 }

@@ -7,6 +7,7 @@ package io.ran;
 
 public interface GenericFactory {
 	<T> T get(Class<T> clazz);
+
 	<T> T getQueryInstance(Class<T> clazz);
 
 	DbResolver<DbType> getResolver(Class<? extends DbType> dbTypeClass);

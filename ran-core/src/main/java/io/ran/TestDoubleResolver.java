@@ -1,3 +1,8 @@
+/* Copyright (C) Persequor ApS - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Persequor Development Team <partnersupport@persequor.com>, 2022-02-22
+ */
 package io.ran;
 
 import javax.inject.Inject;
@@ -20,11 +25,11 @@ public abstract class TestDoubleResolver<T> implements DbResolver<T> {
 	protected abstract <X, XQ extends CrudRepository.InlineQuery<X, XQ>> CrudRepository.InlineQuery<X, XQ> getQuery();
 
 	private <FROM, TO> Stream<TO> getStream(RelationDescriber relationDescriber, FROM from) {
-		CrudRepository.InlineQuery<TO, ?> q =  getQuery();
-		for(int i=0;i<relationDescriber.getFromKeys().size();i++) {
+		CrudRepository.InlineQuery<TO, ?> q = getQuery();
+		for (int i = 0; i < relationDescriber.getFromKeys().size(); i++) {
 			Property fk = relationDescriber.getFromKeys().get(i).getProperty();
 			Property tk = relationDescriber.getToKeys().get(i).getProperty();
-			q.eq(tk.value(mappingHelper.getValue(from,fk)));
+			q.eq(tk.value(mappingHelper.getValue(from, fk)));
 		}
 		return q.execute();
 	}

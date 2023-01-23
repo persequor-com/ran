@@ -1,12 +1,14 @@
+/* Copyright (C) Persequor ApS - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Persequor Development Team <partnersupport@persequor.com>, 2022-02-22
+ */
 package io.ran;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.util.CheckClassAdapter;
 
 import java.io.PrintWriter;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public class MapperGenerator {
 	public Wrapped generate(AutoMapperClassLoader classLoader, Clazz clazz) {
@@ -17,12 +19,12 @@ public class MapperGenerator {
 			MappingClassWriter visitor = new MappingClassWriter(clazz.clazz);
 			byte[] bytes = visitor.toByteArray();
 //			Files.write(path, bytes);
-			CheckClassAdapter.verify(new ClassReader(bytes),false, new PrintWriter(System.out));
+			CheckClassAdapter.verify(new ClassReader(bytes), false, new PrintWriter(System.out));
 
 
 			QueryClassWriter visitor2 = new QueryClassWriter(clazz.clazz);
 			byte[] bytes2 = visitor2.toByteArray();
-			CheckClassAdapter.verify(new ClassReader(bytes2),false, new PrintWriter(System.out));
+			CheckClassAdapter.verify(new ClassReader(bytes2), false, new PrintWriter(System.out));
 //			Files.write(pathQuery, bytes2);
 
 

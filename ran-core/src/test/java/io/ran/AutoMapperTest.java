@@ -1,11 +1,22 @@
 /* Copyright (C) Persequor ApS - All Rights Reserved
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
- * Written by Persequor Development Team <partnersupport@persequor.com>, 
+ * Written by Persequor Development Team <partnersupport@persequor.com>,
  */
 package io.ran;
 
-import io.ran.testclasses.*;
+import io.ran.testclasses.Bike;
+import io.ran.testclasses.BikeGear;
+import io.ran.testclasses.BikeType;
+import io.ran.testclasses.BikeWheel;
+import io.ran.testclasses.Brand;
+import io.ran.testclasses.Car;
+import io.ran.testclasses.Door;
+import io.ran.testclasses.Engine;
+import io.ran.testclasses.ObjectWithoutPrimaryKey;
+import io.ran.testclasses.Regular;
+import io.ran.testclasses.WithBinaryField;
+import io.ran.testclasses.WithCollections;
 import io.ran.token.Token;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -13,7 +24,11 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.UUID;
 
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -58,7 +73,7 @@ public class AutoMapperTest {
 		map.set(Property.get(Token.CamelCase("TheBoolean")), false);
 
 		Car car = helper.factory.get(Car.class);
-		Mapping carMapping = (Mapping)car;
+		Mapping carMapping = (Mapping) car;
 		carMapping.hydrate(map);
 
 		assertEquals("My id", car.getId());
@@ -77,12 +92,12 @@ public class AutoMapperTest {
 		car.setCrashRating(4.4);
 
 		ObjectMap result = new ObjectMap();
-		Mapping carMapping = (Mapping)car;
+		Mapping carMapping = (Mapping) car;
 		carMapping.columnize(result);
 
 		assertEquals("My id", result.getString("Id"));
 		assertEquals(now, result.getZonedDateTime("ConstructionDate"));
-		assertEquals(Brand.Hyundai, result.getEnum(Property.get(Token.CamelCase("Brand")) , Brand.class));
+		assertEquals(Brand.Hyundai, result.getEnum(Property.get(Token.CamelCase("Brand")), Brand.class));
 		assertEquals(Double.valueOf(4.4), result.getDouble(Property.get(Token.CamelCase("CrashRating"))));
 	}
 
@@ -92,7 +107,7 @@ public class AutoMapperTest {
 
 		ZonedDateTime now = ZonedDateTime.now();
 		car.setId("My id");
-		car.setEngineId(new UUID(0,0));
+		car.setEngineId(new UUID(0, 0));
 		car.setConstructionDate(now);
 
 		Engine engine = car.getEngine();
@@ -105,7 +120,7 @@ public class AutoMapperTest {
 		Car car = helper.factory.get(Car.class);
 		ZonedDateTime now = ZonedDateTime.now();
 		car.setId("My id");
-		car.setEngineId(new UUID(0,0));
+		car.setEngineId(new UUID(0, 0));
 		car.setConstructionDate(now);
 
 		Collection<Door> doors = car.getDoors();
@@ -115,8 +130,8 @@ public class AutoMapperTest {
 	@Test
 	public void getSetCollections() {
 		WithCollections w = helper.factory.get(WithCollections.class);
-		w.setId(Arrays.asList("id1","id2"));
-		w.setField(new HashSet<>(Arrays.asList("field1","field2")));
+		w.setId(Arrays.asList("id1", "id2"));
+		w.setField(new HashSet<>(Arrays.asList("field1", "field2")));
 
 		Mapping mapping = (Mapping) w;
 		ObjectMap map = new ObjectMap();
@@ -161,7 +176,7 @@ public class AutoMapperTest {
 	public void compoundKey() throws Throwable {
 		Class<Bike> bikeClass = AutoMapper.get(Bike.class);
 		Bike bike = bikeClass.newInstance();
-		Mapping bikeMapping = (Mapping)bike;
+		Mapping bikeMapping = (Mapping) bike;
 		bike.setId("my id");
 		CompoundKey bikeKey = bikeMapping._getKey();
 		assertEquals(1, bikeKey.getValues().size());
@@ -169,7 +184,7 @@ public class AutoMapperTest {
 
 		Class<BikeWheel> bikeWheelClass = AutoMapper.get(BikeWheel.class);
 		BikeWheel bikeWheel = bikeWheelClass.newInstance();
-		Mapping bikeWheelMapping = (Mapping)bikeWheel;
+		Mapping bikeWheelMapping = (Mapping) bikeWheel;
 		bikeWheel.setSize(20);
 		bikeWheel.setBikeType(BikeType.Mountain);
 		CompoundKey wheelKey = bikeWheelMapping._getKey();
@@ -177,9 +192,9 @@ public class AutoMapperTest {
 		assertEquals(20, wheelKey.getValue(Token.get("size")));
 		assertEquals(BikeType.Mountain, wheelKey.getValue(Token.get("bikeType")));
 
-		Class<BikeGear> bikeGearClass  = AutoMapper.get(BikeGear.class);
+		Class<BikeGear> bikeGearClass = AutoMapper.get(BikeGear.class);
 		BikeGear bikeGear = bikeGearClass.newInstance();
-		Mapping bikeGearMapping = (Mapping)bikeGear;
+		Mapping bikeGearMapping = (Mapping) bikeGear;
 		bikeGear.setGearNum(20);
 		CompoundKey bikeGearKey = bikeGearMapping._getKey();
 		assertEquals(1, bikeGearKey.getValues().size());
@@ -190,11 +205,11 @@ public class AutoMapperTest {
 	public void compoundKeyRelation_typeDescriber() throws Throwable {
 		TypeDescriber<Bike> typeDescriber = TypeDescriberImpl.getTypeDescriber(Bike.class);
 		RelationDescriber gearsRelation = typeDescriber.relations().get("gears");
-		assertEquals(2,gearsRelation.getVia().size());
-		assertEquals("id",gearsRelation.getVia().get(0).getFromKeys().get(0).getToken().snake_case());
-		assertEquals("bike_id",gearsRelation.getVia().get(0).getToKeys().get(0).getToken().snake_case());
-		assertEquals("gear_num",gearsRelation.getVia().get(1).getFromKeys().get(0).getToken().snake_case());
-		assertEquals("gear_num",gearsRelation.getVia().get(1).getToKeys().get(0).getToken().snake_case());
+		assertEquals(2, gearsRelation.getVia().size());
+		assertEquals("id", gearsRelation.getVia().get(0).getFromKeys().get(0).getToken().snake_case());
+		assertEquals("bike_id", gearsRelation.getVia().get(0).getToKeys().get(0).getToken().snake_case());
+		assertEquals("gear_num", gearsRelation.getVia().get(1).getFromKeys().get(0).getToken().snake_case());
+		assertEquals("gear_num", gearsRelation.getVia().get(1).getToKeys().get(0).getToken().snake_case());
 
 		RelationDescriber wheelRelation = typeDescriber.relations().get("front_wheel");
 		assertEquals(2, wheelRelation.getFromKeys().size());
@@ -218,7 +233,7 @@ public class AutoMapperTest {
 		WithBinaryField withBinaryField = helper.factory.get(WithBinaryField.class);
 		withBinaryField.setUuid(UUID.randomUUID());
 		withBinaryField.setBytes(UUID.randomUUID().toString().getBytes());
-		Mapping mapping = (Mapping)withBinaryField;
+		Mapping mapping = (Mapping) withBinaryField;
 		mapping.columnize(map);
 
 		WithBinaryField withBinaryFieldHydrated = helper.factory.get(WithBinaryField.class);
@@ -232,7 +247,7 @@ public class AutoMapperTest {
 	public void setRelationForObject() throws IllegalAccessException, InstantiationException {
 		TypeDescriber<Car> describer = TypeDescriberImpl.getTypeDescriber(Car.class);
 		Car car = helper.factory.get(Car.class);
-		Mapping carMapping = (Mapping)car;
+		Mapping carMapping = (Mapping) car;
 
 		carMapping._setRelation(describer.relations().get(0), null);
 
@@ -246,13 +261,13 @@ public class AutoMapperTest {
 		bike.setGears(Collections.singletonList(gear));
 		gear.setBikes(Collections.singletonList(bike));
 
-		Mapping bikeMapping = (Mapping)bike;
+		Mapping bikeMapping = (Mapping) bike;
 		bike.getClass().getMethod("_resolverInject", Resolver.class).invoke(bike, resolver);
 		RelationDescriber gearsRelation = TypeDescriberImpl.getTypeDescriber(Bike.class).relations().get("gears");
 		bikeMapping._setRelation(gearsRelation, null);
 		bikeMapping._setRelationNotLoaded(gearsRelation);
 
-		Mapping gearMapping = (Mapping)gear;
+		Mapping gearMapping = (Mapping) gear;
 		gear.getClass().getMethod("_resolverInject", Resolver.class).invoke(gear, resolver);
 		RelationDescriber gearRelation = TypeDescriberImpl.getTypeDescriber(BikeGear.class).relations().get("bikes");
 		gearMapping._setRelation(gearRelation, null);

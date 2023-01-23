@@ -1,11 +1,14 @@
+/* Copyright (C) Persequor ApS - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Persequor Development Team <partnersupport@persequor.com>, 2022-02-22
+ */
 package io.ran.schema;
 
 import io.ran.Property;
 import io.ran.token.ColumnToken;
 import io.ran.token.IndexToken;
 import io.ran.token.Token;
-
-import java.util.stream.Collectors;
 
 class TestTableBuilder extends TableModifier<TestTableBuilder, TestColumnBuilder, TestIndexBuilder> implements ITestTableBuilder {
 
@@ -41,42 +44,42 @@ class TestTableBuilder extends TableModifier<TestTableBuilder, TestColumnBuilder
 
 	@Override
 	protected ColumnActionDelegate create() {
-		return (t,ca) -> {
-			return (t.getType() == TableActionType.MODIFY ? "ADD COLUMN " : "")+ca.getName()+" "+ca.getType().getSimpleName().toLowerCase();
+		return (t, ca) -> {
+			return (t.getType() == TableActionType.MODIFY ? "ADD COLUMN " : "") + ca.getName() + " " + ca.getType().getSimpleName().toLowerCase();
 		};
 	}
 
 	@Override
 	protected ColumnActionDelegate modify() {
-		return (t,ca) -> {
-			return "COLUMN "+ca.getName()+" "+ca.getType().getSimpleName().toLowerCase();
+		return (t, ca) -> {
+			return "COLUMN " + ca.getName() + " " + ca.getType().getSimpleName().toLowerCase();
 		};
 	}
 
 	@Override
 	protected ColumnActionDelegate remove() {
-		return (t,ca) -> {
-			return "DROP COLUMN "+ca.getName();
+		return (t, ca) -> {
+			return "DROP COLUMN " + ca.getName();
 		};
 	}
 
 	@Override
 	protected IndexActionDelegate createIndex() {
-		return (t,ia) -> {
+		return (t, ia) -> {
 			String indexType = "INDEX ";
 			if (ia.isPrimary()) {
 				indexType = "PRIMARY KEY";
 			} else if (ia.getProperty("isUnique").equals(true)) {
 				indexType = "UNIQUE ";
 			}
-			return (t.getType() == TableActionType.MODIFY ? "ADD " : "")+(ia.isPrimary() ? "PRIMARY KEY ":indexType+ia.getName()+" ")+"("+ia.getFields().join(", ") +")";
+			return (t.getType() == TableActionType.MODIFY ? "ADD " : "") + (ia.isPrimary() ? "PRIMARY KEY " : indexType + ia.getName() + " ") + "(" + ia.getFields().join(", ") + ")";
 		};
 	}
 
 	@Override
 	protected IndexActionDelegate removeIndex() {
-		return (t,ia) -> {
-			return (ia.isPrimary() ? "DROP PRIMARY KEY":"DROP INDEX "+ia.getName());
+		return (t, ia) -> {
+			return (ia.isPrimary() ? "DROP PRIMARY KEY" : "DROP INDEX " + ia.getName());
 		};
 	}
 }

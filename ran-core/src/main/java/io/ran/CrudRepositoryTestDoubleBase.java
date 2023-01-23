@@ -1,3 +1,8 @@
+/* Copyright (C) Persequor ApS - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Persequor Development Team <partnersupport@persequor.com>, 2022-02-22
+ */
 package io.ran;
 
 import java.util.Collection;
@@ -31,7 +36,6 @@ public abstract class CrudRepositoryTestDoubleBase<T, K> implements CrudReposito
 	public Optional<T> get(K k) {
 		return Optional.ofNullable(getStore(modelType).get(getKeyFromKey(k))).map(this::mappingCopy);
 	}
-
 
 
 	@Override
@@ -85,7 +89,7 @@ public abstract class CrudRepositoryTestDoubleBase<T, K> implements CrudReposito
 		if (keyType.equals(modelType)) {
 			key = mappingHelper.getKey(t);
 		} else {
-			key = (K)((Property.PropertyValueList<?>)k.getValues()).get(0).getValue();
+			key = (K) ((Property.PropertyValueList<?>) k.getValues()).get(0).getValue();
 		}
 		return key;
 	}

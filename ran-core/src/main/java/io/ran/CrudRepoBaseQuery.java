@@ -1,10 +1,14 @@
+/* Copyright (C) Persequor ApS - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Persequor Development Team <partnersupport@persequor.com>, 2022-02-22
+ */
 package io.ran;
 
-import io.ran.token.Token;
+import io.ran.CrudRepository.InlineQuery;
 
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-import io.ran.CrudRepository.InlineQuery;
 
 
 public abstract class CrudRepoBaseQuery<T, Z extends InlineQuery<T, Z>> implements InlineQuery<T, Z> {
@@ -22,133 +26,133 @@ public abstract class CrudRepoBaseQuery<T, Z extends InlineQuery<T, Z>> implemen
 		this.typeDescriber = TypeDescriberImpl.getTypeDescriber(clazz);
 		this.genericFactory = genericFactory;
 		instance = genericFactory.getQueryInstance(clazz);
-		queryWrapper = (QueryWrapper)instance;
+		queryWrapper = (QueryWrapper) instance;
 	}
 
 	@Override
 	public <X> Z eq(Function<T, X> field, X value) {
 		field.apply(instance);
 		this.eq(queryWrapper.getCurrentProperty().value(value));
-		return (Z)this;
+		return (Z) this;
 	}
 
 	@Override
 	public <X> Z eq(BiConsumer<T, X> field, X value) {
 		field.accept(instance, null);
 		this.eq(queryWrapper.getCurrentProperty().value(value));
-		return (Z)this;
+		return (Z) this;
 	}
 
 	@Override
 	public <X extends Comparable<X>> Z gt(Function<T, X> field, X value) {
 		field.apply(instance);
 		this.gt(queryWrapper.getCurrentProperty().value(value));
-		return (Z)this;
+		return (Z) this;
 	}
 
 	@Override
 	public <X extends Comparable<X>> Z gt(BiConsumer<T, X> field, X value) {
 		field.accept(instance, null);
 		this.gt(queryWrapper.getCurrentProperty().value(value));
-		return (Z)this;
+		return (Z) this;
 	}
 
 	@Override
 	public <X extends Comparable<X>> Z gte(Function<T, X> field, X value) {
 		field.apply(instance);
 		this.gte(queryWrapper.getCurrentProperty().value(value));
-		return (Z)this;
+		return (Z) this;
 	}
 
 	@Override
 	public <X extends Comparable<X>> Z gte(BiConsumer<T, X> field, X value) {
 		field.accept(instance, null);
 		this.gte(queryWrapper.getCurrentProperty().value(value));
-		return (Z)this;
+		return (Z) this;
 	}
 
 	@Override
 	public <X extends Comparable<X>> Z lt(Function<T, X> field, X value) {
 		field.apply(instance);
 		this.lt(queryWrapper.getCurrentProperty().value(value));
-		return (Z)this;
+		return (Z) this;
 	}
 
 	@Override
 	public <X extends Comparable<X>> Z lt(BiConsumer<T, X> field, X value) {
 		field.accept(instance, null);
 		this.lt(queryWrapper.getCurrentProperty().value(value));
-		return (Z)this;
+		return (Z) this;
 	}
 
 	@Override
 	public <X extends Comparable<X>> Z lte(Function<T, X> field, X value) {
 		field.apply(instance);
 		this.lte(queryWrapper.getCurrentProperty().value(value));
-		return (Z)this;
+		return (Z) this;
 	}
 
 	@Override
 	public <X extends Comparable<X>> Z lte(BiConsumer<T, X> field, X value) {
 		field.accept(instance, null);
 		this.lte(queryWrapper.getCurrentProperty().value(value));
-		return (Z)this;
+		return (Z) this;
 	}
 
 	@Override
 	public <X> Z isNull(Function<T, X> field) {
 		field.apply(instance);
 		this.isNull(queryWrapper.getCurrentProperty().copy());
-		return (Z)this;
+		return (Z) this;
 	}
 
 	@Override
 	public <X> Z isNull(BiConsumer<T, X> field) {
 		field.accept(instance, null);
 		this.isNull(queryWrapper.getCurrentProperty().copy());
-		return (Z)this;
+		return (Z) this;
 	}
 
 	@Override
 	public <X extends Comparable<X>> Z sortAscending(Function<T, X> field) {
 		field.apply(instance);
 		this.sortAscending(queryWrapper.getCurrentProperty().copy());
-		return (Z)this;
+		return (Z) this;
 	}
 
 	@Override
 	public <X extends Comparable<X>> Z sortAscending(BiConsumer<T, X> field) {
 		field.accept(instance, null);
 		this.sortAscending(queryWrapper.getCurrentProperty().copy());
-		return (Z)this;
+		return (Z) this;
 	}
 
 	@Override
 	public <X extends Comparable<X>> Z sortDescending(Function<T, X> field) {
 		field.apply(instance);
 		this.sortDescending(queryWrapper.getCurrentProperty().copy());
-		return (Z)this;
+		return (Z) this;
 	}
 
 	@Override
 	public <X extends Comparable<X>> Z sortDescending(BiConsumer<T, X> field) {
 		field.accept(instance, null);
 		this.sortDescending(queryWrapper.getCurrentProperty().copy());
-		return (Z)this;
+		return (Z) this;
 	}
 
 	@Override
 	public <X> Z withEager(Function<T, X> field) {
 		field.apply(instance);
 		this.withEager(typeDescriber.relations().get(queryWrapper.getCurrentProperty().copy().getToken().snake_case()));
-		return (Z)this;
+		return (Z) this;
 	}
 
 	@Override
 	public <X> Z withEager(BiConsumer<T, X> field) {
 		field.accept(instance, null);
 		this.withEager(typeDescriber.relations().get(queryWrapper.getCurrentProperty().getToken().snake_case()));
-		return (Z)this;
+		return (Z) this;
 	}
 
 //	@Override

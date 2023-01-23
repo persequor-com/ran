@@ -1,7 +1,7 @@
 /* Copyright (C) Persequor ApS - All Rights Reserved
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
- * Written by Persequor Development Team <partnersupport@persequor.com>, 
+ * Written by Persequor Development Team <partnersupport@persequor.com>,
  */
 package io.ran;
 
@@ -19,9 +19,9 @@ public class AutoMapper {
 	}
 
 	public static void map(Class aClass) {
-		if(!mapped.containsKey(aClass)) {
+		if (!mapped.containsKey(aClass)) {
 			synchronized (AutoMapper.class) {
-				if(!mapped.containsKey(aClass)) {
+				if (!mapped.containsKey(aClass)) {
 					try {
 						MapperGenerator.Wrapped wrapped = mapperGenerator.generate(classLoader, Clazz.of(aClass));
 
@@ -38,14 +38,14 @@ public class AutoMapper {
 		}
 	}
 
-	public synchronized static  <X, Z extends X> Class<Z> get(Class<X> xClass) {
-		if(!mapped.containsKey(xClass)) {
+	public synchronized static <X, Z extends X> Class<Z> get(Class<X> xClass) {
+		if (!mapped.containsKey(xClass)) {
 			map(xClass);
 		}
-		return (Class<Z>)mapped.get(xClass);
+		return (Class<Z>) mapped.get(xClass);
 	}
 
-	public synchronized static  <X, Z extends  X> Class<Z> getQueryMaps(Class<X> xClass) {
+	public synchronized static <X, Z extends X> Class<Z> getQueryMaps(Class<X> xClass) {
 		return query.get(xClass);
 	}
 }

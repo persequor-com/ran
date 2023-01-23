@@ -13,16 +13,16 @@ public class CamelBackTokenTest {
 	@Test
 	public void happyPath() {
 		CamelCaseToken token = new CamelCaseToken("TheBlackEyedPeas");
-		assertEquals(Token.of("the","black","eyed","peas"), token.toToken());
+		assertEquals(Token.of("the", "black", "eyed", "peas"), token.toToken());
 	}
 
 	@Test
 	public void withNumbers() {
 		CamelCaseToken token = new CamelCaseToken("The3BlackEyed3es");
-		assertEquals(Token.of("the","3","black","eyed3es"), token.toToken());
+		assertEquals(Token.of("the", "3", "black", "eyed3es"), token.toToken());
 
 		token = new CamelCaseToken("With44BottlesOfRum");
-		assertEquals(Token.of("with","44","bottles","of","rum"), token.toToken());
+		assertEquals(Token.of("with", "44", "bottles", "of", "rum"), token.toToken());
 	}
 
 	@Test(expected = InvalidTokenException.class)

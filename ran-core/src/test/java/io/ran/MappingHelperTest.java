@@ -1,3 +1,8 @@
+/* Copyright (C) Persequor ApS - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Persequor Development Team <partnersupport@persequor.com>, 2022-02-22
+ */
 package io.ran;
 
 import io.ran.testclasses.Brand;
@@ -47,7 +52,7 @@ public class MappingHelperTest {
 
 		ObjectMap map = new ObjectMap();
 		map.put(Token.of("id"), "my id");
-		map.put(Token.of("the","boolean"), true);
+		map.put(Token.of("the", "boolean"), true);
 		mappingHelper.hydrate(car, map);
 
 		assertEquals("my id", car.getId());
@@ -59,7 +64,7 @@ public class MappingHelperTest {
 
 		ObjectMap map = new ObjectMap();
 		map.put(Token.of("id"), "my id");
-		map.put(Token.of("the","boolean"), true);
+		map.put(Token.of("the", "boolean"), true);
 		mappingHelper.hydrate(car, map);
 
 		assertEquals("my id", car.getId());

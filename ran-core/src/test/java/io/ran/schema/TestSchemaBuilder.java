@@ -1,3 +1,8 @@
+/* Copyright (C) Persequor ApS - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Persequor Development Team <partnersupport@persequor.com>, 2022-02-22
+ */
 package io.ran.schema;
 
 import io.ran.TypeDescriber;
@@ -27,21 +32,21 @@ class TestSchemaBuilder extends SchemaBuilder<TestSchemaBuilder, TestTableBuilde
 	@Override
 	protected TableActionDelegate create() {
 		return ta -> {
-			return "CREATE TABLE "+ta.getName()+" ("+ String.join(", ", ta.getActions()) +");";
+			return "CREATE TABLE " + ta.getName() + " (" + String.join(", ", ta.getActions()) + ");";
 		};
 	}
 
 	@Override
 	protected TableActionDelegate modify() {
 		return ta -> {
-			return "ALTER TABLE "+ta.getName()+" "+ String.join(", ", ta.getActions()) +";";
+			return "ALTER TABLE " + ta.getName() + " " + String.join(", ", ta.getActions()) + ";";
 		};
 	}
 
 	@Override
 	protected TableActionDelegate remove() {
 		return ta -> {
-			return "DROP TABLE "+ta.getName()+";";
+			return "DROP TABLE " + ta.getName() + ";";
 		};
 	}
 }

@@ -1,3 +1,8 @@
+/* Copyright (C) Persequor ApS - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Persequor Development Team <partnersupport@persequor.com>, 2022-02-22
+ */
 package io.ran;
 
 import java.lang.reflect.Constructor;
@@ -27,14 +32,14 @@ public class MethodSignature {
 	}
 
 	public MethodSignature(Method method) {
-		this(Clazz.of(method.getDeclaringClass()) ,method.getName(), Clazz.of(method.getReturnType()), Arrays.asList(method.getParameterTypes()).stream().map(Clazz::of).collect(Collectors.toList()));
+		this(Clazz.of(method.getDeclaringClass()), method.getName(), Clazz.of(method.getReturnType()), Arrays.asList(method.getParameterTypes()).stream().map(Clazz::of).collect(Collectors.toList()));
 		if (Modifier.isStatic(method.getModifiers())) {
 			isStatic = true;
 		}
 	}
 
 	public MethodSignature(Constructor method) {
-		this(Clazz.of(method.getDeclaringClass()) ,"<init>", Clazz.getVoid(), Arrays.asList(method.getGenericParameterTypes()).stream().map(Clazz::of).collect(Collectors.toList()));
+		this(Clazz.of(method.getDeclaringClass()), "<init>", Clazz.getVoid(), Arrays.asList(method.getGenericParameterTypes()).stream().map(Clazz::of).collect(Collectors.toList()));
 	}
 
 	public MethodSignature Exceptions(Clazz... exceptions) {
@@ -56,11 +61,11 @@ public class MethodSignature {
 	}
 
 	public String getMethodDescriptor() {
-		return "("+ parameters.getDescriptor()+")"+returnType.getDescriptor();
+		return "(" + parameters.getDescriptor() + ")" + returnType.getDescriptor();
 	}
 
 	public String getMethodSignature() {
-		return "("+ parameters.getSignature()+")"+returnType.getSignature();
+		return "(" + parameters.getSignature() + ")" + returnType.getSignature();
 	}
 
 	public String[] getExceptions() {

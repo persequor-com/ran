@@ -1,3 +1,8 @@
+/* Copyright (C) Persequor ApS - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Persequor Development Team <partnersupport@persequor.com>, 2022-02-22
+ */
 package io.ran.testclasses;
 
 import io.ran.Mapper;
@@ -11,7 +16,7 @@ import java.util.List;
 public class BikeGear {
 	@PrimaryKey
 	int gearNum;
-	@Relation(collectionElementType = Bike.class,via = BikeGearBike.class/*, fields = {"gear_num"}, relationFields = "gear_num"*/, autoSave = true)
+	@Relation(collectionElementType = Bike.class, via = BikeGearBike.class/*, fields = {"gear_num"}, relationFields = "gear_num"*/, autoSave = true)
 	private List<Bike> bikes;
 
 	public int getGearNum() {
