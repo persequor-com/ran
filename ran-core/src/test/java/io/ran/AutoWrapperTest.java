@@ -12,7 +12,6 @@ import org.junit.Test;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import java.util.HashMap;
 import java.util.Map;
 

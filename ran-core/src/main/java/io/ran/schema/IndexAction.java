@@ -6,15 +6,10 @@
 package io.ran.schema;
 
 import io.ran.token.ColumnToken;
-import io.ran.token.FormattingToken;
 import io.ran.token.IndexToken;
-import io.ran.token.Token;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 
 public class IndexAction implements OnTableAction {
 	private IndexToken name;

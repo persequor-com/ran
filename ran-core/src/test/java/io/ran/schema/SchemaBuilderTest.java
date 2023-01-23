@@ -13,7 +13,6 @@ import org.junit.Test;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 

@@ -10,11 +10,7 @@ import io.ran.testclasses.Regular;
 import io.ran.token.Token;
 import org.junit.Test;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Stream;
 
 import static org.junit.Assert.*;
 

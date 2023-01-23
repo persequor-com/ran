@@ -5,7 +5,6 @@
  */
 package io.ran.testclasses;
 
-import io.ran.CompoundKey;
 import io.ran.Mapper;
 import io.ran.PrimaryKey;
 import io.ran.Relation;

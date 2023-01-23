@@ -5,7 +5,12 @@
  */
 package io.ran;
 
-import io.ran.testclasses.*;
+import io.ran.testclasses.Brand;
+import io.ran.testclasses.Car;
+import io.ran.testclasses.Door;
+import io.ran.testclasses.Engine;
+import io.ran.testclasses.GraphNode;
+import io.ran.testclasses.GraphNodeLink;
 import io.ran.token.Token;
 import org.junit.Before;
 import org.junit.BeforeClass;

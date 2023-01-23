@@ -5,12 +5,10 @@
  */
 package io.ran;
 
-import io.ran.token.Token;
+import io.ran.CrudRepository.InlineQuery;
 
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-
-import io.ran.CrudRepository.InlineQuery;
 
 
 public abstract class CrudRepoBaseQuery<T, Z extends InlineQuery<T, Z>> implements InlineQuery<T, Z> {

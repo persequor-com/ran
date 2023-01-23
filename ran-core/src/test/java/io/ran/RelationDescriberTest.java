@@ -5,10 +5,15 @@
  */
 package io.ran;
 
-import io.ran.testclasses.*;
+import io.ran.testclasses.Bike;
+import io.ran.testclasses.BikeGear;
+import io.ran.testclasses.BikeWheel;
+import io.ran.testclasses.Car;
+import io.ran.testclasses.Door;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class RelationDescriberTest {
 

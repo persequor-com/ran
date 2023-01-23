@@ -7,9 +7,7 @@ package io.ran.schema;
 
 import io.ran.KeySet;
 import io.ran.Property;
-import io.ran.token.Token;
 
-import java.util.Arrays;
 import java.util.function.Consumer;
 
 public interface ITableBuilder<TB extends ITableBuilder<TB, CB, IB>, CB extends ColumnBuilder<CB>, IB extends IndexBuilder<IB>> {

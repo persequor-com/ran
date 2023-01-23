@@ -18,8 +18,6 @@ import org.junit.runners.MethodSorters;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.assertEquals;
-
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class CrudRepoBaseQueryTest {
 	private static AutoMapper ormMapper;

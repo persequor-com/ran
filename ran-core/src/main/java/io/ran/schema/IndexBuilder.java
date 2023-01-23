@@ -6,7 +6,6 @@
 package io.ran.schema;
 
 import io.ran.Property;
-import io.ran.token.Token;
 
 public class IndexBuilder<IB extends IndexBuilder<IB>> {
 	private TableBuilder<?, ?, IB> tableBuilder;

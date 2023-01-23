@@ -6,10 +6,8 @@
 package io.ran.schema;
 
 import io.ran.Property;
-import io.ran.token.IndexToken;
 import io.ran.token.Token;
 
-import java.util.Collections;
 import java.util.function.Consumer;
 
 public abstract class TableModifier<TM extends TableModifier<TM, CB, IB>, CB extends ColumnBuilder<CB>, IB extends IndexBuilder<IB>> extends TableBuilder<TM, CB, IB> implements ITableBuilder<TM, CB, IB> {

@@ -5,14 +5,11 @@
  */
 package io.ran.schema;
 
-import io.ran.Clazz;
 import io.ran.Property;
 import io.ran.token.ColumnToken;
-import io.ran.token.Token;
 
 import java.util.HashMap;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 
 public class ColumnAction implements OnTableAction {
 	private ColumnToken name;

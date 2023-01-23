@@ -10,8 +10,6 @@ import io.ran.token.ColumnToken;
 import io.ran.token.IndexToken;
 import io.ran.token.Token;
 
-import java.util.stream.Collectors;
-
 class TestTableBuilder extends TableModifier<TestTableBuilder, TestColumnBuilder, TestIndexBuilder> implements ITestTableBuilder {
 
 	@Override

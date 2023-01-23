@@ -9,9 +9,6 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.util.CheckClassAdapter;
 
 import java.io.PrintWriter;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public class MapperGenerator {
 	public Wrapped generate(AutoMapperClassLoader classLoader, Clazz clazz) {

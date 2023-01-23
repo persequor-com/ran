@@ -5,7 +5,6 @@
  */
 package io.ran;
 
-import javax.inject.Named;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;

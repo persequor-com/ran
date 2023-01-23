@@ -6,7 +6,6 @@
 package io.ran.schema;
 
 import io.ran.token.TableToken;
-import io.ran.token.Token;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -5,7 +5,18 @@
  */
 package io.ran;
 
-import io.ran.testclasses.*;
+import io.ran.testclasses.Bike;
+import io.ran.testclasses.BikeGear;
+import io.ran.testclasses.BikeType;
+import io.ran.testclasses.BikeWheel;
+import io.ran.testclasses.Brand;
+import io.ran.testclasses.Car;
+import io.ran.testclasses.Door;
+import io.ran.testclasses.Engine;
+import io.ran.testclasses.ObjectWithoutPrimaryKey;
+import io.ran.testclasses.Regular;
+import io.ran.testclasses.WithBinaryField;
+import io.ran.testclasses.WithCollections;
 import io.ran.token.Token;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -13,7 +24,11 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.UUID;
 
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
