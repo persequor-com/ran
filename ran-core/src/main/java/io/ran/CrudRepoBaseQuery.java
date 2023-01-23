@@ -1,10 +1,17 @@
+/* Copyright 2021 PSQR
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 package io.ran;
 
-import io.ran.token.Token;
+import io.ran.CrudRepository.InlineQuery;
 
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-import io.ran.CrudRepository.InlineQuery;
 
 
 public abstract class CrudRepoBaseQuery<T, Z extends InlineQuery<T, Z>> implements InlineQuery<T, Z> {
@@ -22,133 +29,133 @@ public abstract class CrudRepoBaseQuery<T, Z extends InlineQuery<T, Z>> implemen
 		this.typeDescriber = TypeDescriberImpl.getTypeDescriber(clazz);
 		this.genericFactory = genericFactory;
 		instance = genericFactory.getQueryInstance(clazz);
-		queryWrapper = (QueryWrapper)instance;
+		queryWrapper = (QueryWrapper) instance;
 	}
 
 	@Override
 	public <X> Z eq(Function<T, X> field, X value) {
 		field.apply(instance);
 		this.eq(queryWrapper.getCurrentProperty().value(value));
-		return (Z)this;
+		return (Z) this;
 	}
 
 	@Override
 	public <X> Z eq(BiConsumer<T, X> field, X value) {
 		field.accept(instance, null);
 		this.eq(queryWrapper.getCurrentProperty().value(value));
-		return (Z)this;
+		return (Z) this;
 	}
 
 	@Override
 	public <X extends Comparable<X>> Z gt(Function<T, X> field, X value) {
 		field.apply(instance);
 		this.gt(queryWrapper.getCurrentProperty().value(value));
-		return (Z)this;
+		return (Z) this;
 	}
 
 	@Override
 	public <X extends Comparable<X>> Z gt(BiConsumer<T, X> field, X value) {
 		field.accept(instance, null);
 		this.gt(queryWrapper.getCurrentProperty().value(value));
-		return (Z)this;
+		return (Z) this;
 	}
 
 	@Override
 	public <X extends Comparable<X>> Z gte(Function<T, X> field, X value) {
 		field.apply(instance);
 		this.gte(queryWrapper.getCurrentProperty().value(value));
-		return (Z)this;
+		return (Z) this;
 	}
 
 	@Override
 	public <X extends Comparable<X>> Z gte(BiConsumer<T, X> field, X value) {
 		field.accept(instance, null);
 		this.gte(queryWrapper.getCurrentProperty().value(value));
-		return (Z)this;
+		return (Z) this;
 	}
 
 	@Override
 	public <X extends Comparable<X>> Z lt(Function<T, X> field, X value) {
 		field.apply(instance);
 		this.lt(queryWrapper.getCurrentProperty().value(value));
-		return (Z)this;
+		return (Z) this;
 	}
 
 	@Override
 	public <X extends Comparable<X>> Z lt(BiConsumer<T, X> field, X value) {
 		field.accept(instance, null);
 		this.lt(queryWrapper.getCurrentProperty().value(value));
-		return (Z)this;
+		return (Z) this;
 	}
 
 	@Override
 	public <X extends Comparable<X>> Z lte(Function<T, X> field, X value) {
 		field.apply(instance);
 		this.lte(queryWrapper.getCurrentProperty().value(value));
-		return (Z)this;
+		return (Z) this;
 	}
 
 	@Override
 	public <X extends Comparable<X>> Z lte(BiConsumer<T, X> field, X value) {
 		field.accept(instance, null);
 		this.lte(queryWrapper.getCurrentProperty().value(value));
-		return (Z)this;
+		return (Z) this;
 	}
 
 	@Override
 	public <X> Z isNull(Function<T, X> field) {
 		field.apply(instance);
 		this.isNull(queryWrapper.getCurrentProperty().copy());
-		return (Z)this;
+		return (Z) this;
 	}
 
 	@Override
 	public <X> Z isNull(BiConsumer<T, X> field) {
 		field.accept(instance, null);
 		this.isNull(queryWrapper.getCurrentProperty().copy());
-		return (Z)this;
+		return (Z) this;
 	}
 
 	@Override
 	public <X extends Comparable<X>> Z sortAscending(Function<T, X> field) {
 		field.apply(instance);
 		this.sortAscending(queryWrapper.getCurrentProperty().copy());
-		return (Z)this;
+		return (Z) this;
 	}
 
 	@Override
 	public <X extends Comparable<X>> Z sortAscending(BiConsumer<T, X> field) {
 		field.accept(instance, null);
 		this.sortAscending(queryWrapper.getCurrentProperty().copy());
-		return (Z)this;
+		return (Z) this;
 	}
 
 	@Override
 	public <X extends Comparable<X>> Z sortDescending(Function<T, X> field) {
 		field.apply(instance);
 		this.sortDescending(queryWrapper.getCurrentProperty().copy());
-		return (Z)this;
+		return (Z) this;
 	}
 
 	@Override
 	public <X extends Comparable<X>> Z sortDescending(BiConsumer<T, X> field) {
 		field.accept(instance, null);
 		this.sortDescending(queryWrapper.getCurrentProperty().copy());
-		return (Z)this;
+		return (Z) this;
 	}
 
 	@Override
 	public <X> Z withEager(Function<T, X> field) {
 		field.apply(instance);
 		this.withEager(typeDescriber.relations().get(queryWrapper.getCurrentProperty().copy().getToken().snake_case()));
-		return (Z)this;
+		return (Z) this;
 	}
 
 	@Override
 	public <X> Z withEager(BiConsumer<T, X> field) {
 		field.accept(instance, null);
 		this.withEager(typeDescriber.relations().get(queryWrapper.getCurrentProperty().getToken().snake_case()));
-		return (Z)this;
+		return (Z) this;
 	}
 
 //	@Override

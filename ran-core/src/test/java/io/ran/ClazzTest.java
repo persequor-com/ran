@@ -1,3 +1,11 @@
+/* Copyright 2021 PSQR
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 package io.ran;
 
 import io.ran.testclasses.GraphNode;
@@ -5,11 +13,7 @@ import io.ran.testclasses.Regular;
 import io.ran.token.Token;
 import org.junit.Test;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Stream;
 
 import static org.junit.Assert.*;
 
@@ -22,11 +26,11 @@ public class ClazzTest {
 		assertEquals(2, relations.get(0).getVia().size());
 		assertEquals(RelationFrom.class, relations.get(0).getVia().get(0).getFromClass().clazz);
 		assertEquals(Token.of("id"), relations.get(0).getVia().get(0).getFromKeys().get(0).getToken());
-		assertEquals(Token.of("relation","from","id"), relations.get(0).getVia().get(0).getToKeys().get(0).getToken());
+		assertEquals(Token.of("relation", "from", "id"), relations.get(0).getVia().get(0).getToKeys().get(0).getToken());
 		assertEquals(RelationVia.class, relations.get(0).getVia().get(0).getToClass().clazz);
 		assertEquals(RelationVia.class, relations.get(0).getVia().get(1).getFromClass().clazz);
 		assertEquals(RelationTo.class, relations.get(0).getVia().get(1).getToClass().clazz);
-		assertEquals(Token.of("relation","to","id"), relations.get(0).getVia().get(1).getFromKeys().get(0).getToken());
+		assertEquals(Token.of("relation", "to", "id"), relations.get(0).getVia().get(1).getFromKeys().get(0).getToken());
 		assertEquals(Token.of("id"), relations.get(0).getVia().get(1).getToKeys().get(0).getToken());
 	}
 
@@ -47,16 +51,16 @@ public class ClazzTest {
 		assertEquals("id", relations.get(0).getVia().get(1).getToKeys().get(0).getToken().snake_case());
 
 		assertEquals("next_nodes", relations.get(1).getField().snake_case());
-		assertEquals("id", relations.get(1)     .getFromKeys().get(0).getToken().snake_case());
+		assertEquals("id", relations.get(1).getFromKeys().get(0).getToken().snake_case());
 		assertEquals("from_id", relations.get(1).getToKeys().get(0).getToken().snake_case());
-		assertEquals("id", relations.get(1)     .getVia().get(0).getFromKeys().get(0).getToken().snake_case());
+		assertEquals("id", relations.get(1).getVia().get(0).getFromKeys().get(0).getToken().snake_case());
 		System.out.println(relations.get(1).getVia().get(0).getFromKeys().get(0).getToken().snake_case());
 		System.out.println(relations.get(1).getVia().get(0).getToKeys().get(0).getToken().snake_case());
-		System.out.println(relations.get(1)  .getVia().get(1).getFromKeys().get(0).getToken().snake_case());
-		System.out.println(relations.get(1)     .getVia().get(1).getToKeys().get(0).getToken().snake_case());
+		System.out.println(relations.get(1).getVia().get(1).getFromKeys().get(0).getToken().snake_case());
+		System.out.println(relations.get(1).getVia().get(1).getToKeys().get(0).getToken().snake_case());
 		assertEquals("from_id", relations.get(1).getVia().get(0).getToKeys().get(0).getToken().snake_case());
-		assertEquals("to_id", relations.get(1)  .getVia().get(1).getFromKeys().get(0).getToken().snake_case());
-		assertEquals("id", relations.get(1)     .getVia().get(1).getToKeys().get(0).getToken().snake_case());
+		assertEquals("to_id", relations.get(1).getVia().get(1).getFromKeys().get(0).getToken().snake_case());
+		assertEquals("id", relations.get(1).getVia().get(1).getToKeys().get(0).getToken().snake_case());
 	}
 
 	@Test
@@ -92,8 +96,8 @@ public class ClazzTest {
 		KeySet keys = Clazz.of(RelationVia.class).getKeys().getPrimary();
 
 		assertEquals(2, keys.size());
-		assertEquals(Token.of("relation","from","id"), keys.get(0).getToken());
-		assertEquals(Token.of("relation","to","id"), keys.get(1).getToken());
+		assertEquals(Token.of("relation", "from", "id"), keys.get(0).getToken());
+		assertEquals(Token.of("relation", "to", "id"), keys.get(1).getToken());
 	}
 
 	@Test
@@ -230,7 +234,6 @@ public class ClazzTest {
 			this.relationToId = relationToId;
 		}
 	}
-
 
 
 	public static class DescribedRelationFrom {
@@ -411,9 +414,11 @@ public class ClazzTest {
 	public interface NonGenericInterface extends GenericInterface<String> {
 		// This can be left empty, since method(T) is now method(String)
 	}
+
 	public interface NonGenericInterface2 extends NonGenericInterface {
 		// This one is tricky because the method is declared deeper
 	}
+
 	public interface NonGenericInterfaceExplicit extends GenericInterface<String> {
 		void method(String myString);
 	}

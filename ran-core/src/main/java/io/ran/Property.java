@@ -1,8 +1,24 @@
+/* Copyright 2021 PSQR
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 package io.ran;
 
 import io.ran.token.Token;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class Property<T> {
@@ -10,10 +26,11 @@ public class Property<T> {
 	private String snakeCase;
 	private Clazz<T> type;
 	private Clazz<?> on;
-	private List<KeyInfo> keys  = new ArrayList<>();
+	private List<KeyInfo> keys = new ArrayList<>();
 	private Annotations annotations = new Annotations();
 
-	private Property() {}
+	private Property() {
+	}
 
 	public static <T> Property<T> get() {
 		return new Property<>();
@@ -132,6 +149,7 @@ public class Property<T> {
 
 	public static class PropertyList extends ArrayList<Property> {
 		private Map<String, Property> propertyMap = Collections.synchronizedMap(new HashMap<>());
+
 		public PropertyList(List<Property> properties) {
 			addAll(properties);
 		}
@@ -197,15 +215,15 @@ public class Property<T> {
 		public KeySets keys() {
 			KeySets keys = new KeySets();
 
-			for(Property<?> property : this) {
-				for(KeyInfo keyInfo : property.getKeys()) {
+			for (Property<?> property : this) {
+				for (KeyInfo keyInfo : property.getKeys()) {
 					keys
-						.computeIfAbsent(keyInfo.getMapKey(), k -> KeySet.get())
-						.add(keyInfo);
+							.computeIfAbsent(keyInfo.getMapKey(), k -> KeySet.get())
+							.add(keyInfo);
 				}
 			}
 			if (keys.isEmpty() && contains(Token.of("id"))) {
-				KeyInfo keyInfo = new KeyInfo(true, get("id"),"", 0, true);
+				KeyInfo keyInfo = new KeyInfo(true, get("id"), "", 0, true);
 				keys.put(keyInfo.getMapKey(), KeySet.get().add(keyInfo));
 			}
 			return keys;
@@ -214,7 +232,7 @@ public class Property<T> {
 		public KeySet mapProperties(PropertyList other) {
 			KeySet keySet = KeySet.get();
 
-			for(Property otherProperty : other) {
+			for (Property otherProperty : other) {
 				try {
 					Clazz<?> otherType = otherProperty.getOn();
 					Optional<Property> ownProperty = getOptional(Token.CamelCase(otherType.clazz.getSimpleName() + "Id"));
@@ -309,6 +327,7 @@ public class Property<T> {
 
 	public static class PropertyValueList<T> extends ArrayList<PropertyValue<T>> {
 		private Property<T> property;
+
 		public PropertyValueList() {
 		}
 
@@ -318,7 +337,7 @@ public class Property<T> {
 		}
 
 		public PropertyValue get(Token token) {
-			return stream().filter(pv -> pv.getProperty().getToken().equals(token)).map(pv -> (PropertyValue)pv).findFirst().get();
+			return stream().filter(pv -> pv.getProperty().getToken().equals(token)).map(pv -> (PropertyValue) pv).findFirst().get();
 		}
 
 		public Property<T> getProperty() {

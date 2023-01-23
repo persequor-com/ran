@@ -1,3 +1,11 @@
+/* Copyright 2021 PSQR
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 package io.ran;
 
 
@@ -17,6 +25,7 @@ import java.util.Optional;
 
 public class MappingClassWriter extends AutoMapperClassWriter {
 	Clazz mapperClazz;
+
 	public MappingClassWriter(Class clazz) {
 		super(clazz);
 		try {
@@ -92,7 +101,7 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 				w.invoke(getter);
 				w.invoke(setter);
 			}
-			w.returnNothing();;
+			w.returnNothing();
 			w.end();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -106,7 +115,7 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 					continue;
 				}
 				Token column = Token.javaMethod(method.getName().substring(3));
-				Field field = ((Clazz<?>)Clazz.of(wrapperClass)).getFields().stream().filter(f -> f.getName().equals(column.camelHump())).findFirst().orElseThrow(() -> new RuntimeException("Could not find field with name: "+column.camelHump()+" on "+ wrapperClass.getName()));
+				Field field = ((Clazz<?>) Clazz.of(wrapperClass)).getFields().stream().filter(f -> f.getName().equals(column.camelHump())).findFirst().orElseThrow(() -> new RuntimeException("Could not find field with name: " + column.camelHump() + " on " + wrapperClass.getName()));
 				if (Clazz.isPropertyField(field)) {
 					MethodWriter w = method(Access.Public, new MethodSignature(method));
 					w.load(0);
@@ -120,7 +129,7 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 				}
 			}
 		} catch (Exception e) {
-			throw  new RuntimeException(e);
+			throw new RuntimeException(e);
 		}
 
 	}
@@ -212,7 +221,7 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 				mw.invoke(StringBuilder.class.getMethod("append", String.class));
 				mw.load(4);
 				mw.invoke(StringBuilder.class.getMethod("append", String.class));
-				mw.push(". Must be one of: "+String.join(", ",fields));
+				mw.push(". Must be one of: " + String.join(", ", fields));
 				mw.invoke(StringBuilder.class.getMethod("append", String.class));
 				mw.invoke(StringBuilder.class.getMethod("toString"));
 			});
@@ -263,7 +272,7 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 				mw.invoke(StringBuilder.class.getMethod("append", String.class));
 				mw.load(3);
 				mw.invoke(StringBuilder.class.getMethod("append", String.class));
-				mw.push(". Must be one of: "+String.join(", ",fields));
+				mw.push(". Must be one of: " + String.join(", ", fields));
 				mw.invoke(StringBuilder.class.getMethod("append", String.class));
 				mw.invoke(StringBuilder.class.getMethod("toString"));
 			});
@@ -309,7 +318,7 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 				mw.invoke(StringBuilder.class.getMethod("append", String.class));
 				mw.load(2);
 				mw.invoke(StringBuilder.class.getMethod("append", String.class));
-				mw.push(". Must be one of: "+String.join(", ",fields));
+				mw.push(". Must be one of: " + String.join(", ", fields));
 				mw.invoke(StringBuilder.class.getMethod("append", String.class));
 				mw.invoke(StringBuilder.class.getMethod("toString"));
 			});
@@ -370,18 +379,18 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 
 	private void createHydrator() {
 		try {
-			for(Field field: wrapperClazz.getPropertyFields()) {
+			for (Field field : wrapperClazz.getPropertyFields()) {
 				if (field.getAnnotation(Serialized.class) != null) {
-					field(Access.Private, "_serializerFor"+field.getName(), Clazz.of(ISerializer.class), null);
+					field(Access.Private, "_serializerFor" + field.getName(), Clazz.of(ISerializer.class), null);
 
-					MethodWriter mv = method(Access.Public, new MethodSignature(wrapperClazz, "_serializerInject"+field.getName(), Clazz.getVoid(), Clazz.ofClazzes(field.getAnnotation(Serialized.class).serializer())));
+					MethodWriter mv = method(Access.Public, new MethodSignature(wrapperClazz, "_serializerInject" + field.getName(), Clazz.getVoid(), Clazz.ofClazzes(field.getAnnotation(Serialized.class).serializer())));
 					mv.addAnnotation(Clazz.of(Inject.class), true);
 
 					{
 						mv.load(0);
 						mv.load(1);
 						mv.cast(Clazz.of(ISerializer.class));
-						mv.putfield(getSelf(), "_serializerFor"+field.getName(), Clazz.of(ISerializer.class));
+						mv.putfield(getSelf(), "_serializerFor" + field.getName(), Clazz.of(ISerializer.class));
 						mv.returnNothing();
 						mv.end();
 					}
@@ -438,8 +447,6 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 				MethodSignature getterInfo = new MethodSignature(fieldMethod);
 				Method fieldMethodSetter = getSetter(field);
 				MethodSignature setterInfo = new MethodSignature(fieldMethodSetter);
-
-
 
 
 				if (field.getAnnotation(Serialized.class) != null) {
@@ -534,9 +541,9 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 
 						cec.invoke(ObjectMapColumnizer.class.getMethod("set", Property.class, Enum.class));
 					} else if (fieldClazz.isPrimitive() || fieldClazz.isBoxedPrimitive()) {
-						ce.invoke(ObjectMapHydrator.class.getMethod("get"+fieldClazz.getBoxed().getSimpleName(), Property.class));
+						ce.invoke(ObjectMapHydrator.class.getMethod("get" + fieldClazz.getBoxed().getSimpleName(), Property.class));
 
-						ce1.invoke(ObjectMapHydrator.class.getMethod("get"+fieldClazz.getBoxed().getSimpleName(), Property.class));
+						ce1.invoke(ObjectMapHydrator.class.getMethod("get" + fieldClazz.getBoxed().getSimpleName(), Property.class));
 						if (fieldMethodSetter.getParameterTypes()[0].isPrimitive()) {
 							ce.unbox(fieldClazz);
 							ce1.unbox(fieldClazz);
@@ -574,7 +581,7 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 			cec.returnNothing();
 			cec.end();
 		} catch (Exception e) {
-			throw  new RuntimeException(e);
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -638,7 +645,7 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 					mw.load(2);
 					mw.invoke(Property.class.getMethod("getSnakeCase"));
 					mw.invoke(StringBuilder.class.getMethod("append", String.class));
-					mw.push(". Must be one of: "+String.join(", ",fields));
+					mw.push(". Must be one of: " + String.join(", ", fields));
 					mw.invoke(StringBuilder.class.getMethod("append", String.class));
 					mw.invoke(StringBuilder.class.getMethod("toString"));
 				});
@@ -646,7 +653,7 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 
 			}
 		} catch (Exception e) {
-			throw  new RuntimeException(e);
+			throw new RuntimeException(e);
 		}
 
 	}
@@ -699,7 +706,7 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 					mw.load(2);
 					mw.invoke(Property.class.getMethod("getSnakeCase"));
 					mw.invoke(StringBuilder.class.getMethod("append", String.class));
-					mw.push(". Must be one of: "+String.join(", ",fields));
+					mw.push(". Must be one of: " + String.join(", ", fields));
 					mw.invoke(StringBuilder.class.getMethod("append", String.class));
 					mw.invoke(StringBuilder.class.getMethod("toString"));
 				});
@@ -707,7 +714,7 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 
 			}
 		} catch (Exception e) {
-			throw  new RuntimeException(e);
+			throw new RuntimeException(e);
 		}
 
 	}
@@ -775,9 +782,9 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 						ce.ifNegateBoolean(c -> {
 							MethodSignature resolverMethod = null;
 							if (isCollection) {
-								resolverMethod = new MethodSignature(Clazz.ofClasses(Resolver.class, wrapperClass, elementType) ,"getCollection", Clazz.of(Collection.class), Clazz.of(Class.class), Clazz.of(String.class), Clazz.of(Object.class));
+								resolverMethod = new MethodSignature(Clazz.ofClasses(Resolver.class, wrapperClass, elementType), "getCollection", Clazz.of(Collection.class), Clazz.of(Class.class), Clazz.of(String.class), Clazz.of(Object.class));
 							} else {
-								resolverMethod = new MethodSignature(Clazz.of(Resolver.class) ,"get" , Clazz.of(Object.class),Clazz.of(Class.class), Clazz.of(String.class), Clazz.of(Object.class));
+								resolverMethod = new MethodSignature(Clazz.of(Resolver.class), "get", Clazz.of(Object.class), Clazz.of(Class.class), Clazz.of(String.class), Clazz.of(Object.class));
 							}
 
 							c.load(0); // this
@@ -813,7 +820,7 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 			}
 
 		} catch (Exception e) {
-			throw  new RuntimeException(e);
+			throw new RuntimeException(e);
 		}
 
 	}
