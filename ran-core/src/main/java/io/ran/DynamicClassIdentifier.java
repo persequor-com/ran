@@ -19,6 +19,11 @@ public class DynamicClassIdentifier {
 		return identifier;
 	}
 
+	@SuppressWarnings("unused")
+	public String getIdentifier() {
+		return get();
+	}
+
 	@Override
 	public String toString() {
 		return identifier;
