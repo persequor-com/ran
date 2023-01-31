@@ -15,13 +15,8 @@ public class DynamicClassIdentifier {
 		this.identifier = identifier;
 	}
 
-	public String get() {
-		return identifier;
-	}
-
-	@SuppressWarnings("unused")
 	public String getIdentifier() {
-		return get();
+		return identifier;
 	}
 
 	@Override
