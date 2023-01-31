@@ -87,7 +87,7 @@ public class AutoWrapperTest {
 
 		@Override
 		public <T> T get(DynamicClassIdentifier identifier) {
-			return (T) map.get(identifier.get());
+			return (T) map.get(identifier.getIdentifier());
 		}
 	}
 
