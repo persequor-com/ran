@@ -15,7 +15,7 @@ public class DynamicClassIdentifier {
 		this.identifier = identifier;
 	}
 
-	public String get() {
+	public String getIdentifier() {
 		return identifier;
 	}
 
