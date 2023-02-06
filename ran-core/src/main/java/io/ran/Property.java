@@ -360,7 +360,7 @@ public class Property<T> {
 		}
 	}
 
-	private Clazz getClazz() {
+	public Clazz getClazz() {
 		return type;
 	}
 
@@ -439,21 +439,21 @@ public class Property<T> {
 
 			@Override
 			public NumberValue<Byte> add(NumberValue<?> other) {
-				return new ByteNumberValue(value() + PropertyValue.getNumberValue(Byte.class,other.value()).value());
+				return new ByteNumberValue(value() + PropertyValue.getNumberValue(Byte.class, other.value()).value());
 			}
 
 			@Override
 			public NumberValue<Byte> subtract(NumberValue<?> other) {
-				return new ByteNumberValue(value() - PropertyValue.getNumberValue(Byte.class,other.value()).value());
+				return new ByteNumberValue(value() - PropertyValue.getNumberValue(Byte.class, other.value()).value());
 			}
 
 			@Override
 			public NumberValue<Byte> multiply(NumberValue<?> other) {
-				return new ByteNumberValue(value() * PropertyValue.getNumberValue(Byte.class,other.value()).value());
+				return new ByteNumberValue(value() * PropertyValue.getNumberValue(Byte.class, other.value()).value());
 			}
 			@Override
 			public NumberValue<Byte> divide(NumberValue<?> other) {
-				return new ByteNumberValue(value() / PropertyValue.getNumberValue(Byte.class,other.value()).value());
+				return new ByteNumberValue(value() / PropertyValue.getNumberValue(Byte.class, other.value()).value());
 			}
 		}
 
@@ -464,22 +464,22 @@ public class Property<T> {
 
 			@Override
 			public NumberValue<Short> add(NumberValue<?> other) {
-				return new ShortNumberValue(value() + PropertyValue.getNumberValue(Short.class,other.value()).value());
+				return new ShortNumberValue(value() + PropertyValue.getNumberValue(Short.class, other.value()).value());
 			}
 
 			@Override
 			public NumberValue<Short> subtract(NumberValue<?> other) {
-				return new ShortNumberValue(value() - PropertyValue.getNumberValue(Short.class,other.value()).value());
+				return new ShortNumberValue(value() - PropertyValue.getNumberValue(Short.class, other.value()).value());
 			}
 
 			@Override
 			public NumberValue<Short> multiply(NumberValue<?> other) {
-				return new ShortNumberValue(value() * PropertyValue.getNumberValue(Short.class,other.value()).value());
+				return new ShortNumberValue(value() * PropertyValue.getNumberValue(Short.class, other.value()).value());
 			}
 
 			@Override
 			public NumberValue<Short> divide(NumberValue<?> other) {
-				return new ShortNumberValue(value() / PropertyValue.getNumberValue(Short.class,other.value()).value());
+				return new ShortNumberValue(value() / PropertyValue.getNumberValue(Short.class, other.value()).value());
 			}
 		}
 
@@ -490,22 +490,22 @@ public class Property<T> {
 
 			@Override
 			public NumberValue<Integer> add(NumberValue<?> other) {
-				return new IntegerNumberValue(value() + PropertyValue.getNumberValue(Integer.class,other.value()).value());
+				return new IntegerNumberValue(value() + PropertyValue.getNumberValue(Integer.class, other.value()).value());
 			}
 
 			@Override
 			public NumberValue<Integer> subtract(NumberValue<?> other) {
-				return new IntegerNumberValue(value() - PropertyValue.getNumberValue(Integer.class,other.value()).value());
+				return new IntegerNumberValue(value() - PropertyValue.getNumberValue(Integer.class, other.value()).value());
 			}
 
 			@Override
 			public NumberValue<Integer> multiply(NumberValue<?> other) {
-				return new IntegerNumberValue(value() * PropertyValue.getNumberValue(Integer.class,other.value()).value());
+				return new IntegerNumberValue(value() * PropertyValue.getNumberValue(Integer.class, other.value()).value());
 			}
 
 			@Override
 			public NumberValue<Integer> divide(NumberValue<?> other) {
-				return new IntegerNumberValue(value() / PropertyValue.getNumberValue(Integer.class,other.value()).value());
+				return new IntegerNumberValue(value() / PropertyValue.getNumberValue(Integer.class, other.value()).value());
 			}
 		}
 
@@ -516,22 +516,22 @@ public class Property<T> {
 
 			@Override
 			public NumberValue<Long> add(NumberValue<?> other) {
-				return new LongNumberValue(value() + PropertyValue.getNumberValue(Long.class,other.value()).value());
+				return new LongNumberValue(value() + PropertyValue.getNumberValue(Long.class, other.value()).value());
 			}
 
 			@Override
 			public NumberValue<Long> subtract(NumberValue<?> other) {
-				return new LongNumberValue(value() - PropertyValue.getNumberValue(Long.class,other.value()).value());
+				return new LongNumberValue(value() - PropertyValue.getNumberValue(Long.class, other.value()).value());
 			}
 
 			@Override
 			public NumberValue<Long> multiply(NumberValue<?> other) {
-				return new LongNumberValue(value() * PropertyValue.getNumberValue(Long.class,other.value()).value());
+				return new LongNumberValue(value() * PropertyValue.getNumberValue(Long.class, other.value()).value());
 			}
 
 			@Override
 			public NumberValue<Long> divide(NumberValue<?> other) {
-				return new LongNumberValue(value() / PropertyValue.getNumberValue(Long.class,other.value()).value());
+				return new LongNumberValue(value() / PropertyValue.getNumberValue(Long.class, other.value()).value());
 			}
 		}
 
@@ -542,22 +542,22 @@ public class Property<T> {
 
 			@Override
 			public NumberValue<Float> add(NumberValue<?> other) {
-				return new FloatNumberValue(value() + PropertyValue.getNumberValue(Float.class,other.value()).value());
+				return new FloatNumberValue(value() + PropertyValue.getNumberValue(Float.class, other.value()).value());
 			}
 
 			@Override
 			public NumberValue<Float> subtract(NumberValue<?> other) {
-				return new FloatNumberValue(value() - PropertyValue.getNumberValue(Float.class,other.value()).value());
+				return new FloatNumberValue(value() - PropertyValue.getNumberValue(Float.class, other.value()).value());
 			}
 
 			@Override
 			public NumberValue<Float> multiply(NumberValue<?> other) {
-				return new FloatNumberValue(value() * PropertyValue.getNumberValue(Float.class,other.value()).value());
+				return new FloatNumberValue(value() * PropertyValue.getNumberValue(Float.class, other.value()).value());
 			}
 
 			@Override
 			public NumberValue<Float> divide(NumberValue<?> other) {
-				return new FloatNumberValue(value() / PropertyValue.getNumberValue(Float.class,other.value()).value());
+				return new FloatNumberValue(value() / PropertyValue.getNumberValue(Float.class, other.value()).value());
 			}
 		}
 
@@ -568,22 +568,22 @@ public class Property<T> {
 
 			@Override
 			public NumberValue<Double> add(NumberValue<?> other) {
-				return new DoubleNumberValue(value() + PropertyValue.getNumberValue(Double.class,other.value()).value());
+				return new DoubleNumberValue(value() + PropertyValue.getNumberValue(Double.class, other.value()).value());
 			}
 
 			@Override
 			public NumberValue<Double> subtract(NumberValue<?> other) {
-				return new DoubleNumberValue(value() - PropertyValue.getNumberValue(Double.class,other.value()).value());
+				return new DoubleNumberValue(value() - PropertyValue.getNumberValue(Double.class, other.value()).value());
 			}
 
 			@Override
 			public NumberValue<Double> multiply(NumberValue<?> other) {
-				return new DoubleNumberValue(value() * PropertyValue.getNumberValue(Double.class,other.value()).value());
+				return new DoubleNumberValue(value() * PropertyValue.getNumberValue(Double.class, other.value()).value());
 			}
 
 			@Override
 			public NumberValue<Double> divide(NumberValue<?> other) {
-				return new DoubleNumberValue(value() / PropertyValue.getNumberValue(Double.class,other.value()).value());
+				return new DoubleNumberValue(value() / PropertyValue.getNumberValue(Double.class, other.value()).value());
 			}
 		}
 
@@ -594,24 +594,23 @@ public class Property<T> {
 
 			@Override
 			public NumberValue<BigDecimal> add(NumberValue<?> other) {
-				return new BigDecimalNumberValue(value().add(PropertyValue.getNumberValue(BigDecimal.class,other.value()).value()));
+				return new BigDecimalNumberValue(value().add(PropertyValue.getNumberValue(BigDecimal.class, other.value()).value()));
 			}
 
 			@Override
 			public NumberValue<BigDecimal> subtract(NumberValue<?> other) {
-				return new BigDecimalNumberValue(value().subtract(PropertyValue.getNumberValue(BigDecimal.class,other.value()).value()));
+				return new BigDecimalNumberValue(value().subtract(PropertyValue.getNumberValue(BigDecimal.class, other.value()).value()));
 			}
 
 			@Override
 			public NumberValue<BigDecimal> multiply(NumberValue<?> other) {
-				return new BigDecimalNumberValue(value().multiply(PropertyValue.getNumberValue(BigDecimal.class,other.value()).value()));
+				return new BigDecimalNumberValue(value().multiply(PropertyValue.getNumberValue(BigDecimal.class, other.value()).value()));
 			}
 
 			@Override
 			public NumberValue<BigDecimal> divide(NumberValue<?> other) {
-				return new BigDecimalNumberValue(value().divide(PropertyValue.getNumberValue(BigDecimal.class,other.value()).value()));
+				return new BigDecimalNumberValue(value().divide(PropertyValue.getNumberValue(BigDecimal.class, other.value()).value()));
 			}
 		}
 	}
-
 }

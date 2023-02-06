@@ -3,7 +3,6 @@ package io.ran;
 import io.ran.token.Token;
 import org.junit.Test;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 import static org.junit.Assert.*;
@@ -12,7 +11,7 @@ public class PropertyValueTest {
 	private Property property = Property.get(Token.of("my"));
 
 	@Test
-	public void getNumericValue_simple_int() {
+	public void propertyValue_simple_int_operations() {
 		Object actual = property.value(4).add(property.value(3)).getValue();
 		assertEquals(7, actual);
 		actual = property.value(new Integer(4)).add(property.value(new Integer(3))).getValue();
