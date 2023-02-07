@@ -24,10 +24,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Split branch name
-        env:
-          BRANCH: ${{ github.head_ref }}
-        id: split
-        run: echo "BRANCH_NAME=${BRANCH##*/}" >> $GITHUB_ENV
+        run: echo "BRANCH_NAME=${{ github.head_ref }}" | sed -e s/\\//\-/g >> $GITHUB_ENV
       - name: versioning
         uses: paulhatch/semantic-version@v4.0.3
         with:
