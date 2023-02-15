@@ -8,6 +8,8 @@
  */
 package io.ran;
 
+import javax.lang.model.SourceVersion;
+
 public class DynamicClassIdentifier {
 	private final String identifier;
 
@@ -42,8 +44,8 @@ public class DynamicClassIdentifier {
 	}
 
 	public static DynamicClassIdentifier create(String identifier) {
-		if (identifier == null || identifier.matches("[^0-9a-zA-Z_]")) {
-			throw new RuntimeException("Invalid dynamic class identifier. Only alphanumeric and _ is allowed in identifier");
+		if (!SourceVersion.isName(identifier)) {
+			throw new IllegalArgumentException("Invalid dynamic class identifier. It should be a valid JVM qualified name");
 		}
 		return new DynamicClassIdentifier(identifier);
 	}
