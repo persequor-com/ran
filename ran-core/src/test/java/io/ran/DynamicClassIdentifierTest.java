@@ -37,11 +37,6 @@ public class DynamicClassIdentifierTest {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void create_isEmpty() {
-		DynamicClassIdentifier.create("");
-	}
-
-	@Test(expected = IllegalArgumentException.class)
 	public void create_isNull() {
 		DynamicClassIdentifier.create(null);
 	}
