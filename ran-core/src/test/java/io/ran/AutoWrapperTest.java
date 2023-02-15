@@ -69,13 +69,13 @@ public class AutoWrapperTest {
 
 	@Test
 	public void wrapEmptyClass_withFactory() {
-		Class<IMyValueInterface> wrapped = autoWrapper.wrapToClassWithFactoryInjector("TestClassName1", IMyValueInterface.class, MyTestFactory.class, "My identifier");
+		Class<IMyValueInterface> wrapped = autoWrapper.wrapToClassWithFactoryInjector("TestClassName1", IMyValueInterface.class, MyTestFactory.class, "My_identifier");
 		System.out.println(wrapped.getName());
-		Class<IMyValueInterface> wrapped2 = autoWrapper.wrapToClassWithFactoryInjector("TestClassName2", IMyValueInterface.class, MyTestFactory.class, "My second identifier");
+		Class<IMyValueInterface> wrapped2 = autoWrapper.wrapToClassWithFactoryInjector("TestClassName2", IMyValueInterface.class, MyTestFactory.class, "My_second_identifier");
 		System.out.println(wrapped2.getName());
 
-		injector.getInstance(MyTestFactory.class).map.put("My identifier", injector.getInstance(MyValueInstance.class).blah("ekstra"));
-		injector.getInstance(MyTestFactory.class).map.put("My second identifier", injector.getInstance(MyValueInstance.class).blah("ekstra2"));
+		injector.getInstance(MyTestFactory.class).map.put("My_identifier", injector.getInstance(MyValueInstance.class).blah("ekstra"));
+		injector.getInstance(MyTestFactory.class).map.put("My_second_identifier", injector.getInstance(MyValueInstance.class).blah("ekstra2"));
 
 		assertEquals("_mjelloekstra", injector.getInstance(wrapped).hello("mjello"));
 		assertEquals("_mjelloekstra2", injector.getInstance(wrapped2).hello("mjello"));

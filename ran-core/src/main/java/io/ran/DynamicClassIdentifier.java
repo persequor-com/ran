@@ -45,7 +45,7 @@ public class DynamicClassIdentifier {
 
 	public static DynamicClassIdentifier create(String identifier) {
 		if (!SourceVersion.isName(identifier)) {
-			throw new IllegalArgumentException("Invalid dynamic class identifier. It should be a valid JVM qualified name");
+			throw new IllegalArgumentException(String.format("Invalid dynamic class identifier: `%s`. It should be a valid Java qualified name.", identifier));
 		}
 		return new DynamicClassIdentifier(identifier);
 	}
