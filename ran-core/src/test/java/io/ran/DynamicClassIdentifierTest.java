@@ -20,4 +20,39 @@ public class DynamicClassIdentifierTest {
 	public void create_startsWithNr() {
 		DynamicClassIdentifier.create("1_class");
 	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void create_isKeyword() {
+		DynamicClassIdentifier.create("private");
+	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public void create_hasSpace() {
+		DynamicClassIdentifier.create("has space");
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void create_isNullLiteral() {
+		DynamicClassIdentifier.create("null");
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void create_isEmpty() {
+		DynamicClassIdentifier.create("");
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void create_isNull() {
+		DynamicClassIdentifier.create(null);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void create_isEmptyString() {
+		DynamicClassIdentifier.create("");
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void create_isBooleanLiteral() {
+		DynamicClassIdentifier.create("true");
+	}
 }
