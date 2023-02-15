@@ -44,6 +44,9 @@ public class DynamicClassIdentifier {
 	}
 
 	public static DynamicClassIdentifier create(String identifier) {
+		if(identifier == null) {
+			throw new IllegalArgumentException("Identifier cannot be null");
+		}
 		if (!SourceVersion.isName(identifier)) {
 			throw new IllegalArgumentException(String.format("Invalid dynamic class identifier: `%s`. It should be a valid Java qualified name.", identifier));
 		}
