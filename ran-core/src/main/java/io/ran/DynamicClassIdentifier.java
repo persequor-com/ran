@@ -44,11 +44,12 @@ public class DynamicClassIdentifier {
 	}
 
 	public static DynamicClassIdentifier create(String identifier) {
-		if(identifier == null) {
-			throw new IllegalArgumentException("Dynamic class identifier cannot be null");
+		if(identifier == null || identifier.trim().length() == 0) {
+			throw new IllegalArgumentException("Dynamic class identifier cannot be null or blank string");
 		}
-		if (!SourceVersion.isName(identifier)) {
-			throw new IllegalArgumentException(String.format("Invalid dynamic class identifier: `%s`. It should be a valid Java qualified name.", identifier));
+		// it is probably not a responsibility of Ran to make this validation, should be removed in the future
+		if (!SourceVersion.isIdentifier("A" + identifier) || SourceVersion.isKeyword(identifier)) {
+			throw new IllegalArgumentException(String.format("Invalid dynamic class identifier: `%s`. It should be a valid Java qualified name but can start with a number.", identifier));
 		}
 		return new DynamicClassIdentifier(identifier);
 	}

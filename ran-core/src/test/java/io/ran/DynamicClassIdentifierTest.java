@@ -16,7 +16,7 @@ public class DynamicClassIdentifierTest {
 		DynamicClassIdentifier.create("illegal-parts+");
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void create_startsWithNr() {
 		DynamicClassIdentifier.create("1_class");
 	}
