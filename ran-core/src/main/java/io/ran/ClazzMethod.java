@@ -91,7 +91,11 @@ public class ClazzMethod {
 			Class<?> declaringClass = method.getDeclaringClass();
 			Clazz<?> genericSuper = actualClass.findGenericSuper(declaringClass);
 
-			return genericSuper.genericMap.get(method.getGenericReturnType().getTypeName());
+			if(genericSuper.genericMap.containsKey(method.getGenericReturnType().getTypeName())) {
+				return genericSuper.genericMap.get(method.getGenericReturnType().getTypeName());
+			}
+			// Fall back to Object...
+			return Clazz.of(method.getReturnType());
 		}
 
 		return Clazz.of(method.getGenericReturnType());
