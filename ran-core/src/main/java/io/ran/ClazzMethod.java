@@ -11,6 +11,7 @@ package io.ran;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.TypeVariable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,10 +21,12 @@ public class ClazzMethod {
 	private final List<Annotation> annotations;
 	private final String name;
 	private final List<ClazzMethodParameter> parameters;
+	private final Clazz<?> actualClass;
 	private final Method method;
 	private final String methodToken;
 
 	public ClazzMethod(Clazz<?> actualClass, Method method) {
+		this.actualClass = actualClass;
 		this.method = method;
 		this.name = method.getName();
 		this.methodToken = method.toString();
@@ -84,7 +87,14 @@ public class ClazzMethod {
 	}
 
 	public Clazz<?> getReturnType() {
-		return Clazz.of(method.getReturnType());
+		if(method.getGenericReturnType() instanceof TypeVariable) {
+			Class<?> declaringClass = method.getDeclaringClass();
+			Clazz<?> genericSuper = actualClass.findGenericSuper(declaringClass);
+
+			return genericSuper.genericMap.get(method.getGenericReturnType().getTypeName());
+		}
+
+		return Clazz.of(method.getGenericReturnType());
 	}
 
 	public Clazz<?> getDeclaringClazz() {

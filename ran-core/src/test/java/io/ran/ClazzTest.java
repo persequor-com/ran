@@ -13,6 +13,7 @@ import io.ran.testclasses.Regular;
 import io.ran.token.Token;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -159,27 +160,32 @@ public class ClazzTest {
 	public void interfaceWithGenericArgumentOnParentInterface() {
 		Clazz<?> clazz = Clazz.of(NonGenericInterface.class);
 		assertEquals(0, clazz.generics.size());
+		assertEquals(2, clazz.methods().size());
 		ClazzMethod method = clazz.methods().stream().filter(m -> m.getName().equals("method")).findFirst().get();
-		assertEquals(1, clazz.methods().size());
 		assertEquals(Clazz.of(String.class).clazz, method.parameters().get(0).getGenericClazz().clazz);
-	}
+		ClazzMethod method2 = clazz.methods().find("method2", String.class, int.class).orElseThrow(RuntimeException::new);
+		assertEquals(Clazz.of(String.class).clazz, method2.getReturnType().clazz);	}
 
 	@Test
 	public void interfaceWithGenericArgumentOnParentParentInterface() {
 		Clazz<?> clazz = Clazz.of(NonGenericInterface2.class);
 		assertEquals(0, clazz.generics.size());
+		assertEquals(2, clazz.methods().size());
 		ClazzMethod method = clazz.methods().stream().filter(m -> m.getName().equals("method")).findFirst().get();
-		assertEquals(1, clazz.methods().size());
 		assertEquals(Clazz.of(String.class).clazz, method.parameters().get(0).getGenericClazz().clazz);
+		ClazzMethod method2 = clazz.methods().find("method2", String.class, int.class).orElseThrow(RuntimeException::new);
+		assertEquals(Clazz.of(String.class).clazz, method2.getReturnType().clazz);
 	}
 
 	@Test
 	public void interfaceWithGenericArgumentAndExplicitImplementation() {
 		Clazz<?> clazz = Clazz.of(NonGenericInterfaceExplicit.class);
 		assertEquals(0, clazz.generics.size());
-		assertEquals(1, clazz.methods().size());
+		assertEquals(2, clazz.methods().size());
 		ClazzMethod method = clazz.methods().find("method", void.class, String.class).orElseThrow(RuntimeException::new);
 		assertEquals(Clazz.of(String.class).clazz, method.parameters().get(0).getBestEffortClazz().clazz);
+		ClazzMethod method2 = clazz.methods().find("method2", String.class, int.class).orElseThrow(RuntimeException::new);
+		assertEquals(Clazz.of(String.class).clazz, method2.getReturnType().clazz);
 	}
 
 	@Test
@@ -187,6 +193,27 @@ public class ClazzTest {
 		Clazz<?> clazz = Clazz.of(ClassWithMethodsOfDifferentVisiblity.class);
 		assertEquals(4, clazz.methods().size());
 	}
+
+	@Test
+	public void testGenericMethodOfReturnType() {
+		Clazz<?> clazz = Clazz.of(MyArrayParent.class);
+		assertEquals(1, clazz.methods().size());
+		ClazzMethod method = clazz.methods().stream().findFirst().orElseThrow(RuntimeException::new);
+		Clazz<?> retType = method.getReturnType();
+		ClazzMethod addMethod = retType.methods().find("add", boolean.class, String.class).orElseThrow(RuntimeException::new);
+		assertEquals(Clazz.of(String.class).clazz, addMethod.parameters().get(0).getBestEffortClazz().clazz);
+	}
+
+	@Test
+	public void testManyLayersOfGenerics() {
+		Clazz<?> clazz = Clazz.of(MyArray.class);
+		ClazzMethod addMethod = clazz.methods().find("add", boolean.class, String.class).orElseThrow(RuntimeException::new);
+		assertEquals(Clazz.of(String.class).clazz, addMethod.parameters().get(0).getBestEffortClazz().clazz);
+
+		ClazzMethod getMethod = clazz.methods().find("get", String.class, int.class).orElseThrow(RuntimeException::new);
+		assertEquals(Clazz.of(String.class).clazz, getMethod.getReturnType().clazz);
+	}
+
 
 
 	public static class RelationFrom {
@@ -402,12 +429,18 @@ public class ClazzTest {
 
 	public interface GenericInterface<T> {
 		void method(T t);
+		T method2(int i);
 	}
 
 	public static class GenericInterfaceImpl implements GenericInterface<String> {
 		@Override
 		public void method(String s) {
 
+		}
+
+		@Override
+		public String method2(int i) {
+			return null;
 		}
 	}
 
@@ -428,6 +461,11 @@ public class ClazzTest {
 		public void method(String myString) {
 
 		}
+
+		@Override
+		public String method2(int i) {
+			return null;
+		}
 	}
 
 	public class ClassWithMethodsOfDifferentVisiblity {
@@ -447,4 +485,34 @@ public class ClazzTest {
 
 		}
 	}
+
+	public static class MyArray extends ArrayList<String> {
+
+	}
+
+	public static class MyArrayParent {
+		public MyArray getArray() {
+			return new MyArray();
+		}
+	}
+
+	public static class Super0<T> {
+		T method0(T input) {
+			return null;
+		}
+	}
+	public static class Super1<T> extends Super0<T> {
+		T method1(T input) {
+			return null;
+		}
+	}
+	public static class Super2<T> extends Super1<T> {
+		T method2(T input) {
+			return null;
+		}
+	}
+	public static class Super3 extends Super2<String> {
+
+	}
+
 }

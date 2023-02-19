@@ -38,7 +38,7 @@ public class Clazz<T> {
 	public static Clazz of(Type type) {
 		if (type instanceof ParameterizedType) {
 			ParameterizedType parameterizedType = ((ParameterizedType) type);
-			List<Clazz> genericClasses = Arrays.asList(parameterizedType.getActualTypeArguments()).stream().map(Clazz::of).collect(Collectors.toList());
+			List<Clazz> genericClasses = Arrays.stream(parameterizedType.getActualTypeArguments()).map(Clazz::of).collect(Collectors.toList());
 
 			return Clazz.ofClazzes((Class) ((ParameterizedType) type).getRawType(), genericClasses);
 		} else if (type instanceof Class) {
@@ -47,6 +47,27 @@ public class Clazz<T> {
 		throw new RuntimeException("Don't know what to do with type: " + type.getClass().getName());
 	}
 
+	public static Clazz ofSuper(Type superType, Clazz<?> child) {
+		if (superType instanceof ParameterizedType) {
+			ParameterizedType parameterizedType = ((ParameterizedType) superType);
+			List<Clazz> genericClasses = Arrays.stream(parameterizedType.getActualTypeArguments())
+					.map(t -> {
+						if(t instanceof TypeVariable<?>) {
+							return child.genericMap.get(((TypeVariable<?>)t).getName());
+						} else {
+							return Clazz.of(t);
+						}
+					})
+					.collect(Collectors.toList());
+
+			return Clazz.ofClazzes((Class) ((ParameterizedType) superType).getRawType(), genericClasses);
+		} else if (superType instanceof Class) {
+			return Clazz.of((Class) superType);
+		} else if(superType instanceof TypeVariable<?>) {
+			return child.genericMap.get(((TypeVariable<?>)superType).getName());
+		}
+		throw new RuntimeException("Don't know what to do with type: " + superType.getClass().getName());
+	}
 	public static Clazz getShort() {
 		return Clazz.of(short.class);
 	}
@@ -106,7 +127,7 @@ public class Clazz<T> {
 
 	public Clazz<?> getSuper() {
 		if (clazz.getGenericSuperclass() != null) {
-			return Clazz.of(clazz.getGenericSuperclass());
+			return Clazz.ofSuper(clazz.getGenericSuperclass(), this);
 		}
 		return Clazz.of(clazz.getSuperclass());
 	}
@@ -224,6 +245,11 @@ public class Clazz<T> {
 
 	public String name() {
 		return className;
+	}
+
+	@Override
+	public String toString() {
+		return name();
 	}
 
 	public String classRepresentation() {
