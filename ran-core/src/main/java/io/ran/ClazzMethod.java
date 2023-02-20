@@ -11,8 +11,10 @@ package io.ran;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -93,7 +95,13 @@ public class ClazzMethod {
 		types.add(method.getGenericReturnType());
 		types.addAll(Arrays.asList(method.getGenericParameterTypes()));
 		types.addAll(Arrays.asList(method.getGenericExceptionTypes()));
-		return types;
+		return types.stream().flatMap(type -> {
+			if(type instanceof ParameterizedType) {
+				return Stream.of(((ParameterizedType)type).getActualTypeArguments());
+			} else {
+				return Stream.of(type);
+			}
+		}).collect(Collectors.toList());
 	}
 
 	/**
@@ -121,6 +129,10 @@ public class ClazzMethod {
 				TypeVariable<?> typed = (TypeVariable<?>) type;
 				if(typed.getGenericDeclaration() == method)
 					return true;
+			} else if(type instanceof WildcardType) {
+				//WildcardType typed = (WildcardType) type;
+				//if(typed.getTypeName().equals("?"))
+				return true;
 			}
 		}
 		return false;

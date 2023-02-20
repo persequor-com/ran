@@ -18,8 +18,10 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -37,35 +39,25 @@ public class Clazz<T> {
 	private Annotations annotations = null;
 
 	public static Clazz of(Type type) {
-		if (type instanceof ParameterizedType) {
-			ParameterizedType parameterizedType = ((ParameterizedType) type);
-			List<Clazz> genericClasses = Arrays.stream(parameterizedType.getActualTypeArguments()).map(Clazz::of).collect(Collectors.toList());
-
-			return Clazz.ofClazzes((Class) ((ParameterizedType) type).getRawType(), genericClasses);
-		} else if (type instanceof Class) {
-			return Clazz.of((Class) type);
-		}
-		throw new RuntimeException("Don't know what to do with type: " + type.getClass().getName());
+		return of(type, Collections.emptyMap());
 	}
 
 	public static Clazz of(Type type, Map<String,Clazz<?>> genericMap) {
 		if (type instanceof ParameterizedType) {
 			ParameterizedType parameterizedType = ((ParameterizedType) type);
 			List<Clazz> genericClasses = Arrays.stream(parameterizedType.getActualTypeArguments())
-					.map(t -> {
-						if(t instanceof TypeVariable<?>) {
-							return genericMap.get(((TypeVariable<?>)t).getName());
-						} else {
-							return Clazz.of(t);
-						}
-					})
+					.map(t -> Clazz.of(t, genericMap))
 					.collect(Collectors.toList());
 
 			return Clazz.ofClazzes((Class<?>) parameterizedType.getRawType(), genericClasses);
 		} else if (type instanceof Class) {
 			return Clazz.of((Class<?>) type);
 		} else if(type instanceof TypeVariable<?>) {
-			return genericMap.get(((TypeVariable<?>)type).getName());
+			TypeVariable<?> tv = (TypeVariable<?>) type;
+			if(genericMap.containsKey(tv.getName())) {
+				return genericMap.get(tv.getName());
+			}
+			return Clazz.of(tv.getBounds()[0], genericMap);
 		} else if(type instanceof GenericArrayType) {
 			Clazz<?> arrType = genericMap.get(((GenericArrayType) type).getGenericComponentType().getTypeName());
 			if(arrType == null) {
@@ -73,6 +65,12 @@ public class Clazz<T> {
 				return Clazz.of(Object[].class);
 			}
 			throw new RuntimeException("Typed arrays not supported yet");
+		} else if (type instanceof WildcardType) {
+			WildcardType wildCard = (WildcardType) type;
+			if(wildCard.getLowerBounds().length > 0) {
+				return Clazz.of(wildCard.getLowerBounds()[0], genericMap);
+			}
+			return Clazz.of(wildCard.getUpperBounds()[0], genericMap);
 		}
 		throw new RuntimeException("Don't know what to do with type: " + type.getClass().getName());
 	}
