@@ -11,7 +11,9 @@ package io.ran;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -86,10 +88,48 @@ public class ClazzMethod {
 		return Modifier.isSynchronized(method.getModifiers());
 	}
 
+	private List<Type> getAllGenericTypes() {
+		ArrayList<Type> types = new ArrayList<>();
+		types.add(method.getGenericReturnType());
+		types.addAll(Arrays.asList(method.getGenericParameterTypes()));
+		types.addAll(Arrays.asList(method.getGenericExceptionTypes()));
+		return types;
+	}
+
+	/**
+	 * @return true when the method either returns or takes generic parameters defined at class-level
+	 */
+	public boolean hasGenericFromClass() {
+		List<Type> types = getAllGenericTypes();
+		for(Type type : types) {
+			if(type instanceof TypeVariable<?>) {
+				TypeVariable<?> typed = (TypeVariable<?>) type;
+				if(typed.getGenericDeclaration() == method.getDeclaringClass())
+					return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * @return true if the method definition has generic parameters at method-level.
+	 */
+	public boolean hasGenericFromMethod() {
+		List<Type> types = getAllGenericTypes();
+		for(Type type : types) {
+			if(type instanceof TypeVariable<?>) {
+				TypeVariable<?> typed = (TypeVariable<?>) type;
+				if(typed.getGenericDeclaration() == method)
+					return true;
+			}
+		}
+		return false;
+	}
+
 	public Clazz<?> getReturnType() {
+		Class<?> declaringClass = method.getDeclaringClass();
+		Clazz<?> genericSuper = actualClass.findGenericSuper(declaringClass);
 		if(method.getGenericReturnType() instanceof TypeVariable) {
-			Class<?> declaringClass = method.getDeclaringClass();
-			Clazz<?> genericSuper = actualClass.findGenericSuper(declaringClass);
 
 			if(genericSuper.genericMap.containsKey(method.getGenericReturnType().getTypeName())) {
 				return genericSuper.genericMap.get(method.getGenericReturnType().getTypeName());
@@ -98,7 +138,7 @@ public class ClazzMethod {
 			return Clazz.of(method.getReturnType());
 		}
 
-		return Clazz.of(method.getGenericReturnType());
+		return Clazz.of(method.getGenericReturnType(), genericSuper.genericMap);
 	}
 
 	public Clazz<?> getDeclaringClazz() {
@@ -112,4 +152,6 @@ public class ClazzMethod {
 	public Access getAccess() {
 		return Access.of(method.getModifiers());
 	}
+
+
 }

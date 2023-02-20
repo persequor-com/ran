@@ -207,11 +207,21 @@ public class ClazzTest {
 	@Test
 	public void testManyLayersOfGenerics() {
 		Clazz<?> clazz = Clazz.of(MyArray.class);
+
+		clazz.methods().forEach(method -> {
+			// Check no exceptions are thrown
+			assertNotNull(method.getReturnType());
+		});
+
 		ClazzMethod addMethod = clazz.methods().find("add", boolean.class, String.class).orElseThrow(RuntimeException::new);
 		assertEquals(Clazz.of(String.class).clazz, addMethod.parameters().get(0).getBestEffortClazz().clazz);
 
 		ClazzMethod getMethod = clazz.methods().find("get", String.class, int.class).orElseThrow(RuntimeException::new);
 		assertEquals(Clazz.of(String.class).clazz, getMethod.getReturnType().clazz);
+
+		ClazzMethod sublistMethod = clazz.methods().find("subList", List.class, int.class, int.class).orElseThrow(RuntimeException::new);
+		assertEquals(Clazz.of(List.class).clazz, sublistMethod.getReturnType().clazz);
+		assertEquals(Clazz.of(String.class).clazz, sublistMethod.getReturnType().generics.get(0).clazz);
 	}
 
 

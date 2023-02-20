@@ -12,6 +12,7 @@ import io.ran.token.CamelHumpToken;
 import io.ran.token.Token;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
@@ -47,26 +48,33 @@ public class Clazz<T> {
 		throw new RuntimeException("Don't know what to do with type: " + type.getClass().getName());
 	}
 
-	public static Clazz ofSuper(Type superType, Clazz<?> child) {
-		if (superType instanceof ParameterizedType) {
-			ParameterizedType parameterizedType = ((ParameterizedType) superType);
+	public static Clazz of(Type type, Map<String,Clazz<?>> genericMap) {
+		if (type instanceof ParameterizedType) {
+			ParameterizedType parameterizedType = ((ParameterizedType) type);
 			List<Clazz> genericClasses = Arrays.stream(parameterizedType.getActualTypeArguments())
 					.map(t -> {
 						if(t instanceof TypeVariable<?>) {
-							return child.genericMap.get(((TypeVariable<?>)t).getName());
+							return genericMap.get(((TypeVariable<?>)t).getName());
 						} else {
 							return Clazz.of(t);
 						}
 					})
 					.collect(Collectors.toList());
 
-			return Clazz.ofClazzes((Class) ((ParameterizedType) superType).getRawType(), genericClasses);
-		} else if (superType instanceof Class) {
-			return Clazz.of((Class) superType);
-		} else if(superType instanceof TypeVariable<?>) {
-			return child.genericMap.get(((TypeVariable<?>)superType).getName());
+			return Clazz.ofClazzes((Class<?>) parameterizedType.getRawType(), genericClasses);
+		} else if (type instanceof Class) {
+			return Clazz.of((Class<?>) type);
+		} else if(type instanceof TypeVariable<?>) {
+			return genericMap.get(((TypeVariable<?>)type).getName());
+		} else if(type instanceof GenericArrayType) {
+			Clazz<?> arrType = genericMap.get(((GenericArrayType) type).getGenericComponentType().getTypeName());
+			if(arrType == null) {
+				// Fallback to Object[]
+				return Clazz.of(Object[].class);
+			}
+			throw new RuntimeException("Typed arrays not supported yet");
 		}
-		throw new RuntimeException("Don't know what to do with type: " + superType.getClass().getName());
+		throw new RuntimeException("Don't know what to do with type: " + type.getClass().getName());
 	}
 	public static Clazz getShort() {
 		return Clazz.of(short.class);
@@ -127,7 +135,7 @@ public class Clazz<T> {
 
 	public Clazz<?> getSuper() {
 		if (clazz.getGenericSuperclass() != null) {
-			return Clazz.ofSuper(clazz.getGenericSuperclass(), this);
+			return Clazz.of(clazz.getGenericSuperclass(), this.genericMap);
 		}
 		return Clazz.of(clazz.getSuperclass());
 	}
