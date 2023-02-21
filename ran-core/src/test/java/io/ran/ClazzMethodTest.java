@@ -4,6 +4,7 @@ import junit.framework.TestCase;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public class ClazzMethodTest extends TestCase {
 
@@ -80,6 +81,37 @@ public class ClazzMethodTest extends TestCase {
 		assertEquals(String.class, addMethod.getReturnType().generics.get(0).clazz);
 	}
 
+	@Test
+	public void testHasWildCard_nested() {
+		ClazzMethod addMethod = Clazz.of(GenericTesterImpl.class).methods().find("nestedWildcard", NestedSelf.class, NestedSelf.class).orElseThrow(RuntimeException::new);
+		assertFalse(addMethod.hasGenericFromClass());
+		assertTrue(addMethod.hasGenericFromMethod());
+		assertEquals(NestedSelf.class, addMethod.getReturnType().clazz);
+	}
+
+	@Test
+	public void testHasGenericFromClass_nested() {
+		ClazzMethod addMethod = Clazz.of(GenericTesterImpl.class).methods().find("nested1", NestedSelfSub.class, NestedSelfSub.class).orElseThrow(RuntimeException::new);
+		assertFalse(addMethod.hasGenericFromClass());
+		assertFalse(addMethod.hasGenericFromMethod());
+		Clazz<?> retType = addMethod.getReturnType();
+		assertEquals(3, retType.methods().size());
+		assertEquals(NestedSelfSub.class, retType.clazz);
+		//FIXME: assertEquals(NestedSelfSub.class, retType.generics.get(0).clazz);
+	}
+
+	@Test
+	public void testHasGenericFromMethod_nested() {
+		ClazzMethod addMethod = Clazz.of(GenericTesterImpl.class).methods().find("nested2", NestedSelf.class, NestedSelf.class).orElseThrow(RuntimeException::new);
+		assertFalse(addMethod.hasGenericFromClass());
+		assertTrue(addMethod.hasGenericFromMethod());
+		Clazz<?> retType = addMethod.getReturnType();
+		assertEquals(3, retType.methods().size());
+		assertEquals(NestedSelf.class, retType.clazz);
+		//FIXME: assertEquals(NestedSelf.class, retType.generics.get(0).clazz);
+	}
+
+
 	public static class GenericTester<T> {
 		public T method1(T input) { return null; }
 		public <T2> T2 method2(T2 input) { return null; }
@@ -90,9 +122,26 @@ public class ClazzMethodTest extends TestCase {
 		public <T2> List<T> mixed2(List<T2> input) { return null; }
 		public <T2 extends T> List<T2> mixed3(List<T2> input) { return null; }
 		public String method3(String input) { return null; }
+
+		public NestedSelf<?> nestedWildcard(NestedSelf<?> input) { return null; }
+		public NestedSelfSub nested1(NestedSelfSub input) { return null; }
+		public <T2 extends NestedSelf<T2>> T2 nested2(T2 input) { return null; }
 	}
 
 	public static class GenericTesterImpl extends GenericTester<String> {
 
 	}
+
+	public interface NestedSelf0<K0 extends NestedSelf0<K0>> extends Consumer<K0> {
+		K0 method(K0 input);
+	}
+
+	public interface NestedSelf<K extends NestedSelf<K>> extends NestedSelf0<K> {
+		K method(K input);
+	}
+
+	public interface NestedSelfSub extends NestedSelf<NestedSelfSub> {
+
+	}
+
 }

@@ -57,6 +57,17 @@ public class Clazz<T> {
 			if(genericMap.containsKey(tv.getName())) {
 				return genericMap.get(tv.getName());
 			}
+			if(tv.getGenericDeclaration() instanceof Class) {
+				// This is a way to break infinite loop when class generic extends itself
+				return Clazz.of((Class<?>)tv.getGenericDeclaration());
+				/*Map<String, Clazz<?>> genericMap2 = Clazz.of((Class) tv.getGenericDeclaration()).genericMap; //findGenericSuper()
+				if(genericMap2.containsKey(tv.getName())) {
+					return genericMap2.get(tv.getName());
+				}
+
+				 */
+			}
+			//System.out.println("tv.getBounds()[0]:"+tv.getBounds()[0]);
 			return Clazz.of(tv.getBounds()[0], genericMap);
 		} else if(type instanceof GenericArrayType) {
 			Clazz<?> arrType = genericMap.get(((GenericArrayType) type).getGenericComponentType().getTypeName());
