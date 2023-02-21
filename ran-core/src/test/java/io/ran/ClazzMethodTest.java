@@ -51,6 +51,9 @@ public class ClazzMethodTest extends TestCase {
 		assertFalse(addMethod.hasGenericFromMethod());
 		assertEquals(List.class, addMethod.getReturnType().clazz);
 		assertEquals(String.class, addMethod.getReturnType().generics.get(0).clazz);
+		Clazz<?> paramType = addMethod.parameters().get(0).getBestEffortClazz();
+		assertEquals(List.class, paramType.clazz);
+		assertEquals(String.class, paramType.generics.get(0).clazz);
 	}
 
 	@Test
@@ -61,6 +64,19 @@ public class ClazzMethodTest extends TestCase {
 		Clazz<?> retType = addMethod.getReturnType();
 		assertEquals(List.class, retType.clazz);
 		assertEquals(Object.class, retType.generics.get(0).clazz);
+	}
+
+	@Test
+	public void testParamNonGeneric() {
+		ClazzMethod addMethod = Clazz.of(GenericTesterImpl.class).methods().find("paramNonGeneric", List.class, List.class).orElseThrow(RuntimeException::new);
+		assertFalse(addMethod.hasGenericFromClass());
+		assertFalse(addMethod.hasGenericFromMethod());
+		Clazz<?> retType = addMethod.getReturnType();
+		assertEquals(List.class, retType.clazz);
+		assertEquals(String.class, retType.generics.get(0).clazz);
+		Clazz<?> paramType = addMethod.parameters().get(0).getBestEffortClazz();
+		assertEquals(List.class, paramType.clazz);
+		assertEquals(String.class, paramType.generics.get(0).clazz);
 	}
 
 	@Test
@@ -122,6 +138,7 @@ public class ClazzMethodTest extends TestCase {
 		public <T2> List<T> mixed2(List<T2> input) { return null; }
 		public <T2 extends T> List<T2> mixed3(List<T2> input) { return null; }
 		public String method3(String input) { return null; }
+		public List<String> paramNonGeneric(List<String>  input) { return null; }
 
 		public NestedSelf<?> nestedWildcard(NestedSelf<?> input) { return null; }
 		public NestedSelfSub nested1(NestedSelfSub input) { return null; }

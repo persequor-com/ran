@@ -19,15 +19,10 @@ public class ClazzMethodParameter {
 
 	public ClazzMethodParameter(Clazz<?> actualClass, Method method, Parameter p) {
 		this.name = p.getName();
-		if (p.getParameterizedType() instanceof TypeVariable) {
-			Class<?> declaringClass = method.getDeclaringClass();
-			Clazz<?> genericSuper = actualClass.findGenericSuper(declaringClass);
-
-			this.genericClazz = genericSuper.genericMap.get(p.getParameterizedType().getTypeName());
-		} else {
-			this.genericClazz = null;
-		}
 		this.clazz = Clazz.of(p.getType());
+		Class<?> declaringClass = method.getDeclaringClass();
+		Clazz<?> genericSuper = actualClass.findGenericSuper(declaringClass);
+		this.genericClazz = Clazz.of(p.getParameterizedType(), genericSuper.genericMap);
 	}
 
 	public String getName() {
