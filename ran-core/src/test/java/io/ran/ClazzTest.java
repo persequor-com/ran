@@ -197,8 +197,8 @@ public class ClazzTest {
 	@Test
 	public void testGenericMethodOfReturnType() {
 		Clazz<?> clazz = Clazz.of(MyArrayParent.class);
-		assertEquals(1, clazz.methods().size());
-		ClazzMethod method = clazz.methods().stream().findFirst().orElseThrow(RuntimeException::new);
+		assertEquals(2, clazz.methods().size());
+		ClazzMethod method = clazz.methods().stream().filter(m->m.getName().equals("getArray")).findFirst().orElseThrow(RuntimeException::new);
 		Clazz<?> retType = method.getReturnType();
 		ClazzMethod addMethod = retType.methods().find("add", boolean.class, String.class).orElseThrow(RuntimeException::new);
 		assertEquals(Clazz.of(String.class).clazz, addMethod.parameters().get(0).getBestEffortClazz().clazz);
@@ -224,6 +224,14 @@ public class ClazzTest {
 		assertEquals(Clazz.of(String.class).clazz, sublistMethod.getReturnType().generics.get(0).clazz);
 	}
 
+	@Test
+	public void testNonGenericMethodReturnType() {
+		Clazz<?> clazz = Clazz.of(MyArrayParent.class);
+		assertEquals(2, clazz.methods().size());
+		ClazzMethod addMethod = clazz.methods().find("nonGenericMethod", String.class, int.class).orElseThrow(RuntimeException::new);
+		assertEquals(Clazz.of(String.class).clazz, addMethod.getReturnType().clazz);
+		assertEquals(Clazz.of(int.class).clazz, addMethod.parameters().get(0).getBestEffortClazz().clazz);
+	}
 
 
 	public static class RelationFrom {
@@ -504,6 +512,8 @@ public class ClazzTest {
 		public MyArray getArray() {
 			return new MyArray();
 		}
+
+		public String nonGenericMethod(int input) { return "Hello"; }
 	}
 
 	public static class Super0<T> {
