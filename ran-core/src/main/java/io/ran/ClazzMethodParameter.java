@@ -22,7 +22,12 @@ public class ClazzMethodParameter {
 		this.clazz = Clazz.of(p.getType());
 		Class<?> declaringClass = method.getDeclaringClass();
 		Clazz<?> genericSuper = actualClass.findGenericSuper(declaringClass);
-		this.genericClazz = Clazz.of(p.getParameterizedType(), genericSuper.genericMap);
+		if(p.getParameterizedType() != p.getType()) {
+			Clazz<?> tmp = Clazz.of(p.getParameterizedType(), genericSuper.genericMap);
+			this.genericClazz = !clazz.clazz.equals(tmp.clazz) || tmp.generics.size() > 0 ? tmp : null;
+		} else {
+			this.genericClazz = null;
+		}
 	}
 
 	public String getName() {
