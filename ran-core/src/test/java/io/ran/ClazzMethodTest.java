@@ -51,7 +51,7 @@ public class ClazzMethodTest extends TestCase {
 		assertFalse(addMethod.hasGenericFromMethod());
 		assertEquals(List.class, addMethod.getReturnType().clazz);
 		assertEquals(String.class, addMethod.getReturnType().generics.get(0).clazz);
-		Clazz<?> paramType = addMethod.parameters().get(0).getBestEffortClazz();
+		Clazz<?> paramType = addMethod.parameters().get(0).getClazz();
 		assertEquals(List.class, paramType.clazz);
 		assertEquals(String.class, paramType.generics.get(0).clazz);
 	}
@@ -74,7 +74,7 @@ public class ClazzMethodTest extends TestCase {
 		Clazz<?> retType = addMethod.getReturnType();
 		assertEquals(List.class, retType.clazz);
 		assertEquals(String.class, retType.generics.get(0).clazz);
-		Clazz<?> paramType = addMethod.parameters().get(0).getBestEffortClazz();
+		Clazz<?> paramType = addMethod.parameters().get(0).getClazz();
 		assertEquals(List.class, paramType.clazz);
 		assertEquals(String.class, paramType.generics.get(0).clazz);
 	}

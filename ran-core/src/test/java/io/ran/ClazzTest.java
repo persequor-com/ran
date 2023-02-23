@@ -125,8 +125,7 @@ public class ClazzTest {
 		Clazz<?> clazz = Clazz.of(GenericImpl.class);
 		assertEquals(Clazz.of(String.class), clazz.getSuper().generics.get(0));
 		ClazzMethod method = clazz.methods().stream().filter(m -> m.getName().equals("method")).findFirst().get();
-		assertEquals(Clazz.of(Object.class), method.parameters().get(0).getClazz());
-		assertEquals(Clazz.of(String.class), method.parameters().get(0).getGenericClazz());
+		assertEquals(Clazz.of(String.class), method.parameters().get(0).getClazz());
 	}
 
 	@Test
@@ -134,8 +133,7 @@ public class ClazzTest {
 		Clazz<?> clazz = Clazz.of(GenericImpl.class);
 		assertEquals(Clazz.of(String.class), clazz.getSuper().generics.get(0));
 		ClazzMethod method = clazz.methods().stream().filter(m -> m.getName().equals("method")).findFirst().get();
-		assertEquals(Clazz.of(Object.class), method.parameters().get(0).getClazz());
-		assertEquals(Clazz.of(String.class), method.parameters().get(0).getGenericClazz());
+		assertEquals(Clazz.of(String.class), method.parameters().get(0).getClazz());
 	}
 
 	@Test
@@ -144,7 +142,6 @@ public class ClazzTest {
 		assertEquals(0, clazz.generics.size());
 		ClazzMethod method = clazz.methods().stream().filter(m -> m.getName().equals("method")).findFirst().get();
 		assertEquals(Clazz.of(Object.class), method.parameters().get(0).getClazz());
-		assertNull(method.parameters().get(0).getGenericClazz());
 	}
 
 	@Test
@@ -153,7 +150,6 @@ public class ClazzTest {
 		assertEquals(0, clazz.generics.size());
 		ClazzMethod method = clazz.methods().stream().filter(m -> m.getName().equals("method")).findFirst().get();
 		assertEquals(Clazz.of(Object.class), method.parameters().get(0).getClazz());
-		assertNull(method.parameters().get(0).getGenericClazz());
 	}
 
 	@Test
@@ -162,7 +158,6 @@ public class ClazzTest {
 		assertEquals(0, clazz.generics.size());
 		assertEquals(2, clazz.methods().size());
 		ClazzMethod method = clazz.methods().stream().filter(m -> m.getName().equals("method")).findFirst().get();
-		assertEquals(Clazz.of(String.class).clazz, method.parameters().get(0).getGenericClazz().clazz);
 		ClazzMethod method2 = clazz.methods().find("method2", String.class, int.class).orElseThrow(RuntimeException::new);
 		assertEquals(Clazz.of(String.class).clazz, method2.getReturnType().clazz);	}
 
@@ -172,7 +167,6 @@ public class ClazzTest {
 		assertEquals(0, clazz.generics.size());
 		assertEquals(2, clazz.methods().size());
 		ClazzMethod method = clazz.methods().stream().filter(m -> m.getName().equals("method")).findFirst().get();
-		assertEquals(Clazz.of(String.class).clazz, method.parameters().get(0).getGenericClazz().clazz);
 		ClazzMethod method2 = clazz.methods().find("method2", String.class, int.class).orElseThrow(RuntimeException::new);
 		assertEquals(Clazz.of(String.class).clazz, method2.getReturnType().clazz);
 	}
@@ -183,7 +177,7 @@ public class ClazzTest {
 		assertEquals(0, clazz.generics.size());
 		assertEquals(2, clazz.methods().size());
 		ClazzMethod method = clazz.methods().find("method", void.class, String.class).orElseThrow(RuntimeException::new);
-		assertEquals(Clazz.of(String.class).clazz, method.parameters().get(0).getBestEffortClazz().clazz);
+		assertEquals(Clazz.of(String.class).clazz, method.parameters().get(0).getClazz().clazz);
 		ClazzMethod method2 = clazz.methods().find("method2", String.class, int.class).orElseThrow(RuntimeException::new);
 		assertEquals(Clazz.of(String.class).clazz, method2.getReturnType().clazz);
 	}
@@ -201,7 +195,7 @@ public class ClazzTest {
 		ClazzMethod method = clazz.methods().stream().filter(m->m.getName().equals("getArray")).findFirst().orElseThrow(RuntimeException::new);
 		Clazz<?> retType = method.getReturnType();
 		ClazzMethod addMethod = retType.methods().find("add", boolean.class, String.class).orElseThrow(RuntimeException::new);
-		assertEquals(Clazz.of(String.class).clazz, addMethod.parameters().get(0).getBestEffortClazz().clazz);
+		assertEquals(Clazz.of(String.class).clazz, addMethod.parameters().get(0).getClazz().clazz);
 	}
 
 	@Test
@@ -214,7 +208,7 @@ public class ClazzTest {
 		});
 
 		ClazzMethod addMethod = clazz.methods().find("add", boolean.class, String.class).orElseThrow(RuntimeException::new);
-		assertEquals(Clazz.of(String.class).clazz, addMethod.parameters().get(0).getBestEffortClazz().clazz);
+		assertEquals(Clazz.of(String.class).clazz, addMethod.parameters().get(0).getClazz().clazz);
 
 		ClazzMethod getMethod = clazz.methods().find("get", String.class, int.class).orElseThrow(RuntimeException::new);
 		assertEquals(Clazz.of(String.class).clazz, getMethod.getReturnType().clazz);
@@ -230,7 +224,7 @@ public class ClazzTest {
 		assertEquals(2, clazz.methods().size());
 		ClazzMethod addMethod = clazz.methods().find("nonGenericMethod", String.class, int.class).orElseThrow(RuntimeException::new);
 		assertEquals(Clazz.of(String.class).clazz, addMethod.getReturnType().clazz);
-		assertEquals(Clazz.of(int.class).clazz, addMethod.parameters().get(0).getBestEffortClazz().clazz);
+		assertEquals(Clazz.of(int.class).clazz, addMethod.parameters().get(0).getClazz().clazz);
 	}
 
 

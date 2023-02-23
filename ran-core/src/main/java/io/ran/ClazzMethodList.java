@@ -29,7 +29,7 @@ public class ClazzMethodList extends ArrayList<ClazzMethod> {
 				return false;
 			}
 			for (int i = 0; i < cm.parameters().size(); i++) {
-				if (!cm.parameters().get(i).getBestEffortClazz().clazz.equals(parameterTypes.get(i))) {
+				if (!cm.parameters().get(i).getClazz().clazz.equals(parameterTypes.get(i))) {
 					return false;
 				}
 			}

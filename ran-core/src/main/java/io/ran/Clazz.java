@@ -63,8 +63,8 @@ public class Clazz<T> {
 			if(bounds.length == 1
 					&& bounds[0] instanceof ParameterizedType) {
 				ParameterizedType bpt = (ParameterizedType) bounds[0];
-				if(bpt.getActualTypeArguments().length == 1
-						&& bpt.getActualTypeArguments()[0] == tv) {
+				if(bpt.getActualTypeArguments().length == 1/*
+						&& bpt.getActualTypeArguments()[0] == tv*/) {
 					return Clazz.of(bpt.getRawType(), genericMap);
 				}
 			}

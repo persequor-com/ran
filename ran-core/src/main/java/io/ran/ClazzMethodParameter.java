@@ -10,24 +10,16 @@ package io.ran;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.lang.reflect.TypeVariable;
 
 public class ClazzMethodParameter {
 	private final String name;
 	private final Clazz clazz;
-	private final Clazz genericClazz;
 
 	public ClazzMethodParameter(Clazz<?> actualClass, Method method, Parameter p) {
 		this.name = p.getName();
-		this.clazz = Clazz.of(p.getType());
 		Class<?> declaringClass = method.getDeclaringClass();
 		Clazz<?> genericSuper = actualClass.findGenericSuper(declaringClass);
-		if(p.getParameterizedType() != p.getType()) {
-			Clazz<?> tmp = Clazz.of(p.getParameterizedType(), genericSuper.genericMap);
-			this.genericClazz = !clazz.clazz.equals(tmp.clazz) || tmp.generics.size() > 0 ? tmp : null;
-		} else {
-			this.genericClazz = null;
-		}
+		clazz = Clazz.of(p.getParameterizedType(), genericSuper.genericMap);
 	}
 
 	public String getName() {
@@ -40,13 +32,5 @@ public class ClazzMethodParameter {
 
 	public boolean matches(Class arg) {
 		return arg.equals(clazz.clazz);
-	}
-
-	public Clazz getGenericClazz() {
-		return genericClazz;
-	}
-
-	public Clazz getBestEffortClazz() {
-		return genericClazz != null ? genericClazz : clazz;
 	}
 }
