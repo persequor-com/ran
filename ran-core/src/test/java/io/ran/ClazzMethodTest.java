@@ -3,6 +3,7 @@ package io.ran;
 import junit.framework.TestCase;
 import org.junit.Test;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -106,6 +107,18 @@ public class ClazzMethodTest extends TestCase {
 	}
 
 	@Test
+	public void testHasBoundWildCard_nested() throws InvocationTargetException, IllegalAccessException {
+		ClazzMethod addMethod = Clazz.of(GenericTesterImpl.class).methods().find("nestedBoundWildcard", NestedSelf.class, NestedSelf.class).orElseThrow(RuntimeException::new);
+		assertFalse(addMethod.hasGenericFromClass());
+		assertTrue(addMethod.hasGenericFromMethod());
+		assertEquals(NestedSelf.class, addMethod.getReturnType().clazz);
+		// Try calling the method, to verify that the types actually works at runtime
+		NestedSelf<?> ns = new NestedSelfImpl<>();
+		Object actual = addMethod.getMethod().invoke(new GenericTesterImpl(), ns);
+		assertSame(ns, actual);
+	}
+
+	@Test
 	public void testHasGenericFromClass_nested() {
 		ClazzMethod addMethod = Clazz.of(GenericTesterImpl.class).methods().find("nested1", NestedSelfSub.class, NestedSelfSub.class).orElseThrow(RuntimeException::new);
 		assertFalse(addMethod.hasGenericFromClass());
@@ -141,6 +154,8 @@ public class ClazzMethodTest extends TestCase {
 		public List<String> paramNonGeneric(List<String>  input) { return null; }
 
 		public NestedSelf<?> nestedWildcard(NestedSelf<?> input) { return null; }
+
+		public NestedSelf<? extends NestedSelf<?>> nestedBoundWildcard(NestedSelf<? extends NestedSelf<?>> input) { return input; }
 		public NestedSelfSub nested1(NestedSelfSub input) { return null; }
 		public <T2 extends NestedSelf<T2>> T2 nested2(T2 input) { return null; }
 	}
@@ -159,6 +174,19 @@ public class ClazzMethodTest extends TestCase {
 
 	public interface NestedSelfSub extends NestedSelf<NestedSelfSub> {
 
+	}
+
+	public static class NestedSelfImpl<T extends NestedSelf<T>> implements NestedSelf<T> {
+
+		@Override
+		public T method(T input) {
+			return null;
+		}
+
+		@Override
+		public void accept(T nestedSelf) {
+
+		}
 	}
 
 }
