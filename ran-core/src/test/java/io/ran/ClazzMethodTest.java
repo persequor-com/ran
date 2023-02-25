@@ -92,11 +92,20 @@ public class ClazzMethodTest extends TestCase {
 
 	@Test
 	public void testHasBothGenericFromMethodAndClass_parameterizedWithClosure() {
+		// 		public <T2 extends T> List<T2> mixed3(List<T2> input) { return null; }
 		ClazzMethod addMethod = Clazz.of(GenericTesterImpl.class).methods().find("mixed3", List.class, List.class).orElseThrow(RuntimeException::new);
 		assertFalse(addMethod.hasGenericFromClass());
 		assertTrue(addMethod.hasGenericFromMethod());
-		assertEquals(List.class, addMethod.getReturnType().clazz);
-		assertEquals(String.class, addMethod.getReturnType().generics.get(0).clazz);
+
+		Clazz<?> retType = addMethod.getReturnType();
+		assertEquals(List.class, retType.clazz);
+		assertEquals(1, retType.generics.size());
+		assertEquals(String.class, retType.generics.get(0).clazz);
+
+		Clazz<?> paramType = addMethod.parameters().get(0).getClazz();
+		assertEquals(List.class, paramType.clazz);
+		assertEquals(1, paramType.generics.size());
+		assertEquals(String.class, paramType.generics.get(0).clazz);
 	}
 
 	@Test
@@ -109,10 +118,22 @@ public class ClazzMethodTest extends TestCase {
 
 	@Test
 	public void testHasBoundWildCard_nested() throws InvocationTargetException, IllegalAccessException {
+		// public NestedSelf<? extends NestedSelf<?>> nestedBoundWildcard(NestedSelf<? extends NestedSelf<?>> input) { return input; }
 		ClazzMethod addMethod = Clazz.of(GenericTesterImpl.class).methods().find("nestedBoundWildcard", NestedSelf.class, NestedSelf.class).orElseThrow(RuntimeException::new);
 		assertFalse(addMethod.hasGenericFromClass());
 		assertTrue(addMethod.hasGenericFromMethod());
-		assertEquals(NestedSelf.class, addMethod.getReturnType().clazz);
+
+
+		Clazz<?> retType = addMethod.getReturnType();
+		assertEquals(NestedSelf.class, retType.clazz);
+		assertEquals(1, retType.generics.size());
+		assertEquals(NestedSelf.class, retType.generics.get(0).clazz);
+
+		Clazz<?> paramType = addMethod.parameters().get(0).getClazz();
+		assertEquals(NestedSelf.class, paramType.clazz);
+		assertEquals(1, paramType.generics.size());
+		assertEquals(NestedSelf.class, paramType.generics.get(0).clazz);
+
 		// Try calling the method, to verify that the types actually works at runtime
 		NestedSelf<?> ns = new NestedSelfImpl<>();
 		Object actual = addMethod.getMethod().invoke(new GenericTesterImpl(), ns);

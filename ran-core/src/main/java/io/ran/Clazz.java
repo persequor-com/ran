@@ -66,11 +66,12 @@ public class Clazz<T> {
 				if(bpt.getActualTypeArguments().length == 1) {
 					Type tv2 = bpt.getActualTypeArguments()[0];
 					if(tv == tv2) {
-						return Clazz.of(bpt.getRawType(), genericMap);
+						return Clazz.ofClazzes((Class)bpt.getRawType(), Clazz.of((Class)bpt.getRawType()));
+						//return Clazz.of(bpt.getRawType(), genericMap);
 					} else if((tv2 instanceof WildcardType)
 							&& ((WildcardType)tv2).getLowerBounds().length == 1
-							&& ((WildcardType)tv2).getLowerBounds()[0] == tv){
-						return Clazz.ofClazzes((Class)bpt.getRawType(), Clazz.of(bpt.getRawType()));
+							&& ((WildcardType)tv2).getLowerBounds()[0] == tv) {
+						return Clazz.ofClazzes((Class)bpt.getRawType(), Clazz.of((Class)bpt.getRawType()));
 					} else {
 						System.out.println("Not same type: "+tv+" and "+tv2);
 					}
