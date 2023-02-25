@@ -139,7 +139,8 @@ public class ClazzTest {
 	@Test
 	public void classWithGenericArgument() {
 		Clazz<?> clazz = Clazz.of(GenericClass.class);
-		assertEquals(0, clazz.generics.size());
+		assertEquals(1, clazz.generics.size());
+		assertEquals(Object.class, clazz.generics.get(0).clazz);
 		ClazzMethod method = clazz.methods().stream().filter(m -> m.getName().equals("method")).findFirst().get();
 		assertEquals(Clazz.of(Object.class), method.parameters().get(0).getClazz());
 	}
@@ -147,7 +148,8 @@ public class ClazzTest {
 	@Test
 	public void interfaceWithGenericArgument() {
 		Clazz<?> clazz = Clazz.of(GenericInterface.class);
-		assertEquals(0, clazz.generics.size());
+		assertEquals(1, clazz.generics.size());
+		assertEquals(Object.class, clazz.generics.get(0).clazz);
 		ClazzMethod method = clazz.methods().stream().filter(m -> m.getName().equals("method")).findFirst().get();
 		assertEquals(Clazz.of(Object.class), method.parameters().get(0).getClazz());
 	}

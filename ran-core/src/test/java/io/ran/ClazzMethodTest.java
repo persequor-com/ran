@@ -241,7 +241,10 @@ public class ClazzMethodTest extends TestCase {
 
 	@Test
 	public void testICassandraEventsQuery_ReturnCase() {
-		ClazzMethod addMethod = Clazz.of(ICassandraEventsQuery.class).methods().find("byMatchParentID", GenericTester.class, Collection.class).orElseThrow(RuntimeException::new);
+
+		Clazz<?> c = Clazz.of(ICassandraEventsQuery.class);
+		Clazz<?> s = c.findGenericSuper(ICassandraEventsQuery.class);
+		ClazzMethod addMethod = c.methods().find("byMatchParentID", GenericTester.class, Collection.class).orElseThrow(RuntimeException::new);
 		assertTrue(addMethod.hasGenericFromClass());
 		assertFalse(addMethod.hasGenericFromMethod());
 		Clazz<?> retType = addMethod.getReturnType();

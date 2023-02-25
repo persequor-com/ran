@@ -10,6 +10,7 @@ package io.ran;
 
 import io.ran.token.CamelHumpToken;
 import io.ran.token.Token;
+import sun.reflect.generics.repository.ClassRepository;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
@@ -51,7 +52,8 @@ public class Clazz<T> {
 
 			return Clazz.ofClazzes((Class<?>) parameterizedType.getRawType(), genericClasses);
 		} else if (type instanceof Class) {
-			return Clazz.of((Class<?>) type);
+			return new Clazz((Class<?>) type);
+			//return Clazz.of((Class<?>) type);
 		} else if(type instanceof TypeVariable<?>) {
 			TypeVariable<?> tv = (TypeVariable<?>) type;
 			if(genericMap.containsKey(tv.getName())) {
@@ -66,12 +68,12 @@ public class Clazz<T> {
 				if(bpt.getActualTypeArguments().length == 1) {
 					Type tv2 = bpt.getActualTypeArguments()[0];
 					if(tv == tv2) {
-						return Clazz.ofClazzes((Class)bpt.getRawType(), Clazz.of((Class)bpt.getRawType()));
+						return Clazz.ofClazzes((Class)bpt.getRawType(), new Clazz((Class)bpt.getRawType()));
 						//return Clazz.of(bpt.getRawType(), genericMap);
 					} else if((tv2 instanceof WildcardType)
 							&& ((WildcardType)tv2).getLowerBounds().length == 1
 							&& ((WildcardType)tv2).getLowerBounds()[0] == tv) {
-						return Clazz.ofClazzes((Class)bpt.getRawType(), Clazz.of((Class)bpt.getRawType()));
+						return Clazz.ofClazzes((Class)bpt.getRawType(), new Clazz((Class)bpt.getRawType()));
 					} else {
 						System.out.println("Not same type: "+tv+" and "+tv2);
 					}
@@ -204,7 +206,31 @@ public class Clazz<T> {
 	}
 
 	public static Clazz of(Class clazz) {
+		if(clazz != null) {
+			// Do Something
+			ClassRepository info = getGenericInfo(clazz);
+			if(info != null) {
+				return Clazz.ofClazzes(clazz, Stream.of(info.getTypeParameters()).map(Clazz::of).collect(Collectors.toList()));
+			}
+		}
 		return new Clazz(clazz);
+	}
+
+	private static ClassRepository getGenericInfo(Class clazz) {
+		try {
+			Method getGenericInfoMethod = Class.class.getDeclaredMethod("getGenericInfo");
+			getGenericInfoMethod.setAccessible(true);
+			return (ClassRepository) getGenericInfoMethod.invoke(clazz);
+			/*
+			if (info != null) {
+				Method treeMethod = info.getClass().getMethod("getTree");
+				Object tree = treeMethod.invoke(info);
+			}
+			genericInfo.setAccessible(false);
+			 */
+		} catch (Exception e) {
+			return null;
+		}
 	}
 
 	public static Clazz ofClazzes(Class clazz, Clazz<?>... generics) {
