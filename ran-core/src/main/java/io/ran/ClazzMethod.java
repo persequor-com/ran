@@ -141,6 +141,7 @@ public class ClazzMethod {
 	public Clazz<?> getReturnType() {
 		Class<?> declaringClass = method.getDeclaringClass();
 		Clazz<?> genericSuper = actualClass.findGenericSuper(declaringClass);
+		/*
 		if(method.getGenericReturnType() instanceof TypeVariable) {
 
 			if(genericSuper.genericMap.containsKey(method.getGenericReturnType().getTypeName())) {
@@ -149,6 +150,7 @@ public class ClazzMethod {
 			// Fall back to Object...
 			return Clazz.of(method.getReturnType());
 		}
+		 */
 
 		return Clazz.of(method.getGenericReturnType(), genericSuper.genericMap);
 	}

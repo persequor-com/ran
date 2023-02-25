@@ -4,6 +4,7 @@ import junit.framework.TestCase;
 import org.junit.Test;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -232,6 +233,21 @@ public class ClazzMethodTest extends TestCase {
 		public void accept(T nestedSelf) {
 
 		}
+	}
+
+	public interface ICassandraEventsQuery<T extends GenericTester<T>> {
+		T byMatchParentID(Collection<String> epcs);
+	}
+
+	@Test
+	public void testICassandraEventsQuery_ReturnCase() {
+		ClazzMethod addMethod = Clazz.of(ICassandraEventsQuery.class).methods().find("byMatchParentID", GenericTester.class, Collection.class).orElseThrow(RuntimeException::new);
+		assertTrue(addMethod.hasGenericFromClass());
+		assertFalse(addMethod.hasGenericFromMethod());
+		Clazz<?> retType = addMethod.getReturnType();
+		assertEquals(GenericTester.class, retType.clazz);
+		assertEquals(1, retType.generics.size());
+		assertEquals(GenericTester.class, retType.generics.get(0).clazz);
 	}
 
 }
