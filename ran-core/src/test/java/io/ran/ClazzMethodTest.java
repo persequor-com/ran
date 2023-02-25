@@ -6,6 +6,7 @@ import org.junit.Test;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class ClazzMethodTest extends TestCase {
 
@@ -124,7 +125,7 @@ public class ClazzMethodTest extends TestCase {
 		assertFalse(addMethod.hasGenericFromClass());
 		assertFalse(addMethod.hasGenericFromMethod());
 		Clazz<?> retType = addMethod.getReturnType();
-		assertEquals(3, retType.methods().size());
+		assertEquals(4, retType.methods().size());
 		assertEquals(NestedSelfSub.class, retType.clazz);
 		//FIXME: assertEquals(NestedSelfSub.class, retType.generics.get(0).clazz);
 	}
@@ -138,6 +139,29 @@ public class ClazzMethodTest extends TestCase {
 		assertEquals(3, retType.methods().size());
 		assertEquals(NestedSelf.class, retType.clazz);
 		//FIXME: assertEquals(NestedSelf.class, retType.generics.get(0).clazz);
+	}
+
+	@Test
+	public void testGenericSuperWildcard() {
+		// 		<U extends Comparable<? super U>> NestedSelfSub orderBy(Function<String, U> sortingKeyExtractor);
+		ClazzMethod addMethod = Clazz.of(NestedSelfSub.class).methods().find("orderBy", NestedSelfSub.class, Function.class).orElseThrow(RuntimeException::new);
+		assertFalse(addMethod.hasGenericFromClass());
+		assertTrue(addMethod.hasGenericFromMethod());
+		Clazz<?> retType = addMethod.getReturnType();
+		assertEquals(NestedSelfSub.class, retType.clazz);
+
+		Clazz<?> paramType = addMethod.parameters().get(0).getClazz();
+		assertEquals(Function.class, paramType.clazz);
+		assertEquals(2, paramType.generics.size());
+		assertEquals(String.class, paramType.generics.get(0).clazz);
+		assertEquals(Comparable.class, paramType.generics.get(1).clazz);
+
+		Clazz<?> compType = paramType.generics.get(1);
+		assertEquals(1, compType.generics.size());
+		assertEquals(Comparable.class, compType.generics.get(0).clazz);
+
+		Clazz<?> compType2 = compType.generics.get(0);
+		assertEquals(0, compType2.generics.size());
 	}
 
 
@@ -173,7 +197,7 @@ public class ClazzMethodTest extends TestCase {
 	}
 
 	public interface NestedSelfSub extends NestedSelf<NestedSelfSub> {
-
+		<U extends Comparable<? super U>> NestedSelfSub orderBy(Function<String, U> sortingKeyExtractor);
 	}
 
 	public static class NestedSelfImpl<T extends NestedSelf<T>> implements NestedSelf<T> {
