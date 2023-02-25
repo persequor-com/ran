@@ -235,22 +235,42 @@ public class ClazzMethodTest extends TestCase {
 		}
 	}
 
-	public interface ICassandraEventsQuery<T extends GenericTester<T>> {
-		T byMatchParentID(Collection<String> epcs);
+	public interface ICassandraEventsQuery<P extends NestedSelf<P>> {
+		P byMatchParentID(Collection<String> epcs);
 	}
 
 	@Test
 	public void testICassandraEventsQuery_ReturnCase() {
-
 		Clazz<?> c = Clazz.of(ICassandraEventsQuery.class);
-		Clazz<?> s = c.findGenericSuper(ICassandraEventsQuery.class);
-		ClazzMethod addMethod = c.methods().find("byMatchParentID", GenericTester.class, Collection.class).orElseThrow(RuntimeException::new);
+		ClazzMethod addMethod = c.methods().find("byMatchParentID", NestedSelf.class, Collection.class).orElseThrow(RuntimeException::new);
 		assertTrue(addMethod.hasGenericFromClass());
 		assertFalse(addMethod.hasGenericFromMethod());
 		Clazz<?> retType = addMethod.getReturnType();
-		assertEquals(GenericTester.class, retType.clazz);
+		assertEquals(NestedSelf.class, retType.clazz);
 		assertEquals(1, retType.generics.size());
-		assertEquals(GenericTester.class, retType.generics.get(0).clazz);
+		assertEquals(NestedSelf.class, retType.generics.get(0).clazz);
 	}
 
+	public interface IEventService {
+		ICassandraEventsQuery<?> cassandraQuery();
+	}
+
+	@Test
+	public void testICassandraEventsQuery_ReturnCase_fromWildCard() {
+		Clazz<?> parent = Clazz.of(IEventService.class);
+		ClazzMethod pMethod = parent.methods().find("cassandraQuery", ICassandraEventsQuery.class).orElseThrow(RuntimeException::new);
+
+
+		Clazz<?> c = pMethod.getReturnType();
+		assertEquals(1, c.generics.size());
+		assertEquals(NestedSelf.class, c.generics.get(0).clazz);
+
+		ClazzMethod addMethod = c.methods().find("byMatchParentID", NestedSelf.class, Collection.class).orElseThrow(RuntimeException::new);
+		assertTrue(addMethod.hasGenericFromClass());
+		assertFalse(addMethod.hasGenericFromMethod());
+		Clazz<?> retType = addMethod.getReturnType();
+		assertEquals(NestedSelf.class, retType.clazz);
+		assertEquals(1, retType.generics.size());
+		assertEquals(NestedSelf.class, retType.generics.get(0).clazz);
+	}
 }

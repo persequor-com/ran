@@ -10,7 +10,6 @@ package io.ran;
 
 import io.ran.token.CamelHumpToken;
 import io.ran.token.Token;
-import sun.reflect.generics.repository.ClassRepository;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
@@ -49,6 +48,16 @@ public class Clazz<T> {
 			List<Clazz> genericClasses = Arrays.stream(parameterizedType.getActualTypeArguments())
 					.map(t -> Clazz.of(t, genericMap))
 					.collect(Collectors.toList());
+			// Lift the generics to the most specific (based on bounds)
+			Clazz<?> rawClazz = Clazz.of((Class) ((ParameterizedType) type).getRawType());
+			if(genericClasses.size() == rawClazz.generics.size()) {
+				for(int i = 0; i < genericClasses.size(); i++) {
+					genericClasses.set(i, getMostSpecific(genericClasses.get(i), rawClazz.generics.get(i)));
+				}
+			} else {
+				// Not so good..
+				System.err.println("Not the same number of generics: "+parameterizedType+" and "+rawClazz);
+			}
 
 			return Clazz.ofClazzes((Class<?>) parameterizedType.getRawType(), genericClasses);
 		} else if (type instanceof Class) {
@@ -83,6 +92,7 @@ public class Clazz<T> {
 				throw new RuntimeException("Unsupported number of "+tv.getName()+".bounds() 1 != "+tv.getBounds().length+" in "+tv.getGenericDeclaration());
 			}
 
+			System.out.println("tv.getBounds()[0]:"+tv.getBounds()[0]);
 			return Clazz.of(tv.getBounds()[0], genericMap);
 		} else if(type instanceof GenericArrayType) {
 			Clazz<?> arrType = genericMap.get(((GenericArrayType) type).getGenericComponentType().getTypeName());
@@ -100,6 +110,16 @@ public class Clazz<T> {
 		}
 		throw new RuntimeException("Don't know what to do with type: " + type.getClass().getName());
 	}
+
+	private static Clazz<?> getMostSpecific(Clazz<?> c1, Clazz<?> c2) {
+		if(c1.clazz.isAssignableFrom(c2.clazz)) {
+			return c2;
+		} else if(c2.clazz.isAssignableFrom(c1.clazz)) {
+			return c1;
+		}
+		throw new RuntimeException("Not compatible: "+c1.clazz+" and "+c2.clazz);
+	}
+
 	public static Clazz getShort() {
 		return Clazz.of(short.class);
 	}
@@ -207,30 +227,9 @@ public class Clazz<T> {
 
 	public static Clazz of(Class clazz) {
 		if(clazz != null) {
-			// Do Something
-			ClassRepository info = getGenericInfo(clazz);
-			if(info != null) {
-				return Clazz.ofClazzes(clazz, Stream.of(info.getTypeParameters()).map(Clazz::of).collect(Collectors.toList()));
-			}
+			return Clazz.ofClazzes(clazz, Stream.of(clazz.getTypeParameters()).map(Clazz::of).collect(Collectors.toList()));
 		}
 		return new Clazz(clazz);
-	}
-
-	private static ClassRepository getGenericInfo(Class clazz) {
-		try {
-			Method getGenericInfoMethod = Class.class.getDeclaredMethod("getGenericInfo");
-			getGenericInfoMethod.setAccessible(true);
-			return (ClassRepository) getGenericInfoMethod.invoke(clazz);
-			/*
-			if (info != null) {
-				Method treeMethod = info.getClass().getMethod("getTree");
-				Object tree = treeMethod.invoke(info);
-			}
-			genericInfo.setAccessible(false);
-			 */
-		} catch (Exception e) {
-			return null;
-		}
 	}
 
 	public static Clazz ofClazzes(Class clazz, Clazz<?>... generics) {
