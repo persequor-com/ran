@@ -186,6 +186,24 @@ public class Clazz<T> {
 		return clazz.isPrimitive();
 	}
 
+	public boolean isArray() {
+		return clazz.isArray();
+	}
+
+	public Clazz<?> getComponentType() {
+		if(isArray()) {
+			return Clazz.of(clazz.getComponentType());
+		}
+		return null;
+	}
+
+	public Clazz<?> getArrayType() {
+		if(isArray()) {
+			return null;
+		}
+		return Clazz.of(java.lang.reflect.Array.newInstance(clazz, 0).getClass());
+	}
+
 	public int size() {
 		if (isPrimitive()) {
 			if (clazz == void.class) {

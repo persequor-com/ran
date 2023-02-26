@@ -229,6 +229,33 @@ public class ClazzTest {
 		assertEquals(Clazz.of(int.class).clazz, addMethod.parameters().get(0).getClazz().clazz);
 	}
 
+	@Test
+	public void testIsArray() {
+		Clazz<?> arrClazz = Clazz.of((new String[0]).getClass());
+		assertTrue(arrClazz.isArray());
+		assertEquals(String.class, arrClazz.getComponentType().clazz);
+	}
+
+	@Test
+	public void testNotArray() {
+		Clazz<?> arrClazz = Clazz.of(String.class);
+		assertFalse(arrClazz.isArray());
+		assertEquals(String[].class, arrClazz.getArrayType().clazz);
+	}
+
+	@Test
+	public void testIsArray_primitive() {
+		Clazz<?> arrClazz = Clazz.of((new long[0]).getClass());
+		assertTrue(arrClazz.isArray());
+		assertEquals(long.class, arrClazz.getComponentType().clazz);
+	}
+
+	@Test
+	public void testNotArray_primitive() {
+		Clazz<?> arrClazz = Clazz.of(long.class);
+		assertFalse(arrClazz.isArray());
+		assertEquals(long[].class, arrClazz.getArrayType().clazz);
+	}
 
 	public static class RelationFrom {
 		@PrimaryKey
