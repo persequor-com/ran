@@ -8,6 +8,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.BaseStream;
+import java.util.stream.Stream;
 
 public class ClazzMethodTest extends TestCase {
 
@@ -272,5 +274,47 @@ public class ClazzMethodTest extends TestCase {
 		assertEquals(NestedSelf.class, retType.clazz);
 		assertEquals(1, retType.generics.size());
 		assertEquals(NestedSelf.class, retType.generics.get(0).clazz);
+	}
+
+	public interface WithStreamMethod {
+		Stream<String> myStream();
+	}
+
+	@Test
+	public void testStreamMethod() {
+		Clazz<?> parent = Clazz.of(WithStreamMethod.class);
+		ClazzMethod method = parent.methods().find("myStream", Stream.class).orElseThrow(RuntimeException::new);
+
+		Clazz<?> c = method.getReturnType();
+		assertEquals(Stream.class, c.clazz);
+		assertEquals(1, c.generics.size());
+		assertEquals(String.class, c.generics.get(0).clazz);
+
+		ClazzMethod streamMethod = c.methods().find("sequential", Stream.class).orElseThrow(RuntimeException::new);
+		assertTrue(streamMethod.hasGenericFromClass());
+		assertFalse(streamMethod.hasGenericFromMethod());
+		Clazz<?> retType = streamMethod.getReturnType();
+		assertEquals(Stream.class, retType.clazz);
+		assertEquals(1, retType.generics.size());
+		assertEquals(String.class, retType.generics.get(0).clazz);
+	}
+
+	@Test
+	public void test_TwoGenericParameters() {
+		Clazz<?> c = Clazz.of(BaseStream.class);
+		assertEquals(BaseStream.class, c.clazz);
+		assertEquals(2, c.generics.size());
+		assertEquals(Object.class, c.generics.get(0).clazz);
+		assertEquals(BaseStream.class, c.generics.get(1).clazz);
+
+		ClazzMethod streamMethod = c.methods().find("sequential", BaseStream.class).orElseThrow(RuntimeException::new);
+		assertTrue(streamMethod.hasGenericFromClass());
+		assertFalse(streamMethod.hasGenericFromMethod());
+		Clazz<?> retType = streamMethod.getReturnType();
+		assertEquals(BaseStream.class, retType.clazz);
+		assertEquals(2, retType.generics.size());
+		assertEquals(Object.class, retType.generics.get(0).clazz);
+		assertEquals(BaseStream.class, retType.generics.get(1).clazz);
+		//TODO: assertSame(retType, retType.generics.get(1));
 	}
 }

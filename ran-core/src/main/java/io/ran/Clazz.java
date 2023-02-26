@@ -71,7 +71,9 @@ public class Clazz<T> {
 
 			// Special Case: Generic extends itself (Break infinite loop)
 			Type[] bounds = tv.getBounds();
-			if(bounds.length == 1
+			if(bounds.length == 1 && bounds[0] instanceof TypeVariable && genericMap.containsKey(((TypeVariable<?>)bounds[0]).getName())) {
+				return genericMap.get(((TypeVariable<?>)bounds[0]).getName());
+			} else if(bounds.length == 1
 					&& bounds[0] instanceof ParameterizedType) {
 				ParameterizedType bpt = (ParameterizedType) bounds[0];
 				if(bpt.getActualTypeArguments().length == 1) {
@@ -86,19 +88,46 @@ public class Clazz<T> {
 					} else {
 						System.out.println("Not same type: "+tv+" and "+tv2);
 					}
+				} else if(bpt.getActualTypeArguments().length > 1) {
+					List<Clazz> genricParams = Stream.of(bpt.getActualTypeArguments())
+							.map(tv2 -> {
+								if (tv2 instanceof TypeVariable && tv2 == tv) {
+									return new Clazz<>((Class) bpt.getRawType());
+								} else if (tv2 instanceof TypeVariable && genericMap.containsKey(((TypeVariable<?>)tv2).getName())) {
+									return genericMap.get(((TypeVariable<?>)tv2).getName());
+								} else if(tv2 instanceof ParameterizedType) {
+									return of(tv2, genericMap);
+								} else {
+									return new Clazz<>(Object.class);
+								}
+							})
+							.collect(Collectors.toList());
+					return Clazz.ofClazzes((Class)bpt.getRawType(), genricParams);
+
+					//System.out.println("More than one actual: "+bpt.getActualTypeArguments().length);
 				}
+				//return new Clazz<>((Class<?>)bpt.getRawType());
 			}
-			if(tv.getBounds().length > 1) {
-				throw new RuntimeException("Unsupported number of "+tv.getName()+".bounds() 1 != "+tv.getBounds().length+" in "+tv.getGenericDeclaration());
+			if(bounds.length > 1) {
+				throw new RuntimeException("Unsupported number of "+tv.getName()+".bounds() 1 != "+bounds.length+" in "+tv.getGenericDeclaration());
 			}
 
-			System.out.println("tv.getBounds()[0]:"+tv.getBounds()[0]);
+			//System.out.println("tv.getBounds()[0]:"+tv.getBounds()[0]);
+			Type bound = bounds[0];
+			if(bound instanceof TypeVariable) {
+				//return new Clazz(((TypeVariable)bound).)
+				return new Clazz<>(Object.class);
+			} else if(bound instanceof ParameterizedType) {
+
+			}
 			return Clazz.of(tv.getBounds()[0], genericMap);
 		} else if(type instanceof GenericArrayType) {
 			Clazz<?> arrType = genericMap.get(((GenericArrayType) type).getGenericComponentType().getTypeName());
 			if(arrType == null) {
 				// Fallback to Object[]
 				return Clazz.of(Object[].class);
+			} else if(String.class.equals(arrType.clazz)) {
+				return Clazz.of(String[].class);
 			}
 			throw new RuntimeException("Typed arrays not supported yet");
 		} else if (type instanceof WildcardType) {
@@ -227,7 +256,8 @@ public class Clazz<T> {
 
 	public static Clazz of(Class clazz) {
 		if(clazz != null) {
-			return Clazz.ofClazzes(clazz, Stream.of(clazz.getTypeParameters()).map(Clazz::of).collect(Collectors.toList()));
+			Clazz<?> raw = new Clazz<>(clazz);
+			return Clazz.ofClazzes(clazz, Stream.of(clazz.getTypeParameters()).map(p -> Clazz.of(p, raw.genericMap)).collect(Collectors.toList()));
 		}
 		return new Clazz(clazz);
 	}
@@ -509,8 +539,8 @@ public class Clazz<T> {
 				return s;
 			}
 		}
-		for (Type i : Arrays.asList(clazz.getGenericInterfaces())) {
-			s = Clazz.of(i).findGenericSuper(ofClazz);
+		for (Type i : clazz.getGenericInterfaces()) {
+			s = Clazz.of(i, genericMap).findGenericSuper(ofClazz);
 			if (s != null) {
 				return s;
 			}
