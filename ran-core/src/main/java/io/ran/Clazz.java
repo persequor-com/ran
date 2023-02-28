@@ -129,7 +129,8 @@ public class Clazz<T> {
 			} else if(String.class.equals(arrType.clazz)) {
 				return Clazz.of(String[].class);
 			}
-			throw new RuntimeException("Typed arrays not supported yet");
+			return arrType.getArrayType();
+			//throw new RuntimeException("Typed arrays ("+arrType.clazz+") not supported yet");
 		} else if (type instanceof WildcardType) {
 			WildcardType wildCard = (WildcardType) type;
 			if(wildCard.getLowerBounds().length > 0) {
