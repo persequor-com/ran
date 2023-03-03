@@ -23,7 +23,8 @@ public class ClazzMethodList extends ArrayList<ClazzMethod> {
 	private Optional<ClazzMethod> findInternal(String method, Class<?> returnType, List<Class> parameterTypes) {
 		return stream()
 				.filter(cm -> cm.getName().equals(method))
-				.filter(cm -> cm.getReturnType().clazz.equals(returnType))
+				.filter(cm ->
+						cm.getReturnType().clazz.equals(returnType))
 				.filter(cm -> {
 			if (cm.parameters().size() != parameterTypes.size()) {
 				return false;

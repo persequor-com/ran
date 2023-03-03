@@ -13,6 +13,7 @@ import io.ran.testclasses.Regular;
 import io.ran.token.Token;
 import org.junit.Test;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -257,6 +258,176 @@ public class ClazzTest {
 		assertEquals(long[].class, arrClazz.getArrayType().clazz);
 	}
 
+	private static class Holder {
+		private final Class<?> type;
+		private final Object[] generics;
+		private Holder(Class<?> type, Object... generics) {
+			this.type = type;
+			this.generics = generics;
+		}
+	}
+
+	private void assertClazz(Clazz<?> clazz, Class<?> type, Object... generics) {
+		assertSame(clazz.clazz, type);
+		assertEquals(generics.length, clazz.generics.size());
+		for (int i = 0; i < generics.length; i++) {
+			if (generics[i] == self()) {
+				assertSame(clazz, clazz.generics.get(i));
+			} else if (generics[i] instanceof Clazz) {
+				assertSame(generics[i], clazz.generics.get(i));
+			} else if (generics[i] instanceof Class) {
+				assertClazz(clazz.generics.get(i), (Class) generics[i]);
+			} else if (generics[i] instanceof Holder) {
+				Holder holder = (Holder) generics[i];
+				assertClazz(clazz.generics.get(i), holder.type, holder.generics);
+			}
+		}
+	}
+
+	private static Class<?> self() {
+		return null;
+	}
+
+	@Test
+	public void testMike() {
+		Clazz<?> gg = Clazz.of(GG.class);
+		assertClazz(gg, GG.class, Object.class, gg);
+
+		Clazz<?> gi = Clazz.of(GI.class);
+		assertClazz(gi, GI.class, new Holder(GG.class, Integer.class, self()));
+		Clazz<?> gi_gg = gi.findGenericSuper(GG.class);
+		assertClazz(gi_gg, GG.class, Integer.class, gi_gg);
+
+		Clazz<?> ii = Clazz.of(II.class);
+		assertClazz(ii, II.class);
+		Clazz<?> ii_gi = ii.findGenericSuper(GI.class);
+		assertClazz(ii_gi, GI.class, II.class);
+		Clazz<?> ii_gg = ii.findGenericSuper(GG.class);
+		assertClazz(ii_gg, GG.class, Integer.class, II.class); // todo forward generic types when looking in superclasses, so the last arg could be ii instead of II.class?
+		Clazz<?> ii_gi_gg = ii_gi.findGenericSuper(GG.class);
+		assertClazz(ii_gi_gg, GG.class, Integer.class, ii_gi.generics.get(0));
+
+		Clazz<?> ii2 = Clazz.of(II2.class);
+		assertClazz(ii2, II2.class);
+		Clazz<?> ii2_gi = ii2.findGenericSuper(GI.class);
+		assertClazz(ii2_gi, GI.class, II.class);
+		Clazz<?> ii2_gg = ii2.findGenericSuper(GG.class);
+		assertClazz(ii2_gg, GG.class, Integer.class, II.class);
+		Clazz<?> ii2_gi_gg = ii2_gi.findGenericSuper(GG.class);
+		assertClazz(ii2_gi_gg, GG.class, Integer.class, ii2_gi.generics.get(0));
+
+		Clazz<?> gi2 = Clazz.of(GI2.class);
+		assertClazz(gi2, GI2.class, new Holder(GI.class, self()));
+		Clazz<?> gi2_gg = gi2.findGenericSuper(GG.class);
+		assertClazz(gi2_gg, GG.class, Integer.class, gi2.generics.get(0));
+
+		Clazz<?> ii3 = Clazz.of(II3.class);
+		assertClazz(ii3, II3.class);
+		Clazz<?> ii3_gi2 = ii3.findGenericSuper(GI2.class);
+		assertClazz(ii3_gi2, GI2.class, II.class);
+		Clazz<?> ii3_gg = ii3.findGenericSuper(GG.class);
+		assertClazz(ii3_gg, GG.class, Integer.class, II.class);
+		Clazz<?> ii3_gi2_gg = ii3_gi2.findGenericSuper(GG.class);
+		assertClazz(ii3_gi2_gg, GG.class, Integer.class, ii3_gi2.generics.get(0));
+
+		Clazz<?> ii4 = Clazz.of(II4.class);
+		assertClazz(ii4, II4.class);
+		Clazz<?> ii4_gi = ii4.findGenericSuper(GI.class);
+		assertClazz(ii4_gi, GI.class, II4.class); // todo could be ii4
+		Clazz<?> ii4_gg = ii4.findGenericSuper(GG.class);
+		assertClazz(ii4_gg, GG.class, Integer.class, II4.class);
+		Clazz<?> ii4_gi_gg = ii4_gi.findGenericSuper(GG.class);
+		assertClazz(ii4_gi_gg, GG.class, Integer.class, ii4_gi.generics.get(0));
+
+		Clazz<?> gi3 = Clazz.of(GI3.class);
+		assertClazz(gi3, GI3.class, Object.class);
+		Clazz<?> gi3_gg = gi3.findGenericSuper(GG.class);
+		assertClazz(gi3_gg, GG.class, Object.class, new Holder(GI3.class, Object.class));
+
+		Clazz<?> gi4 = Clazz.of(GI4.class);
+		assertClazz(gi4, GI4.class, gi4);
+		Clazz<?> gi4_gi = gi4.findGenericSuper(GI.class);
+		assertClazz(gi4_gi, GI.class, gi4);
+		Clazz<?> gi4_gg = gi4.findGenericSuper(GG.class);
+		assertClazz(gi4_gg, GG.class, Integer.class, gi4);
+		Clazz<?> gi4_gi_gg = gi4_gi.findGenericSuper(GG.class);
+		assertClazz(gi4_gi_gg, GG.class, Integer.class, gi4);
+
+		Clazz<?> gi5 = Clazz.of(GI5.class);
+		assertClazz(gi5, GI5.class, gi5);
+		Clazz<?> gi5_gg = gi5.findGenericSuper(GG.class);
+		assertClazz(gi5_gg, GG.class, new Holder(GI5.class, self()), gi5);
+		// todo should we even try to make it fit assertClazz(gi5_gg, GG.class, gi5, gi5); ?
+
+		Clazz<?> ii5 = Clazz.of(II5.class);
+		assertClazz(ii5, II5.class);
+		Clazz<?> ii5_gi3 = ii5.findGenericSuper(GI3.class);
+		assertClazz(ii5_gi3, GI3.class, String.class);
+		Clazz<?> ii5_gg = ii5.findGenericSuper(GG.class);
+		assertClazz(ii5_gg, GG.class, String.class, new Holder(GI3.class, String.class));
+		Clazz<?> ii5_gi3_gg = ii5_gi3.findGenericSuper(GG.class);
+		// todo could be assertClazz(ii5_gi3_gg, GG.class, String.class, ii5_gi3);
+		assertClazz(ii5_gi3_gg, GG.class, String.class, new Holder(GI3.class, String.class));
+
+		Clazz<?> ii6 = Clazz.of(II6.class);
+		assertClazz(ii6, II6.class);
+		Clazz<?> ii6_gg = ii6.findGenericSuper(GG.class);
+		assertClazz(ii6_gg, GG.class, String.class, II6.class); // todo could be ii6
+
+		Clazz<?> gg2 = Clazz.of(GG2.class);
+		assertClazz(gg2, GG2.class, new Holder(Comparable.class, self()), gg2);
+		Clazz<?> gg2_gg = gg2.findGenericSuper(GG.class);
+		assertClazz(gg2_gg, GG.class, new Holder(Comparable.class, self()), gg2);
+
+		Clazz<?> gg3 = Clazz.of(GG3.class);
+		assertClazz(gg3, GG3.class, gg3, new Holder(Comparable.class, self()));
+		Clazz<?> gg3_gg = gg3.findGenericSuper(GG.class);
+		assertClazz(gg3_gg, GG.class, new Holder(Comparable.class, self()), gg3);
+
+		Clazz<?> ii7 = Clazz.of(II7.class);
+		assertClazz(ii7, II7.class);
+		Clazz<?> ii7_gg2 = ii7.findGenericSuper(GG2.class);
+		assertClazz(ii7_gg2, GG2.class, String.class, II7.class); // todo could be ii7
+		Clazz<?> ii7_gg = ii7.findGenericSuper(GG.class);
+		assertClazz(ii7_gg, GG.class, String.class, II7.class);
+		Clazz<?> ii7_gg2_gg = ii7_gg2.findGenericSuper(GG.class); // todo could be ii7
+		assertClazz(ii7_gg2_gg, GG.class, String.class, ii7_gg2.generics.get(1));
+
+	}
+
+	@Test
+	public void testM() {
+		Clazz<?> g1 = Clazz.of(G1.class);
+
+		Clazz<?> fe = Clazz.of(Fe.class);
+
+		Clazz<?> he = Clazz.of(He.class);
+
+		Clazz<?> ke = Clazz.of(Ke.class);
+
+		Clazz<?> g2 = Clazz.of(G2.class);
+		assertClazz(g2, G2.class, Object.class, g2);
+
+		Clazz<?> g3 = Clazz.of(G3.class);
+		assertClazz(g3, G3.class, g3);
+		Clazz<?> g3_g2 = g3.findGenericSuper(G2.class);
+		assertClazz(g3_g2, G2.class, g3, new Holder(G3.class, self()));
+	}
+
+	@Test
+	public void testLoopDeLoop() {
+		// todo fix
+		// Clazz<?> loop = Clazz.of(Loop.class);
+		// Clazz<?> deLoop = Clazz.of(DeLoop.class);
+		// Clazz<?> loopyLoop = Clazz.of(LoopyLoop.class);
+	}
+
+	public interface Loop<X extends DeLoop> {}
+
+	public interface DeLoop<X extends Loop> {}
+
+	public static class LoopyLoop<F extends List<D>, D extends List<F>> {}
+
 	public static class RelationFrom {
 		@PrimaryKey
 		private int id;
@@ -472,6 +643,50 @@ public class ClazzTest {
 		void method(T t);
 		T method2(int i);
 	}
+
+	public interface GG<A, B extends GG<A, B>> {}
+
+	public interface GI<X extends GG<Integer, X>> extends GG<Integer, X> {}
+
+	public interface II extends GI<II> {}
+
+	public interface II2 extends GI<II> {}
+
+	public interface GI2<X extends GI<X>> extends GG<Integer, X> {}
+
+	public interface II3 extends GI2<II> {}
+
+	public interface II4 extends GI<II4> {}
+
+	public interface GI3<X> extends GG<X, GI3<X>> {}
+
+	public interface GI4<X extends GI4<X>> extends GI<X> {}
+
+	public interface GI5<X extends GI5<X>> extends GG<GI5<X>, X> {}
+
+	public interface II5 extends GI3<String> {}
+
+	public interface II6 extends GG<String, II6> {}
+
+	public interface GG2<H extends Comparable<H>, J extends GG2<H, J>> extends GG<H, J> {}
+
+	public interface GG3<J extends GG3<J, H>, H extends Comparable<H>> extends GG<H, J> {}
+
+	public interface II7 extends GG2<String, II7> {}
+
+	public interface G1<G extends G1<G, G>, H extends G1<H, H>> {}
+
+	public interface Fe extends G1<Fe, Fe> {}
+
+	public interface He extends G1<He, He> {}
+
+	public interface Ke extends G1<Fe, He> {}
+
+	public interface G2<X, SELF extends G2<X, SELF>> {}
+
+	public interface G3<SELF extends G3<SELF>> extends G2<SELF, SELF> {}
+
+	public interface G4<SELF extends G4<SELF>> extends G2<SELF, G4<SELF>> {}
 
 	public static class GenericInterfaceImpl implements GenericInterface<String> {
 		@Override

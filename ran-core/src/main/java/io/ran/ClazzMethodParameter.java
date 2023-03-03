@@ -15,11 +15,13 @@ public class ClazzMethodParameter {
 	private final String name;
 	private final Clazz clazz;
 
-	public ClazzMethodParameter(Clazz<?> actualClass, Method method, Parameter p) {
+	public ClazzMethodParameter(Clazz<?> declaringClass, Parameter p) {
 		this.name = p.getName();
-		Class<?> declaringClass = method.getDeclaringClass();
-		Clazz<?> genericSuper = actualClass.findGenericSuper(declaringClass);
-		clazz = Clazz.of(p.getParameterizedType(), genericSuper.genericMap);
+		clazz = Clazz.of(p.getParameterizedType(), declaringClass.genericMap);
+	}
+
+	public ClazzMethodParameter(Clazz<?> actualClass, Method method, Parameter p) {
+		this(actualClass.findGenericSuper(method.getDeclaringClass()), p);
 	}
 
 	public String getName() {

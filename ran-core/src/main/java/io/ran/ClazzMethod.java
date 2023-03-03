@@ -22,24 +22,24 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ClazzMethod {
-	private final List<Annotation> annotations;
-	private final String name;
-	private final List<ClazzMethodParameter> parameters;
 	private final Clazz<?> actualClass;
 	private final Method method;
-	private final String methodToken;
+	private final List<ClazzMethodParameter> parameters;
+
+	public ClazzMethod(Clazz<?> actualClass, Clazz<?> declaringClass, Method method) {
+		this.actualClass = actualClass;
+		this.method = method;
+		parameters = Stream.of(method.getParameters()).map(p -> new ClazzMethodParameter(declaringClass, p)).collect(Collectors.toList());
+	}
 
 	public ClazzMethod(Clazz<?> actualClass, Method method) {
 		this.actualClass = actualClass;
 		this.method = method;
-		this.name = method.getName();
-		this.methodToken = method.toString();
-		this.annotations = Arrays.asList(method.getAnnotations());
 		parameters = Stream.of(method.getParameters()).map(p -> new ClazzMethodParameter(actualClass, method, p)).collect(Collectors.toList());
 	}
 
 	public String getName() {
-		return name;
+		return method.getName();
 	}
 
 	public List<ClazzMethodParameter> parameters() {
@@ -51,7 +51,7 @@ public class ClazzMethod {
 	}
 
 	public boolean matches(String token) {
-		return this.methodToken.equals(token);
+		return method.toString().equals(token);
 	}
 
 	public int getModifiers() {
@@ -95,25 +95,25 @@ public class ClazzMethod {
 		types.add(method.getGenericReturnType());
 		types.addAll(Arrays.asList(method.getGenericParameterTypes()));
 		types.addAll(Arrays.asList(method.getGenericExceptionTypes()));
-		return types.stream().flatMap(type -> {
-			if(type instanceof ParameterizedType) {
-				return Stream.of(((ParameterizedType)type).getActualTypeArguments());
-			} else {
-				return Stream.of(type);
-			}
-		}).collect(Collectors.toList());
+		return types.stream().flatMap(this::flattenGenericTypes).collect(Collectors.toList());
+	}
+
+	private Stream<Type> flattenGenericTypes(Type type) {
+		if (type instanceof ParameterizedType) {
+			return Arrays.stream(((ParameterizedType) type).getActualTypeArguments()).flatMap(this::flattenGenericTypes);
+		}
+		return Stream.of(type);
 	}
 
 	/**
 	 * @return true when the method either returns or takes generic parameters defined at class-level
 	 */
 	public boolean hasGenericFromClass() {
-		List<Type> types = getAllGenericTypes();
-		for(Type type : types) {
-			if(type instanceof TypeVariable<?>) {
-				TypeVariable<?> typed = (TypeVariable<?>) type;
-				if(typed.getGenericDeclaration() == method.getDeclaringClass())
+		for (Type type : getAllGenericTypes()) {
+			if (type instanceof TypeVariable) {
+				if (((TypeVariable<?>) type).getGenericDeclaration() == method.getDeclaringClass()) {
 					return true;
+				}
 			}
 		}
 		return false;
@@ -123,15 +123,11 @@ public class ClazzMethod {
 	 * @return true if the method definition has generic parameters at method-level.
 	 */
 	public boolean hasGenericFromMethod() {
-		List<Type> types = getAllGenericTypes();
-		for(Type type : types) {
-			if(type instanceof TypeVariable<?>) {
-				TypeVariable<?> typed = (TypeVariable<?>) type;
-				if(typed.getGenericDeclaration() == method)
+		for (Type type : getAllGenericTypes()) {
+			if (type instanceof TypeVariable) {
+				if (((TypeVariable<?>) type).getGenericDeclaration() == method)
 					return true;
-			} else if(type instanceof WildcardType) {
-				//WildcardType typed = (WildcardType) type;
-				//if(typed.getTypeName().equals("?"))
+			} else if (type instanceof WildcardType) {
 				return true;
 			}
 		}
@@ -155,6 +151,4 @@ public class ClazzMethod {
 	public Access getAccess() {
 		return Access.of(method.getModifiers());
 	}
-
-
 }

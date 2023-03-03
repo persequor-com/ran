@@ -1,17 +1,27 @@
 package io.ran;
 
-import junit.framework.TestCase;
 import org.junit.Test;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.BaseStream;
 import java.util.stream.Stream;
 
-public class ClazzMethodTest extends TestCase {
+import static org.junit.Assert.*;
+
+public class ClazzMethodTest {
+
+	@Test
+	public void testGg() {
+		Clazz<Mike> clazz = Clazz.of(Mike.class);
+		assertTrue(clazz.methods().get(0).hasGenericFromClass()); // todo more tests?
+	}
 
 	@Test
 	public void testHasGenericFromClass() {
@@ -151,7 +161,6 @@ public class ClazzMethodTest extends TestCase {
 		Clazz<?> retType = addMethod.getReturnType();
 		assertEquals(4, retType.methods().size());
 		assertEquals(NestedSelfSub.class, retType.clazz);
-		//FIXME: assertEquals(NestedSelfSub.class, retType.generics.get(0).clazz);
 	}
 
 	@Test
@@ -162,7 +171,7 @@ public class ClazzMethodTest extends TestCase {
 		Clazz<?> retType = addMethod.getReturnType();
 		assertEquals(3, retType.methods().size());
 		assertEquals(NestedSelf.class, retType.clazz);
-		//FIXME: assertEquals(NestedSelf.class, retType.generics.get(0).clazz);
+		assertEquals(NestedSelf.class, retType.generics.get(0).clazz);
 	}
 
 	@Test
@@ -188,7 +197,107 @@ public class ClazzMethodTest extends TestCase {
 		assertEquals(0, compType2.generics.size());
 	}
 
+	@Test
+	public void testMoreSpecificFirstLevelSame1() {
+		// ListHolder<? extends List<String>> make(); ListHolder<F extends List<?>>
+		ClazzMethod addMethod = Clazz.of(ListHolderFactoryOfString.class).methods().find("make", ListHolder.class).orElseThrow(RuntimeException::new);
+		assertFalse(addMethod.hasGenericFromClass());
+		assertTrue(addMethod.hasGenericFromMethod());
 
+		// needs to decide between ListHolder<List<String>> and ListHolder<List<Object>>
+		Clazz<?> retType = addMethod.getReturnType();
+		assertEquals(ListHolder.class, retType.clazz);
+		assertEquals(1, retType.generics.size());
+
+		Clazz<?> retType2 = retType.generics.get(0);
+		assertEquals(List.class, retType2.clazz);
+		assertEquals(1, retType2.generics.size());
+
+		Clazz<?> retType3 = retType2.generics.get(0);
+		assertEquals(String.class, retType3.clazz);
+	}
+
+	@Test
+	public void testMoreSpecificFirstLevelSame1G() {
+		// ListHolder<? extends List<String>> make(); ListHolder<F extends List<?>>
+		ClazzMethod addMethod = Clazz.of(ListHolderFactoryOfString.class).methods().find("makeG", ListHolder.class).orElseThrow(RuntimeException::new);
+		assertFalse(addMethod.hasGenericFromClass());
+		assertTrue(addMethod.hasGenericFromMethod());
+
+		// needs to decide between ListHolder<List<String>> and ListHolder<List<Object>>
+		Clazz<?> retType = addMethod.getReturnType();
+		assertEquals(ListHolder.class, retType.clazz);
+		assertEquals(1, retType.generics.size());
+
+		Clazz<?> retType2 = retType.generics.get(0);
+		assertEquals(List.class, retType2.clazz);
+		assertEquals(1, retType2.generics.size());
+
+		Clazz<?> retType3 = retType2.generics.get(0);
+		assertEquals(String.class, retType3.clazz);
+	}
+
+	@Test
+	public void testMoreSpecificFirstLevelSame2() {
+		// StringListHolder<? extends List<?>> make(); StringListHolder<F extends List<String>>
+		ClazzMethod addMethod = Clazz.of(StringListHolderFactoryOfWildcard.class).methods().find("make", StringListHolder.class).orElseThrow(RuntimeException::new);
+		assertFalse(addMethod.hasGenericFromClass());
+		assertTrue(addMethod.hasGenericFromMethod());
+
+		// needs to decide between StringListHolder<List<Object>> or StringListHolder<List<String>>
+		Clazz<?> retType = addMethod.getReturnType();
+		assertEquals(StringListHolder.class, retType.clazz);
+		assertEquals(1, retType.generics.size());
+
+		Clazz<?> retType2 = retType.generics.get(0);
+		assertEquals(List.class, retType2.clazz);
+		assertEquals(1, retType2.generics.size());
+
+		Clazz<?> retType3 = retType2.generics.get(0);
+		assertEquals(String.class, retType3.clazz);
+	}
+
+	@Test
+	public void testMoreSpecificEachLevelDifferent() {
+		// ListHolder<? extends Collection<String>> make(); ListHolder<F extends List<?>>
+		ClazzMethod addMethod = Clazz.of(StringCollectionHolderFactory.class).methods().find("make", ListHolder.class).orElseThrow(RuntimeException::new);
+		assertFalse(addMethod.hasGenericFromClass());
+		assertTrue(addMethod.hasGenericFromMethod());
+
+		// needs to decide between ListHolder<List<Object>> or ListHolder<Collection<String>>
+		Clazz<?> retType = addMethod.getReturnType();
+		assertEquals(ListHolder.class, retType.clazz);
+		assertEquals(1, retType.generics.size());
+
+		Clazz<?> retType2 = retType.generics.get(0);
+		assertEquals(List.class, retType2.clazz);
+		assertEquals(1, retType2.generics.size());
+
+		Clazz<?> retType3 = retType2.generics.get(0);
+		assertEquals(String.class, retType3.clazz);
+	}
+
+	@Test
+	public void testMoreSpecificDifferentBounds() {
+		// ListHolder<? extends Set<String>> make(); ListHolder<F extends List<?>>
+		assertThrows(IllegalStateException.class,
+				() -> Clazz.of(StringSetHolderFactory.class).methods().find("make", ListHolder.class));
+	}
+
+	@Test
+	public void testArrayOfBoundGeneric() { // todo
+		// 		<T2 extends T> T2[] ArrayOfBoundGeneric()
+		ClazzMethod addMethod = Clazz.of(GenericTesterImpl.class).methods().find("ArrayOfBoundGeneric", String[].class).orElseThrow(RuntimeException::new);
+		assertFalse(addMethod.hasGenericFromClass());
+		assertFalse(addMethod.hasGenericFromMethod());
+		Clazz<?> retType = addMethod.getReturnType();
+
+
+	}
+
+	// todo next method
+
+	@SuppressWarnings("unused")
 	public static class GenericTester<T> {
 		public T method1(T input) { return null; }
 		public <T2> T2 method2(T2 input) { return null; }
@@ -200,26 +309,50 @@ public class ClazzMethodTest extends TestCase {
 		public <T2 extends T> List<T2> mixed3(List<T2> input) { return null; }
 		public String method3(String input) { return null; }
 		public List<String> paramNonGeneric(List<String>  input) { return null; }
-
 		public NestedSelf<?> nestedWildcard(NestedSelf<?> input) { return null; }
-
 		public NestedSelf<? extends NestedSelf<?>> nestedBoundWildcard(NestedSelf<? extends NestedSelf<?>> input) { return input; }
 		public NestedSelfSub nested1(NestedSelfSub input) { return null; }
 		public <T2 extends NestedSelf<T2>> T2 nested2(T2 input) { return null; }
+		public <T2 extends T> T2[] ArrayOfBoundGeneric() { return null; }
+		public List<T>[] arrayOfListOfT() { return null; }
+	}
+
+	public interface ListHolder<F extends List<?>> {}
+
+	public interface StringListHolder<F extends List<String>> {}
+
+	public static class ListHolderFactoryOfString {
+		ListHolder<? extends List<String>> make() { return null; }
+		<L extends List<String>> ListHolder<L> makeG() { return null; }
+	}
+
+	public static class StringListHolderFactoryOfWildcard {
+		StringListHolder<? extends List<?>> make() { return null; }
+	}
+
+	public static class StringCollectionHolderFactory {
+		ListHolder<? extends Collection<String>> make() { return null; }
+	}
+
+	public static class StringSetHolderFactory {
+		ListHolder<? extends Set<String>> make() { return null; }
 	}
 
 	public static class GenericTesterImpl extends GenericTester<String> {
 
 	}
 
+	@SuppressWarnings("unused")
 	public interface NestedSelf0<K0 extends NestedSelf0<K0>> extends Consumer<K0> {
 		K0 method(K0 input);
 	}
 
 	public interface NestedSelf<K extends NestedSelf<K>> extends NestedSelf0<K> {
+		@Override
 		K method(K input);
 	}
 
+	@SuppressWarnings("unused")
 	public interface NestedSelfSub extends NestedSelf<NestedSelfSub> {
 		<U extends Comparable<? super U>> NestedSelfSub orderBy(Function<String, U> sortingKeyExtractor);
 	}
@@ -237,6 +370,7 @@ public class ClazzMethodTest extends TestCase {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	public interface ICassandraEventsQuery<P extends NestedSelf<P>> {
 		P byMatchParentID(Collection<String> epcs);
 	}
@@ -253,6 +387,7 @@ public class ClazzMethodTest extends TestCase {
 		assertEquals(NestedSelf.class, retType.generics.get(0).clazz);
 	}
 
+	@SuppressWarnings("unused")
 	public interface IEventService {
 		ICassandraEventsQuery<?> cassandraQuery();
 	}
@@ -276,6 +411,7 @@ public class ClazzMethodTest extends TestCase {
 		assertEquals(NestedSelf.class, retType.generics.get(0).clazz);
 	}
 
+	@SuppressWarnings("unused")
 	public interface WithStreamMethod {
 		Stream<String> myStream();
 	}
@@ -315,6 +451,13 @@ public class ClazzMethodTest extends TestCase {
 		assertEquals(2, retType.generics.size());
 		assertEquals(Object.class, retType.generics.get(0).clazz);
 		assertEquals(BaseStream.class, retType.generics.get(1).clazz);
-		//TODO: assertSame(retType, retType.generics.get(1));
+		assertSame(retType, retType.generics.get(1));
+	}
+
+	@SuppressWarnings("unused")
+	public static class Mike<T> {
+		public void hey(List<List<List<List<T>>>> lists) {
+
+		}
 	}
 }
