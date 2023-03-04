@@ -13,6 +13,7 @@ import java.util.function.Function;
 import java.util.stream.BaseStream;
 import java.util.stream.Stream;
 
+import static io.ran.ClazzTest.assertClazz;
 import static org.junit.Assert.*;
 
 public class ClazzMethodTest {
@@ -199,62 +200,40 @@ public class ClazzMethodTest {
 
 	@Test
 	public void testMoreSpecificFirstLevelSame1() {
-		// ListHolder<? extends List<String>> make(); ListHolder<F extends List<?>>
-		ClazzMethod addMethod = Clazz.of(ListHolderFactoryOfString.class).methods().find("make", ListHolder.class).orElseThrow(RuntimeException::new);
-		assertFalse(addMethod.hasGenericFromClass());
-		assertTrue(addMethod.hasGenericFromMethod());
+		// ListHolder<List<String>> make(); ListHolder<F extends List<?>>
+		ClazzMethod makeMethod = Clazz.of(ListHolderFactoryOfString.class).methods().find("make", ListHolder.class).orElseThrow(RuntimeException::new);
+		assertFalse(makeMethod.hasGenericFromClass());
+		assertFalse(makeMethod.hasGenericFromMethod());
 
 		// needs to decide between ListHolder<List<String>> and ListHolder<List<Object>>
-		Clazz<?> retType = addMethod.getReturnType();
-		assertEquals(ListHolder.class, retType.clazz);
-		assertEquals(1, retType.generics.size());
+		Clazz<?> listHolderOfString = makeMethod.getReturnType();
+		assertClazz(listHolderOfString, ListHolder.class, new ClazzTest.Holder(List.class, String.class));
 
-		Clazz<?> retType2 = retType.generics.get(0);
-		assertEquals(List.class, retType2.clazz);
-		assertEquals(1, retType2.generics.size());
+		ClazzMethod getMethod = listHolderOfString.methods().find("get", List.class).orElseThrow(RuntimeException::new);
+		assertTrue(getMethod.hasGenericFromClass());
+		assertFalse(getMethod.hasGenericFromMethod());
 
-		Clazz<?> retType3 = retType2.generics.get(0);
-		assertEquals(String.class, retType3.clazz);
-	}
-
-	@Test
-	public void testMoreSpecificFirstLevelSame1G() {
-		// ListHolder<? extends List<String>> make(); ListHolder<F extends List<?>>
-		ClazzMethod addMethod = Clazz.of(ListHolderFactoryOfString.class).methods().find("makeG", ListHolder.class).orElseThrow(RuntimeException::new);
-		assertFalse(addMethod.hasGenericFromClass());
-		assertTrue(addMethod.hasGenericFromMethod());
-
-		// needs to decide between ListHolder<List<String>> and ListHolder<List<Object>>
-		Clazz<?> retType = addMethod.getReturnType();
-		assertEquals(ListHolder.class, retType.clazz);
-		assertEquals(1, retType.generics.size());
-
-		Clazz<?> retType2 = retType.generics.get(0);
-		assertEquals(List.class, retType2.clazz);
-		assertEquals(1, retType2.generics.size());
-
-		Clazz<?> retType3 = retType2.generics.get(0);
-		assertEquals(String.class, retType3.clazz);
+		Clazz<?> listOfString = getMethod.getReturnType();
+		assertClazz(listOfString, List.class, String.class);
 	}
 
 	@Test
 	public void testMoreSpecificFirstLevelSame2() {
 		// StringListHolder<? extends List<?>> make(); StringListHolder<F extends List<String>>
-		ClazzMethod addMethod = Clazz.of(StringListHolderFactoryOfWildcard.class).methods().find("make", StringListHolder.class).orElseThrow(RuntimeException::new);
-		assertFalse(addMethod.hasGenericFromClass());
-		assertTrue(addMethod.hasGenericFromMethod());
+		ClazzMethod makeMethod = Clazz.of(StringListHolderFactoryOfWildcard.class).methods().find("make", StringListHolder.class).orElseThrow(RuntimeException::new);
+		assertFalse(makeMethod.hasGenericFromClass());
+		assertTrue(makeMethod.hasGenericFromMethod());
 
 		// needs to decide between StringListHolder<List<Object>> or StringListHolder<List<String>>
-		Clazz<?> retType = addMethod.getReturnType();
-		assertEquals(StringListHolder.class, retType.clazz);
-		assertEquals(1, retType.generics.size());
+		Clazz<?> stringListHolderOfWildcard = makeMethod.getReturnType();
+		assertClazz(stringListHolderOfWildcard, StringListHolder.class, new ClazzTest.Holder(List.class, String.class));
 
-		Clazz<?> retType2 = retType.generics.get(0);
-		assertEquals(List.class, retType2.clazz);
-		assertEquals(1, retType2.generics.size());
+		ClazzMethod getMethod = stringListHolderOfWildcard.methods().find("get", List.class).orElseThrow(RuntimeException::new);
+		assertTrue(getMethod.hasGenericFromClass());
+		assertFalse(getMethod.hasGenericFromMethod());
 
-		Clazz<?> retType3 = retType2.generics.get(0);
-		assertEquals(String.class, retType3.clazz);
+		Clazz<?> listOfWildcard = getMethod.getReturnType();
+		assertClazz(listOfWildcard, List.class, String.class);
 	}
 
 	@Test
@@ -263,6 +242,7 @@ public class ClazzMethodTest {
 		ClazzMethod addMethod = Clazz.of(StringCollectionHolderFactory.class).methods().find("make", ListHolder.class).orElseThrow(RuntimeException::new);
 		assertFalse(addMethod.hasGenericFromClass());
 		assertTrue(addMethod.hasGenericFromMethod());
+		StringCollectionHolderFactory f = new StringCollectionHolderFactory();
 
 		// needs to decide between ListHolder<List<Object>> or ListHolder<Collection<String>>
 		Clazz<?> retType = addMethod.getReturnType();
@@ -280,7 +260,7 @@ public class ClazzMethodTest {
 	@Test
 	public void testMoreSpecificDifferentBounds() {
 		// ListHolder<? extends Set<String>> make(); ListHolder<F extends List<?>>
-		assertThrows(IllegalStateException.class,
+		assertThrows(IllegalArgumentException.class,
 				() -> Clazz.of(StringSetHolderFactory.class).methods().find("make", ListHolder.class));
 	}
 
@@ -317,13 +297,16 @@ public class ClazzMethodTest {
 		public List<T>[] arrayOfListOfT() { return null; }
 	}
 
-	public interface ListHolder<F extends List<?>> {}
+	public interface ListHolder<F extends List<?>> {
+		F get();
+	}
 
-	public interface StringListHolder<F extends List<String>> {}
+	public interface StringListHolder<F extends List<String>> {
+		F get();
+	}
 
 	public static class ListHolderFactoryOfString {
-		ListHolder<? extends List<String>> make() { return null; }
-		<L extends List<String>> ListHolder<L> makeG() { return null; }
+		ListHolder<List<String>> make() { return null; }
 	}
 
 	public static class StringListHolderFactoryOfWildcard {

@@ -96,33 +96,10 @@ public class Clazz<T> {
 				.map(t -> of(t, genericMap))
 				.collect(Collectors.toList());
 		// wildcards can have weaker bounds than the original type
-		List<Clazz<?>> defaultGenerics = of(parameterizedType.getRawType()).generics;
-		if (generics.size() != defaultGenerics.size()) {
-			throw new IllegalStateException("mismatch in generics count " + generics.size() + " and " + defaultGenerics.size() + " for " + parameterizedType);
-		}
-		for (int i = 0; i < generics.size(); i++) {
-			Clazz<?> moreSpecific = getMostSpecific(generics.get(i), defaultGenerics.get(i));
-			if (moreSpecific == null) {
-				throw new IllegalStateException("Conflicting generics " + generics.get(i) + " and " + defaultGenerics.get(i) + " at index " + i + " of " + parameterizedType);
-			}
-			generics.set(i, moreSpecific);
-		}
+		List<Clazz> defaultGenerics = of(parameterizedType.getRawType()).generics;
 
-		return Clazz.ofClazzes((Class<?>) parameterizedType.getRawType(), generics);
-	}
-
-	private static Clazz<?> getMostSpecific(Clazz<?> actualType, Clazz<?> defaultType) {
-		// todo what if you have Collection<String> and List<Object>?
-		if (actualType.clazz == defaultType.clazz) {
-			return actualType; // todo generics can be more specific (or unrelated) on eiter clazz
-		}
-		if (defaultType.clazz.isAssignableFrom(actualType.clazz)) {
-			return actualType;
-		}
-		if (actualType.clazz.isAssignableFrom(defaultType.clazz)) {
-			return defaultType;
-		}
-		return null;
+		List<Clazz> specificGenerics = getMostSpecific(parameterizedType, (List) generics, (List) defaultGenerics);
+		return Clazz.ofClazzes((Class<?>) parameterizedType.getRawType(), specificGenerics);
 	}
 
 	public static Clazz of(TypeVariable<?> typeVariable, Map<String, Clazz<?>> genericMap) {
@@ -191,6 +168,7 @@ public class Clazz<T> {
 		throw new IllegalArgumentException("Unsupported type of bound " + bound.getClass());
 	}
 
+	// todo check type count?
 	public static <T> Clazz<T> ofClasses(Class<T> clazz, Class<?>... generics) {
 		return new Clazz<T>(clazz, Arrays.stream(generics).map(Clazz::of).toArray(Clazz[]::new));
 	}
@@ -587,11 +565,20 @@ public class Clazz<T> {
 		};
 	}
 
+	public Map<String, String> initialGenericSuperMap() {
+		return genericMap.keySet().stream().collect(Collectors.toMap(k -> k, k-> k));
+	}
+
+	Clazz<?> findGenericSuper(Class<?> ofClazz) {
+		return findGenericSuper(ofClazz, initialGenericSuperMap());
+	}
+
 	/**
-	 * @param ofClazz superclass or interface of `this`
+	 * @param ofClazz superclass or generic interface of `this`
+	 * @param thisTypeToSubType should be result of `this.initialGenericSuperMap()` which will be modified to contain mapping from the returned Clazz'es type parameter names to parameter names of `this`
 	 * @return Clazz of `ofClazz` with generics set as specified by `this`
 	 */
-	Clazz<?> findGenericSuper(Class<?> ofClazz) {
+	Clazz<?> findGenericSuper(Class<?> ofClazz, Map<String, String> thisTypeToSubType) {
 		if (clazz.equals(Object.class)) {
 			return null;
 		}
@@ -600,21 +587,58 @@ public class Clazz<T> {
 		}
 		Clazz<?> superClass = getSuper();
 		if (superClass != null && superClass.clazz != null) {
-			Clazz<?> duperClass = superClass.findGenericSuper(ofClazz);
+			Type genericSuperClass = clazz.getGenericSuperclass();
+			Map<String, String> superTypeToSubType = genericSuperClass == null ? initialGenericSuperMap() : linkGenericTypes(thisTypeToSubType, genericSuperClass);
+			Clazz<?> duperClass = superClass.findGenericSuper(ofClazz, superTypeToSubType);
 			if (duperClass != null) {
+				thisTypeToSubType.clear();
+				thisTypeToSubType.putAll(superTypeToSubType);
 				return duperClass;
 			}
 		}
 		if (!ofClazz.isInterface()) {
 			return null;
 		}
-		for (Type superInterface : clazz.getGenericInterfaces()) {
-			Clazz<?> duper = Clazz.of(superInterface, genericMap).findGenericSuper(ofClazz);
-			if (duper != null) {
-				return duper;
+		for (Type superInterface : clazz.getGenericInterfaces()) { // todo non generic interfaces?
+			Map<String, String> superTypeToSubType = linkGenericTypes(thisTypeToSubType, superInterface);
+			Clazz<?> duperInterface = Clazz.of(superInterface, genericMap).findGenericSuper(ofClazz, superTypeToSubType);
+			if (duperInterface != null) {
+				thisTypeToSubType.clear();
+				thisTypeToSubType.putAll(superTypeToSubType);
+				return duperInterface;
 			}
 		}
 		return null;
+	}
+
+	// link type parameter names between a class/interface, and its super class/interface
+	private static Map<String, String> linkGenericTypes(Map<String, String> thisTypeToSubType, Type parent) {
+		if (!(parent instanceof ParameterizedType)) {
+			return Collections.emptyMap();
+		}
+
+		ParameterizedType parentType = (ParameterizedType) parent;
+		Class<?> parentClass = (Class<?>) parentType.getRawType();
+		Type[] superTypes = parentClass.getTypeParameters();
+		Type[] thisTypes = parentType.getActualTypeArguments();
+		if (superTypes.length != thisTypes.length) {
+			throw new IllegalArgumentException("type params count does not match actual type args count " + parentType);
+		}
+
+		Map<String, String> superTypeToSubType = new HashMap<>();
+		for (int i = 0; i < thisTypes.length; i++) {
+			if (thisTypes[i] instanceof TypeVariable) {
+				if (!(superTypes[i] instanceof TypeVariable)) {
+					throw new IllegalArgumentException("actual type arg is TypeVariable, but super type param is not " + superTypes[i].getClass());
+				}
+				String thisTypeName = ((TypeVariable<?>) thisTypes[i]).getName();
+				if (thisTypeToSubType.containsKey(thisTypeName)) {
+					String subTypeName = thisTypeToSubType.get(thisTypeName);
+					superTypeToSubType.put(superTypes[i].getTypeName(), subTypeName);
+				}
+			}
+		}
+		return superTypeToSubType;
 	}
 
 	public boolean equals(Clazz<?> clazz) {
@@ -627,5 +651,47 @@ public class Clazz<T> {
 
 	public boolean isVoid() {
 		return clazz.equals(Void.class) || clazz.equals(void.class);
+	}
+
+	private static List<Clazz> getMostSpecific(Type parentType, List<Clazz<?>> actualTypes, List<Clazz<?>> defaultTypes) {
+		if (actualTypes.size() != defaultTypes.size()) {
+			throw new IllegalArgumentException("mismatch in generics count " + actualTypes.size() + " and " + defaultTypes.size() + " for " + parentType);
+		}
+
+		List<Clazz> specificTypes = new ArrayList<>(actualTypes.size());
+		for (int i = 0; i < actualTypes.size(); i++) {
+			Clazz<?> moreSpecific = getMostSpecific(actualTypes.get(i), defaultTypes.get(i));
+			if (moreSpecific == null) {
+				throw new IllegalArgumentException("Conflicting generics " + actualTypes.get(i) + " and " + defaultTypes.get(i) + " at index " + i + " of " + parentType);
+			}
+			specificTypes.add(moreSpecific);
+		}
+		return specificTypes;
+	}
+
+	private static Clazz<?> getMostSpecific(Clazz<?> actualType, Clazz<?> defaultType) {
+		if (actualType.clazz == defaultType.clazz) {
+			return Clazz.ofClazzes(actualType.clazz, getMostSpecific(actualType.clazz, actualType.generics, defaultType.generics)); // todo loops?
+		}
+
+		Clazz<?> superClass, subClass;
+		if (defaultType.clazz.isAssignableFrom(actualType.clazz)) {
+			superClass = defaultType;
+			subClass = actualType;
+		} else if (actualType.clazz.isAssignableFrom(defaultType.clazz)) {
+			superClass = actualType;
+			subClass = defaultType;
+		} else {
+			return null;
+		}
+
+		if (subClass.generics.isEmpty()) {
+			return subClass;
+		}
+		// get most specific generics from common parent, and replace matching generics in subClass
+		// for example List<Object> and Collection<String> gives List<String>
+		// see StringCollectionHolderFactory in tests
+		Clazz<?> genericSuper = subClass.findGenericSuper(superClass.clazz);
+		return Clazz.ofClazzes(subClass.clazz, getMostSpecific(actualType.clazz, actualType.generics, genericSuper.generics)); // todo
 	}
 }

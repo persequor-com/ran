@@ -16,6 +16,7 @@ import org.junit.Test;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -258,29 +259,34 @@ public class ClazzTest {
 		assertEquals(long[].class, arrClazz.getArrayType().clazz);
 	}
 
-	private static class Holder {
+	public static class Holder {
 		private final Class<?> type;
 		private final Object[] generics;
-		private Holder(Class<?> type, Object... generics) {
+		public Holder(Class<?> type, Object... generics) {
 			this.type = type;
 			this.generics = generics;
 		}
 	}
 
-	private void assertClazz(Clazz<?> clazz, Class<?> type, Object... generics) {
-		assertSame(clazz.clazz, type);
+	public static void assertClazz(Clazz<?> clazz, Class<?> type, Object... generics) {
+		assertSame(type, clazz.clazz);
 		assertEquals(generics.length, clazz.generics.size());
-		for (int i = 0; i < generics.length; i++) {
-			if (generics[i] == self()) {
-				assertSame(clazz, clazz.generics.get(i));
-			} else if (generics[i] instanceof Clazz) {
-				assertSame(generics[i], clazz.generics.get(i));
-			} else if (generics[i] instanceof Class) {
-				assertClazz(clazz.generics.get(i), (Class) generics[i]);
-			} else if (generics[i] instanceof Holder) {
-				Holder holder = (Holder) generics[i];
-				assertClazz(clazz.generics.get(i), holder.type, holder.generics);
+		int i = 0;
+		try {
+			for (; i < generics.length; i++) {
+				if (generics[i] == self()) {
+					assertSame(clazz, clazz.generics.get(i));
+				} else if (generics[i] instanceof Clazz) {
+					assertSame(generics[i], clazz.generics.get(i));
+				} else if (generics[i] instanceof Class) {
+					assertClazz(clazz.generics.get(i), (Class) generics[i]);
+				} else if (generics[i] instanceof Holder) {
+					Holder holder = (Holder) generics[i];
+					assertClazz(clazz.generics.get(i), holder.type, holder.generics);
+				}
 			}
+		} catch (AssertionError e) {
+			throw new AssertionError("Type mismatch for type " + i + " of " + clazz, e);
 		}
 	}
 
@@ -421,6 +427,21 @@ public class ClazzTest {
 		// Clazz<?> deLoop = Clazz.of(DeLoop.class);
 		// Clazz<?> loopyLoop = Clazz.of(LoopyLoop.class);
 	}
+
+	@Test
+	public void testStuffThingsGroup() {
+		Clazz<?> group = Clazz.ofClasses(Group.class, String.class, Number.class);
+		Map<String, String> map = group.initialGenericSuperMap();
+		Clazz<?> stuff = group.findGenericSuper(Stuff.class, map);
+	}
+
+	public interface Stuff<S, X> {}
+
+	public interface Things<T> extends Stuff<T, Long> {}
+
+	public interface Group<G, B> extends Things<G> {}
+
+	public interface StringGroup extends Group<Number, String> {}
 
 	public interface Loop<X extends DeLoop> {}
 
