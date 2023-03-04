@@ -10,6 +10,7 @@ package io.ran;
 
 import io.ran.token.CamelHumpToken;
 import io.ran.token.Token;
+import org.omg.CORBA.PRIVATE_MEMBER;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -28,11 +29,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Stack;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Clazz<T> {
 	private static final String COVERAGE_FIELD_PATTERN = "__\\$.*\\$__";
+	private static final Clazz<Void> SELF = new Clazz<>(Void.class);
 	public String className;
 	public Class<T> clazz;
 	public List<Clazz<?>> generics = new ArrayList<>();
@@ -72,7 +75,7 @@ public class Clazz<T> {
 	public static Clazz of(Class<?> clazz) {
 		if(clazz != null) {
 			// todo make shared map and add as you resolve?
-			return Clazz.ofClazzes(clazz, Stream.of(clazz.getTypeParameters()).map(p -> Clazz.of(p)).collect(Collectors.toList()));
+			return Clazz.ofClazzes(clazz, Stream.of(clazz.getTypeParameters()).map(Clazz::of).collect(Collectors.toList()));
 		}
 		return raw(null);
 	}
@@ -234,11 +237,12 @@ public class Clazz<T> {
 					for (int i = 0; i < generics.size(); i++) {
 						TypeVariable<Class<T>> typeVariable = typeVariables[i];
 						Type bound0 = typeVariable.getBounds()[0];
-						if (typeVariable.getGenericDeclaration() == clazz &&
+						if (generics.get(i) == SELF ||
+								(typeVariable.getGenericDeclaration() == clazz &&
 								bound0 instanceof ParameterizedType &&
 								Arrays.equals(typeVariables, ((ParameterizedType) bound0).getActualTypeArguments()) &&
 								((ParameterizedType) bound0).getRawType() == clazz &&
-								generics.get(i).clazz == clazz) {
+								generics.get(i).clazz == clazz)) {
 							generics.set(i, this);
 						}
 						genericMap.put(typeVariable.getName(), generics.get(i));
@@ -565,12 +569,12 @@ public class Clazz<T> {
 		};
 	}
 
-	public Map<String, String> initialGenericSuperMap() {
+	public Map<String, String> initialTypeMap() {
 		return genericMap.keySet().stream().collect(Collectors.toMap(k -> k, k-> k));
 	}
 
 	Clazz<?> findGenericSuper(Class<?> ofClazz) {
-		return findGenericSuper(ofClazz, initialGenericSuperMap());
+		return findGenericSuper(ofClazz, initialTypeMap());
 	}
 
 	/**
@@ -588,7 +592,7 @@ public class Clazz<T> {
 		Clazz<?> superClass = getSuper();
 		if (superClass != null && superClass.clazz != null) {
 			Type genericSuperClass = clazz.getGenericSuperclass();
-			Map<String, String> superTypeToSubType = genericSuperClass == null ? initialGenericSuperMap() : linkGenericTypes(thisTypeToSubType, genericSuperClass);
+			Map<String, String> superTypeToSubType = genericSuperClass == null ? initialTypeMap() : linkGenericTypes(thisTypeToSubType, genericSuperClass);
 			Clazz<?> duperClass = superClass.findGenericSuper(ofClazz, superTypeToSubType);
 			if (duperClass != null) {
 				thisTypeToSubType.clear();
@@ -671,27 +675,66 @@ public class Clazz<T> {
 
 	private static Clazz<?> getMostSpecific(Clazz<?> actualType, Clazz<?> defaultType) {
 		if (actualType.clazz == defaultType.clazz) {
-			return Clazz.ofClazzes(actualType.clazz, getMostSpecific(actualType.clazz, actualType.generics, defaultType.generics)); // todo loops?
+			// filter out loops and then add them back?
+			List<Clazz<?>> actualGenerics = new ArrayList<>(actualType.generics);
+			List<Clazz<?>> defaultGenerics = new ArrayList<>(defaultType.generics);
+			Stack<Integer> selfIndices = new Stack<>();
+			for (int i = actualGenerics.size() - 1; i >= 0; i--) {
+				if (actualGenerics.get(i) == actualType) {
+					if (defaultGenerics.get(i) != defaultType) {
+						throw new IllegalArgumentException("actual type is loop but default is not");
+					}
+					selfIndices.add(0, i);
+					actualGenerics.remove(i);
+					defaultGenerics.remove(i);
+				}
+			}
+			List<Clazz> newGenerics = getMostSpecific(actualType.clazz, actualGenerics, defaultGenerics);
+			selfIndices.forEach(i -> newGenerics.add(i, SELF));
+			return Clazz.ofClazzes(actualType.clazz, newGenerics);
 		}
 
 		Clazz<?> superClass, subClass;
+		boolean actualIsSub;
 		if (defaultType.clazz.isAssignableFrom(actualType.clazz)) {
 			superClass = defaultType;
 			subClass = actualType;
+			actualIsSub = true;
 		} else if (actualType.clazz.isAssignableFrom(defaultType.clazz)) {
 			superClass = actualType;
 			subClass = defaultType;
+			actualIsSub = false;
 		} else {
 			return null;
 		}
 
-		if (subClass.generics.isEmpty()) {
+		if (subClass.generics.isEmpty() || superClass.generics.isEmpty()) {
 			return subClass;
 		}
 		// get most specific generics from common parent, and replace matching generics in subClass
 		// for example List<Object> and Collection<String> gives List<String>
 		// see StringCollectionHolderFactory in tests
-		Clazz<?> genericSuper = subClass.findGenericSuper(superClass.clazz);
-		return Clazz.ofClazzes(subClass.clazz, getMostSpecific(actualType.clazz, actualType.generics, genericSuper.generics)); // todo
+		Map<String, String> parentTypeToSubClassType = subClass.initialTypeMap();
+		Clazz<?> parent = subClass.findGenericSuper(superClass.clazz, parentTypeToSubClassType);
+		List<Clazz<?>> parentActualTypes = actualIsSub ? parent.generics : superClass.generics;
+		List<Clazz<?>> parentDefaultTypes = actualIsSub ? superClass.generics : parent.generics;
+
+		Clazz<?> specificParent = Clazz.ofClazzes(parent.clazz, getMostSpecific(parent.clazz, parentActualTypes, parentDefaultTypes));
+		List<Clazz> newSubClassGenerics = new ArrayList<>(subClass.generics);
+		parentTypeToSubClassType.forEach((parentType, subClassType) -> {
+			int subClassTypeIndex = findIndex(subClass, subClassType);
+			newSubClassGenerics.set(subClassTypeIndex, specificParent.genericMap.get(parentType));
+		});
+		return Clazz.ofClazzes(subClass.clazz, newSubClassGenerics);
+	}
+
+	private static int findIndex(Clazz<?> clazz, String typeName) {
+		Clazz<?> type = clazz.genericMap.get(typeName);
+		for (int i = 0; i < clazz.generics.size(); i++) {
+			if (clazz.generics.get(i) == type) {
+				return i;
+			}
+		}
+		throw new IllegalArgumentException("Generic map of " + clazz + " does not contain " + typeName);
 	}
 }

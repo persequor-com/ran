@@ -431,7 +431,7 @@ public class ClazzTest {
 	@Test
 	public void testStuffThingsGroup() {
 		Clazz<?> group = Clazz.ofClasses(Group.class, String.class, Number.class);
-		Map<String, String> map = group.initialGenericSuperMap();
+		Map<String, String> map = group.initialTypeMap();
 		Clazz<?> stuff = group.findGenericSuper(Stuff.class, map);
 	}
 
