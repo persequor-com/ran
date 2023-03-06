@@ -9,6 +9,7 @@
 package io.ran;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
@@ -101,6 +102,9 @@ public class ClazzMethod {
 	private Stream<Type> flattenGenericTypes(Type type) {
 		if (type instanceof ParameterizedType) {
 			return Arrays.stream(((ParameterizedType) type).getActualTypeArguments()).flatMap(this::flattenGenericTypes);
+		}
+		if (type instanceof GenericArrayType) {
+			return flattenGenericTypes(((GenericArrayType) type).getGenericComponentType());
 		}
 		return Stream.of(type);
 	}

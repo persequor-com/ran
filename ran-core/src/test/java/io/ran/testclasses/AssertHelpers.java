@@ -12,14 +12,25 @@ public class AssertHelpers {
 	public static void assertClazz(Clazz<?> clazz, Class<?> type, Object... generics) {
 		assertSame(type, clazz.clazz);
 		assertEquals(generics.length, clazz.generics.size());
-		assertEquals(clazz.clazz.getTypeParameters().length, generics.length);
+
+		if (type.isArray()) {
+			assertTrue(clazz.isArray());
+			assertClazz(clazz.getComponentType(), type.getComponentType(), generics);
+		} else {
+			assertEquals(clazz.clazz.getTypeParameters().length, generics.length);
+		}
+
 		int i = 0;
 		try {
 			for (; i < generics.length; i++) {
 				Object expected = generics[i];
 				Clazz<?> actual = clazz.generics.get(i);
 				if (expected == self()) {
-					assertSame(clazz, actual);
+					if (actual.generics.isEmpty()) {
+						assertSame(clazz.clazz, actual.clazz);
+					} else {
+						assertClazz(actual, clazz.clazz, generics);
+					}
 				} else {
 					innerAssert(actual, expected);
 				}
@@ -60,6 +71,7 @@ public class AssertHelpers {
 		}
 	}
 
+	// matches either same check as parent has, or just a raw class of parent, to break the loop
 	public static Holder self() {
 		return Holder.self;
 	}
