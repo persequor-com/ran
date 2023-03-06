@@ -19,15 +19,15 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
 import static org.junit.Assert.*;
 
-public class DescriberTest {
+@SuppressWarnings("OptionalGetWithoutIsPresent")
+public class TypeDescriberTest {
 	private GenericFactory factory;
-	private GuiceHelper helper;
 
 	@BeforeClass
 	public static void beforeClass() {
@@ -36,8 +36,7 @@ public class DescriberTest {
 
 	@Before
 	public void setup() {
-		helper = new GuiceHelper();
-		factory = helper.factory;
+		factory = new GuiceHelper().factory;
 	}
 
 	@Test
@@ -74,7 +73,7 @@ public class DescriberTest {
 	}
 
 	@Test
-	public void door() throws Throwable {
+	public void door() {
 		TypeDescriber<Door> describer = TypeDescriberImpl.getTypeDescriber(Door.class);
 
 		assertEquals("carId", describer.relations().get(Car.class).get().getFromKeys().get(0).getToken().camelHump());
@@ -85,7 +84,7 @@ public class DescriberTest {
 
 
 	@Test
-	public void engine() throws Throwable {
+	public void engine() {
 		TypeDescriber<Engine> describer = TypeDescriberImpl.getTypeDescriber(Engine.class);
 
 		assertEquals("id", describer.relations().get(Car.class).get().getFromKeys().get(0).getToken().camelHump());
@@ -95,7 +94,7 @@ public class DescriberTest {
 	}
 
 	@Test
-	public void getValue() throws Throwable {
+	public void getValue() {
 		TypeDescriber<Engine> describer = TypeDescriberImpl.getTypeDescriber(Engine.class);
 
 		Engine engine = factory.get(Engine.class);
@@ -107,7 +106,7 @@ public class DescriberTest {
 	}
 
 	@Test
-	public void getKey() throws Throwable {
+	public void getKey() {
 		Engine engine = factory.get(Engine.class);
 		engine.setId(UUID.randomUUID());
 
@@ -117,7 +116,7 @@ public class DescriberTest {
 	}
 
 	@Test
-	public void setRelation() throws Throwable {
+	public void setRelation() {
 		TypeDescriber<Car> describer = TypeDescriberImpl.getTypeDescriber(Car.class);
 
 		Engine engine = factory.get(Engine.class);
@@ -129,19 +128,19 @@ public class DescriberTest {
 	}
 
 	@Test
-	public void setCollectionRelation() throws Throwable {
+	public void setCollectionRelation() {
 		TypeDescriber<Engine> describer = TypeDescriberImpl.getTypeDescriber(Engine.class);
 
 		Engine engine = factory.get(Engine.class);
 		Mapping engineMapping = (Mapping) engine;
 		Car car = new Car();
-		engineMapping._setRelation(describer.relations().get(0), Arrays.asList(car));
+		engineMapping._setRelation(describer.relations().get(0), Collections.singletonList(car));
 
 		assertSame(car, engine.getCars().stream().findFirst().get());
 	}
 
 	@Test
-	public void getRelation() throws Throwable {
+	public void getRelation() {
 		TypeDescriber<Car> describer = TypeDescriberImpl.getTypeDescriber(Car.class);
 		Car car = factory.get(Car.class);
 		Mapping carMapping = (Mapping) car;
@@ -157,8 +156,7 @@ public class DescriberTest {
 	}
 
 	@Test
-	public void isChanged() throws Throwable {
-		TypeDescriber<Car> describer = TypeDescriberImpl.getTypeDescriber(Car.class);
+	public void isChanged() {
 		Car car = factory.get(Car.class);
 		Mapping carMapping = (Mapping) car;
 
@@ -170,7 +168,7 @@ public class DescriberTest {
 	}
 
 	@Test
-	public void handleGraphs() throws Throwable {
+	public void handleGraphs() {
 		TypeDescriber<GraphNode> describer = TypeDescriberImpl.getTypeDescriber(GraphNode.class);
 		assertEquals(Clazz.of(GraphNodeLink.class), describer.relations().get("next_nodes").getToKeys().get(0).getOn());
 		assertEquals("from_id", describer.relations().get("next_nodes").getToKeys().get(0).getProperty().getSnakeCase());
@@ -200,84 +198,216 @@ public class DescriberTest {
 	}
 
 	@Test
-	public void relations_via() {
-		List<RelationDescriber> relations = TypeDescriberImpl.getTypeDescriber(ClazzTest.RelationFrom.class).relations();
+	public void keys_multi() {
+		KeySet keys = Clazz.of(RelationVia.class).getKeys().getPrimary();
 
-		assertEquals(1, relations.size());
-		assertEquals(2, relations.get(0).getVia().size());
-		assertEquals(ClazzTest.RelationFrom.class, relations.get(0).getVia().get(0).getFromClass().clazz);
-		assertEquals(Token.of("id"), relations.get(0).getVia().get(0).getFromKeys().get(0).getToken());
-		assertEquals(Token.of("relation", "from", "id"), relations.get(0).getVia().get(0).getToKeys().get(0).getToken());
-		assertEquals(ClazzTest.RelationVia.class, relations.get(0).getVia().get(0).getToClass().clazz);
-		assertEquals(ClazzTest.RelationVia.class, relations.get(0).getVia().get(1).getFromClass().clazz);
-		assertEquals(ClazzTest.RelationTo.class, relations.get(0).getVia().get(1).getToClass().clazz);
-		assertEquals(Token.of("relation", "to", "id"), relations.get(0).getVia().get(1).getFromKeys().get(0).getToken());
-		assertEquals(Token.of("id"), relations.get(0).getVia().get(1).getToKeys().get(0).getToken());
+		assertEquals(2, keys.size());
+		assertEquals(Token.of("relation", "from", "id"), keys.get(0).getToken());
+		assertEquals(Token.of("relation", "to", "id"), keys.get(1).getToken());
 	}
 
-	@Test
-	public void relations_via_graph() {
-		List<RelationDescriber> relations = TypeDescriberImpl.getTypeDescriber(GraphNode.class).relations();
+	public static class RelationFrom {
+		@PrimaryKey
+		private int id;
+		@Relation(collectionElementType = RelationTo.class, via = RelationVia.class)
+		private transient List<RelationTo> to;
 
-		assertEquals(2, relations.size());
-		assertEquals(2, relations.get(0).getVia().size());
-		assertEquals(2, relations.get(1).getVia().size());
+		public int getId() {
+			return id;
+		}
 
-		assertEquals("previous_nodes", relations.get(0).getField().snake_case());
-		assertEquals("id", relations.get(0).getFromKeys().get(0).getToken().snake_case());
-		assertEquals("to_id", relations.get(0).getToKeys().get(0).getToken().snake_case());
-		assertEquals("id", relations.get(0).getVia().get(0).getFromKeys().get(0).getToken().snake_case());
-		assertEquals("to_id", relations.get(0).getVia().get(0).getToKeys().get(0).getToken().snake_case());
-		assertEquals("from_id", relations.get(0).getVia().get(1).getFromKeys().get(0).getToken().snake_case());
-		assertEquals("id", relations.get(0).getVia().get(1).getToKeys().get(0).getToken().snake_case());
+		public void setId(int id) {
+			this.id = id;
+		}
 
-		assertEquals("next_nodes", relations.get(1).getField().snake_case());
-		assertEquals("id", relations.get(1).getFromKeys().get(0).getToken().snake_case());
-		assertEquals("from_id", relations.get(1).getToKeys().get(0).getToken().snake_case());
-		assertEquals("id", relations.get(1).getVia().get(0).getFromKeys().get(0).getToken().snake_case());
-		System.out.println(relations.get(1).getVia().get(0).getFromKeys().get(0).getToken().snake_case());
-		System.out.println(relations.get(1).getVia().get(0).getToKeys().get(0).getToken().snake_case());
-		System.out.println(relations.get(1).getVia().get(1).getFromKeys().get(0).getToken().snake_case());
-		System.out.println(relations.get(1).getVia().get(1).getToKeys().get(0).getToken().snake_case());
-		assertEquals("from_id", relations.get(1).getVia().get(0).getToKeys().get(0).getToken().snake_case());
-		assertEquals("to_id", relations.get(1).getVia().get(1).getFromKeys().get(0).getToken().snake_case());
-		assertEquals("id", relations.get(1).getVia().get(1).getToKeys().get(0).getToken().snake_case());
+		public List<RelationTo> getTo() {
+			return to;
+		}
+
+		public void setTo(List<RelationTo> to) {
+			this.to = to;
+		}
 	}
 
-	@Test
-	public void relations_viaDescribed() {
-		List<RelationDescriber> relations = TypeDescriberImpl.getTypeDescriber(ClazzTest.DescribedRelationFrom.class).relations();
+	@SuppressWarnings("unused")
+	public static class RelationVia {
+		@PrimaryKey
+		private int relationFromId;
+		@PrimaryKey
+		private int relationToId;
 
-		assertEquals(1, relations.size());
-		assertEquals(2, relations.get(0).getVia().size());
-		assertEquals(ClazzTest.DescribedRelationFrom.class, relations.get(0).getVia().get(0).getFromClass().clazz);
-		assertEquals(ClazzTest.DescribedRelationVia.class, relations.get(0).getVia().get(0).getToClass().clazz);
-		assertEquals(Token.of("muh"), relations.get(0).getVia().get(0).getFromKeys().get(0).getToken());
-		assertEquals(Token.of("cat"), relations.get(0).getVia().get(0).getToKeys().get(0).getToken());
-		assertEquals(ClazzTest.DescribedRelationVia.class, relations.get(0).getVia().get(1).getFromClass().clazz);
-		assertEquals(ClazzTest.RelationTo.class, relations.get(0).getVia().get(1).getToClass().clazz);
-		assertEquals(Token.of("horse"), relations.get(0).getVia().get(1).getFromKeys().get(0).getToken());
-		assertEquals(Token.of("id"), relations.get(0).getVia().get(1).getToKeys().get(0).getToken());
+		public int getRelationFromId() {
+			return relationFromId;
+		}
+
+		public void setRelationFromId(int relationFromId) {
+			this.relationFromId = relationFromId;
+		}
+
+		public int getRelationToId() {
+			return relationToId;
+		}
+
+		public void setRelationToId(int relationToId) {
+			this.relationToId = relationToId;
+		}
 	}
 
-	@Test
-	public void relations_inverse() {
-		List<RelationDescriber> relations = TypeDescriberImpl.getTypeDescriber(ClazzTest.DescribedRelationVia.class).relations();
+	@SuppressWarnings("unused")
+	public static class DescribedRelationFrom {
+		@PrimaryKey
+		private int muh;
+		@Relation(collectionElementType = RelationTo.class, via = DescribedRelationVia.class)
+		private transient List<RelationTo> to;
 
-		assertEquals(Token.of("muh"), relations.get(0).getToKeys().get(0).getToken());
-		assertEquals(Token.of("cat"), relations.get(0).getFromKeys().get(0).getToken());
+		public int getMuh() {
+			return muh;
+		}
 
-		assertEquals(Token.of("cat"), relations.get(0).inverse().getToKeys().get(0).getToken());
-		assertEquals(Token.of("muh"), relations.get(0).inverse().getFromKeys().get(0).getToken());
+		public void setMuh(int muh) {
+			this.muh = muh;
+		}
+
+		public List<RelationTo> getTo() {
+			return to;
+		}
+
+		public void setTo(List<RelationTo> to) {
+			this.to = to;
+		}
 	}
 
-	@Test
-	public void classWithRelationAndOtherKey() {
-		List<RelationDescriber> relations = TypeDescriberImpl.getTypeDescriber(ClazzTest.ClassWithRelationAndOtherKey.class).relations();
+	@SuppressWarnings("unused")
+	public static class ClassWithRelationAndOtherKey {
+		@PrimaryKey
+		private int id;
+		@Key(name = "otherKey")
+		private String otherKey;
+		@Relation(collectionElementType = ClassWithRelationAndOtherKeyRelationTo.class)
+		private transient List<ClassWithRelationAndOtherKeyRelationTo> to;
 
-		assertEquals(relations.get(0).getFromKeys().size(), relations.get(0).getToKeys().size());
-		assertEquals(1, relations.get(0).getToKeys().size());
-		assertEquals("class_with_relation_and_other_key_id", relations.get(0).getToKeys().get(0).getToken().snake_case());
-		assertEquals("id", relations.get(0).getFromKeys().get(0).getToken().snake_case());
+		public int getId() {
+			return id;
+		}
+
+		public void setId(int id) {
+			this.id = id;
+		}
+
+		public List<ClassWithRelationAndOtherKeyRelationTo> getTo() {
+			return to;
+		}
+
+		public void setTo(List<ClassWithRelationAndOtherKeyRelationTo> to) {
+			this.to = to;
+		}
+
+		public String getOtherKey() {
+			return otherKey;
+		}
+
+		public void setOtherKey(String otherKey) {
+			this.otherKey = otherKey;
+		}
+	}
+
+	@SuppressWarnings("unused")
+	public static class ClassWithRelationAndOtherKeyRelationTo {
+		@PrimaryKey
+		private int id;
+		private String otherKey;
+		private int classWithRelationAndOtherKeyId;
+		@Relation
+		private ClassWithRelationAndOtherKey classWithRelationAndOtherKey;
+
+		public int getId() {
+			return id;
+		}
+
+		public void setId(int id) {
+			this.id = id;
+		}
+
+		public String getOtherKey() {
+			return otherKey;
+		}
+
+		public void setOtherKey(String otherKey) {
+			this.otherKey = otherKey;
+		}
+
+		public int getClassWithRelationAndOtherKeyId() {
+			return classWithRelationAndOtherKeyId;
+		}
+
+		public void setClassWithRelationAndOtherKeyId(int classWithRelationAndOtherKeyId) {
+			this.classWithRelationAndOtherKeyId = classWithRelationAndOtherKeyId;
+		}
+
+		public ClassWithRelationAndOtherKey getClassWithRelationAndOtherKey() {
+			return classWithRelationAndOtherKey;
+		}
+
+		public void setClassWithRelationAndOtherKey(ClassWithRelationAndOtherKey classWithRelationAndOtherKey) {
+			this.classWithRelationAndOtherKey = classWithRelationAndOtherKey;
+		}
+	}
+
+	@SuppressWarnings("unused")
+	public static class DescribedRelationVia {
+		@PrimaryKey
+		private int cat;
+		@PrimaryKey
+		private int horse;
+
+		@Relation(fields = "cat", relationFields = "muh")
+		private transient DescribedRelationFrom samurai;
+
+		@Relation(fields = "horse", relationFields = "id")
+		private transient RelationTo ninja;
+
+		public int getCat() {
+			return cat;
+		}
+
+		public void setCat(int cat) {
+			this.cat = cat;
+		}
+
+		public int getHorse() {
+			return horse;
+		}
+
+		public void setHorse(int horse) {
+			this.horse = horse;
+		}
+
+		public DescribedRelationFrom getSamurai() {
+			return samurai;
+		}
+
+		public void setSamurai(DescribedRelationFrom samurai) {
+			this.samurai = samurai;
+		}
+
+		public RelationTo getNinja() {
+			return ninja;
+		}
+
+		public void setNinja(RelationTo ninja) {
+			this.ninja = ninja;
+		}
+	}
+
+	public static class RelationTo {
+		private int id;
+
+		public int getId() {
+			return id;
+		}
+
+		public void setId(int id) {
+			this.id = id;
+		}
 	}
 }

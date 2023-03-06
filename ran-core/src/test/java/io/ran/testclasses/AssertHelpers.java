@@ -56,9 +56,6 @@ public class AssertHelpers {
 	}
 
 	private static void innerAssert(Clazz<?> actual, Object expected) {
-		if (expected == null) {
-			return; // null matches anything
-		}
 		if (expected instanceof Clazz) {
 			assertSame(expected, actual);
 		} else if (expected instanceof Class) {

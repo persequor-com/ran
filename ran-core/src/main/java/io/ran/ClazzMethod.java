@@ -110,7 +110,7 @@ public class ClazzMethod {
 	}
 
 	/**
-	 * @return true when the method either returns or takes generic parameters defined at class-level
+	 * @return true when the method either returns or takes generic parameters defined at class-level. Method level parameter containing class level parameter does not count.
 	 */
 	public boolean hasGenericFromClass() {
 		for (Type type : getAllGenericTypes()) {
@@ -124,7 +124,7 @@ public class ClazzMethod {
 	}
 
 	/**
-	 * @return true if the method definition has generic parameters at method-level.
+	 * @return true if the method either returns or takes generic parameters defined at  method-level.
 	 */
 	public boolean hasGenericFromMethod() {
 		for (Type type : getAllGenericTypes()) {

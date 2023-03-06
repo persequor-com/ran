@@ -156,7 +156,7 @@ public class ClazzMethodTest {
 		// T[] arrayOfGeneric()
 		ClazzMethod arrayOfGeneric = Clazz.of(GenericTesterImpl.class).methods().find("arrayOfGeneric", String[].class).get();
 		assertMethod(g(GenericTester.class, String.class), arrayOfGeneric, String[].class);
-		assertTrue(arrayOfGeneric.hasGenericFromClass()); // todo
+		assertTrue(arrayOfGeneric.hasGenericFromClass());
 		assertFalse(arrayOfGeneric.hasGenericFromMethod());
 	}
 
@@ -166,7 +166,7 @@ public class ClazzMethodTest {
 		ClazzMethod arrayOfBoundGeneric = Clazz.of(GenericTesterImpl.class).methods().find("arrayOfBoundGeneric", String[].class).get();
 		assertMethod(g(GenericTester.class, String.class), arrayOfBoundGeneric, String[].class);
 		assertFalse(arrayOfBoundGeneric.hasGenericFromClass());
-		assertTrue(arrayOfBoundGeneric.hasGenericFromMethod()); // todo
+		assertTrue(arrayOfBoundGeneric.hasGenericFromMethod());
 		Clazz<?> arr = arrayOfBoundGeneric.getReturnType().getComponentType();
 		assertClazz(arr, String.class);
 	}
@@ -176,7 +176,7 @@ public class ClazzMethodTest {
 		// List<T>[] arrayOfListOfT()
 		ClazzMethod arrayOfListOfT = Clazz.of(GenericTesterImpl.class).methods().find("arrayOfListOfT", List[].class).get();
 		assertMethod(g(GenericTester.class, String.class), arrayOfListOfT, g(List[].class, String.class));
-		assertTrue(arrayOfListOfT.hasGenericFromClass()); // todo?
+		assertTrue(arrayOfListOfT.hasGenericFromClass());
 		assertFalse(arrayOfListOfT.hasGenericFromMethod());
 	}
 
@@ -185,7 +185,7 @@ public class ClazzMethodTest {
 		// List<? extends T>[] arrayOfListOfWildT()
 		ClazzMethod arrayOfListOfWildT = Clazz.of(GenericTesterImpl.class).methods().find("arrayOfListOfWildT", List[].class).get();
 		assertMethod(g(GenericTester.class, String.class), arrayOfListOfWildT, g(List[].class, String.class));
-		assertFalse(arrayOfListOfWildT.hasGenericFromClass()); // todo?
+		assertFalse(arrayOfListOfWildT.hasGenericFromClass());
 		assertTrue(arrayOfListOfWildT.hasGenericFromMethod());
 	}
 
@@ -194,15 +194,14 @@ public class ClazzMethodTest {
 		// <U extends Comparable<? super U>> NestedSelfSub orderBy(Function<String, U> sortingKeyExtractor)
 		ClazzMethod orderBy = Clazz.of(NestedSelfSub.class).methods().find("orderBy", NestedSelfSub.class, Function.class).get();
 		assertMethod(NestedSelfSub.class, orderBy,
-		/* return type */   NestedSelfSub.class,
-		/* arg 0 */			g(Function.class,
-									String.class,
-									g(Comparable.class,
-											Object.class)));
+				/* return type */   NestedSelfSub.class,
+				/* arg 0 */            g(Function.class,
+						String.class,
+						g(Comparable.class,
+								Object.class)));
 		assertFalse(orderBy.hasGenericFromClass());
 		assertTrue(orderBy.hasGenericFromMethod());
 	}
-
 
 
 	@Test
@@ -266,6 +265,7 @@ public class ClazzMethodTest {
 		assertFalse(streamMethod.hasGenericFromMethod());
 	}
 
+	// coincidentally works, but swapping the order breaks it
 	@Test
 	public void testMoreSpecificFirstLevelSame1() {
 		// ListHolder<List<String>> make(); ListHolder<F extends List<?>>
@@ -354,24 +354,77 @@ public class ClazzMethodTest {
 
 	@SuppressWarnings("unused")
 	public static class GenericTester<T> {
-		public T method1(T input) { return null; }
-		public <T2> T2 method2(T2 input) { return null; }
-		public <T2> T mixed(T2 input) { return null; }
-		public List<?> wildcard(String input) { return null; }
-		public String method3(String input) { return null; }
-		public List<T> param1(List<T> input) { return null; }
-		public <T2> List<T2> param2(List<T2> input) { return null; }
-		public List<String> paramNonGeneric(List<String> input) { return null; }
-		public <T2> List<T> mixed2(List<T2> input) { return null; }
-		public <T2 extends T> List<T2> mixed3(List<T2> input) { return null; }
-		public NestedSelf<?> nestedWildcard(NestedSelf<?> input) { return null; }
-		public NestedSelf<? extends NestedSelf<?>> nestedBoundWildcard(NestedSelf<? extends NestedSelf<?>> input) { return input; }
-		public NestedSelfSub nested1(NestedSelfSub input) { return null; }
-		public <T2 extends NestedSelf<T2>> T2 nested2(T2 input) { return null; }
-		public T[] arrayOfGeneric() { return null; }
-		public <T2 extends T> T2[] arrayOfBoundGeneric() { return null; }
-		public List<T>[] arrayOfListOfT() { return null; }
-		public List<? extends T>[] arrayOfListOfWildT() { return null; }
+		public T method1(T input) {
+			return null;
+		}
+
+		public <T2> T2 method2(T2 input) {
+			return null;
+		}
+
+		public <T2> T mixed(T2 input) {
+			return null;
+		}
+
+		public List<?> wildcard(String input) {
+			return null;
+		}
+
+		public String method3(String input) {
+			return null;
+		}
+
+		public List<T> param1(List<T> input) {
+			return null;
+		}
+
+		public <T2> List<T2> param2(List<T2> input) {
+			return null;
+		}
+
+		public List<String> paramNonGeneric(List<String> input) {
+			return null;
+		}
+
+		public <T2> List<T> mixed2(List<T2> input) {
+			return null;
+		}
+
+		public <T2 extends T> List<T2> mixed3(List<T2> input) {
+			return null;
+		}
+
+		public NestedSelf<?> nestedWildcard(NestedSelf<?> input) {
+			return null;
+		}
+
+		public NestedSelf<? extends NestedSelf<?>> nestedBoundWildcard(NestedSelf<? extends NestedSelf<?>> input) {
+			return input;
+		}
+
+		public NestedSelfSub nested1(NestedSelfSub input) {
+			return null;
+		}
+
+		public <T2 extends NestedSelf<T2>> T2 nested2(T2 input) {
+			return null;
+		}
+
+		public T[] arrayOfGeneric() {
+			return null;
+		}
+
+		public <T2 extends T> T2[] arrayOfBoundGeneric() {
+			return null;
+		}
+
+		public List<T>[] arrayOfListOfT() {
+			return null;
+		}
+
+		public List<? extends T>[] arrayOfListOfWildT() {
+			return null;
+		}
 	}
 
 	public static class GenericTesterImpl extends GenericTester<String> {
@@ -398,6 +451,7 @@ public class ClazzMethodTest {
 		public T method(T input) {
 			return null;
 		}
+
 		@Override
 		public void accept(T nestedSelf) {
 
@@ -428,24 +482,42 @@ public class ClazzMethodTest {
 	}
 
 	public static class ListHolderFactoryOfString {
-		ListHolder<List<String>> make() { return null; }
+		@SuppressWarnings("unused")
+		ListHolder<List<String>> make() {
+			return null;
+		}
 	}
 
 	public static class StringListHolderFactoryOfWildcard {
-		StringListHolder<? extends List<?>> make() { return null; }
+		@SuppressWarnings("unused")
+		StringListHolder<? extends List<?>> make() {
+			return null;
+		}
 	}
 
 	public static class StringCollectionHolderFactory {
-		ListHolder<? extends Collection<String>> make() { return null; }
+		@SuppressWarnings("unused")
+		ListHolder<? extends Collection<String>> make() {
+			return null;
+		}
 	}
 
 	public static class StringSetHolderFactory {
-		ListHolder<? extends Set<String>> make() { return null; }
+		@SuppressWarnings("unused")
+		ListHolder<? extends Set<String>> make() {
+			return null;
+		}
 	}
 
+	@SuppressWarnings("unused")
 	public static class DeepGenerics<T> {
-		public void listOff(List<List<List<List<T>>>> lists) {}
-		public void arrayOff(T[][][][] arr) {}
-		public void allOff(List<List<List<T[][]>[][][]>>[] allaaalaat) {}
+		public void listOff(List<List<List<List<T>>>> lists) {
+		}
+
+		public void arrayOff(T[][][][] arr) {
+		}
+
+		public void allOff(List<List<List<T[][]>[][][]>>[] allaaalaat) {
+		}
 	}
 }

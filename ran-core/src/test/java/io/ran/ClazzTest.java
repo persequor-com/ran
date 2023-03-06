@@ -22,19 +22,11 @@ import java.util.stream.Collectors;
 import static io.ran.testclasses.AssertHelpers.*;
 import static org.junit.Assert.*;
 
-@SuppressWarnings("OptionalGetWithoutIsPresent")
+@SuppressWarnings({"InnerClassMayBeStatic", "OptionalGetWithoutIsPresent"})
 public class ClazzTest {
-	@Test
-	public void keys_multi() {
-		KeySet keys = Clazz.of(RelationVia.class).getKeys().getPrimary();
-
-		assertEquals(2, keys.size());
-		assertEquals(Token.of("relation", "from", "id"), keys.get(0).getToken());
-		assertEquals(Token.of("relation", "to", "id"), keys.get(1).getToken());
-	}
 
 	@Test
-	public void fieldsOnSuperClass() {
+	public void fieldsOnSuperClass() { // todo move but where?
 		Property.PropertyList properties = Clazz.of(Regular.class).getProperties();
 
 		assertEquals(2, properties.size());
@@ -216,7 +208,7 @@ public class ClazzTest {
 
 	@Test
 	public void forClassWithMethodsOfDifferentVisibility() {
-		Clazz<?> clazz = Clazz.of(ClassWithMethodsOfDifferentVisiblity.class);
+		Clazz<?> clazz = Clazz.of(ClassWithMethodsOfDifferentVisibility.class);
 		Set<String> expected = new HashSet<>(Arrays.asList(
 				"privateMethod", "protectedMethod", "packagePrivateMethod", "publicMethod"));
 		assertEquals(expected, clazz.methods().stream().map(ClazzMethod::getName).collect(Collectors.toSet()));
@@ -457,14 +449,14 @@ public class ClazzTest {
 		Clazz<?> g7x = Clazz.ofClazzes(G7X.class, Clazz.raw(G7X.class), Clazz.raw(G7X.class), Clazz.of(String.class), Clazz.raw(G7X.class));
 		assertClazz(g7x, G7X.class, self(), self(), String.class, self());
 
-		// assertThrows(IllegalStateException.class, () -> Clazz.of(G8.class)); // todo overflows
+		assertThrows(IllegalStateException.class, () -> Clazz.of(G8.class));
 	}
 
 	@Test
 	public void testLoopDeLoop() {
-		// assertThrows(IllegalStateException.class, () -> Clazz.of(Loop.class)); // todo overflows
+		assertThrows(IllegalStateException.class, () -> Clazz.of(Loop.class));
 
-		// assertThrows(IllegalStateException.class, () -> Clazz.of(DeLoop.class)); // todo overflows
+		assertThrows(IllegalStateException.class, () -> Clazz.of(DeLoop.class));
 
 		assertThrows(IllegalStateException.class, () -> Clazz.of(LoopDeLoop.class));
 	}
@@ -482,209 +474,8 @@ public class ClazzTest {
 		assertClazz(stuff2, Stuff.class, Number.class, Long.class);
 	}
 
-
-	public static class RelationFrom {
-		@PrimaryKey
-		private int id;
-		@Relation(collectionElementType = RelationTo.class, via = RelationVia.class)
-		private transient List<RelationTo> to;
-
-		public int getId() {
-			return id;
-		}
-
-		public void setId(int id) {
-			this.id = id;
-		}
-
-		public List<RelationTo> getTo() {
-			return to;
-		}
-
-		public void setTo(List<RelationTo> to) {
-			this.to = to;
-		}
-	}
-
-	public static class RelationVia {
-		@PrimaryKey
-		private int relationFromId;
-		@PrimaryKey
-		private int relationToId;
-
-		public int getRelationFromId() {
-			return relationFromId;
-		}
-
-		public void setRelationFromId(int relationFromId) {
-			this.relationFromId = relationFromId;
-		}
-
-		public int getRelationToId() {
-			return relationToId;
-		}
-
-		public void setRelationToId(int relationToId) {
-			this.relationToId = relationToId;
-		}
-	}
-
-
-	public static class DescribedRelationFrom {
-		@PrimaryKey
-		private int muh;
-		@Relation(collectionElementType = RelationTo.class, via = DescribedRelationVia.class)
-		private transient List<RelationTo> to;
-
-		public int getMuh() {
-			return muh;
-		}
-
-		public void setMuh(int muh) {
-			this.muh = muh;
-		}
-
-		public List<RelationTo> getTo() {
-			return to;
-		}
-
-		public void setTo(List<RelationTo> to) {
-			this.to = to;
-		}
-	}
-
-	public static class ClassWithRelationAndOtherKey {
-		@PrimaryKey
-		private int id;
-		@Key(name = "otherKey")
-		private String otherKey;
-		@Relation(collectionElementType = ClassWithRelationAndOtherKeyRelationTo.class)
-		private transient List<ClassWithRelationAndOtherKeyRelationTo> to;
-
-		public int getId() {
-			return id;
-		}
-
-		public void setId(int id) {
-			this.id = id;
-		}
-
-		public List<ClassWithRelationAndOtherKeyRelationTo> getTo() {
-			return to;
-		}
-
-		public void setTo(List<ClassWithRelationAndOtherKeyRelationTo> to) {
-			this.to = to;
-		}
-
-		public String getOtherKey() {
-			return otherKey;
-		}
-
-		public void setOtherKey(String otherKey) {
-			this.otherKey = otherKey;
-		}
-	}
-
-	public static class ClassWithRelationAndOtherKeyRelationTo {
-		@PrimaryKey
-		private int id;
-		private String otherKey;
-		private int classWithRelationAndOtherKeyId;
-		@Relation
-		private ClassWithRelationAndOtherKey classWithRelationAndOtherKey;
-
-		public int getId() {
-			return id;
-		}
-
-		public void setId(int id) {
-			this.id = id;
-		}
-
-		public String getOtherKey() {
-			return otherKey;
-		}
-
-		public void setOtherKey(String otherKey) {
-			this.otherKey = otherKey;
-		}
-
-		public int getClassWithRelationAndOtherKeyId() {
-			return classWithRelationAndOtherKeyId;
-		}
-
-		public void setClassWithRelationAndOtherKeyId(int classWithRelationAndOtherKeyId) {
-			this.classWithRelationAndOtherKeyId = classWithRelationAndOtherKeyId;
-		}
-
-		public ClassWithRelationAndOtherKey getClassWithRelationAndOtherKey() {
-			return classWithRelationAndOtherKey;
-		}
-
-		public void setClassWithRelationAndOtherKey(ClassWithRelationAndOtherKey classWithRelationAndOtherKey) {
-			this.classWithRelationAndOtherKey = classWithRelationAndOtherKey;
-		}
-	}
-
-	public static class DescribedRelationVia {
-		@PrimaryKey
-		private int cat;
-		@PrimaryKey
-		private int horse;
-
-		@Relation(fields = "cat", relationFields = "muh")
-		private transient DescribedRelationFrom samurai;
-
-		@Relation(fields = "horse", relationFields = "id")
-		private transient RelationTo ninja;
-
-		public int getCat() {
-			return cat;
-		}
-
-		public void setCat(int cat) {
-			this.cat = cat;
-		}
-
-		public int getHorse() {
-			return horse;
-		}
-
-		public void setHorse(int horse) {
-			this.horse = horse;
-		}
-
-		public DescribedRelationFrom getSamurai() {
-			return samurai;
-		}
-
-		public void setSamurai(DescribedRelationFrom samurai) {
-			this.samurai = samurai;
-		}
-
-		public RelationTo getNinja() {
-			return ninja;
-		}
-
-		public void setNinja(RelationTo ninja) {
-			this.ninja = ninja;
-		}
-	}
-
-	public static class RelationTo {
-		private int id;
-
-		public int getId() {
-			return id;
-		}
-
-		public void setId(int id) {
-			this.id = id;
-		}
-	}
-
 	public static class GenericClass<T> {
+		@SuppressWarnings("unused")
 		public void method(T t) {
 
 		}
@@ -694,8 +485,10 @@ public class ClazzTest {
 
 	}
 
+	@SuppressWarnings("unused")
 	public interface GenericInterface<T> {
 		void method(T t);
+
 		T method2(int i);
 	}
 
@@ -724,6 +517,7 @@ public class ClazzTest {
 		void method(String myString);
 	}
 
+	@SuppressWarnings("unused")
 	public class Muh implements NonGenericInterfaceExplicit {
 		@Override
 		public void method(String myString) {
@@ -736,7 +530,8 @@ public class ClazzTest {
 		}
 	}
 
-	public class ClassWithMethodsOfDifferentVisiblity {
+	@SuppressWarnings("unused")
+	public class ClassWithMethodsOfDifferentVisibility {
 		private void privateMethod() {
 
 		}
@@ -758,36 +553,18 @@ public class ClazzTest {
 
 	}
 
+	@SuppressWarnings("unused")
 	public static class MyArrayParent {
 		public MyArray getArray() {
 			return new MyArray();
 		}
 
-		public String nonGenericMethod(int input) { return "Hello"; }
-	}
-
-	public static class Super0<T> {
-		T method0(T input) {
-			return null;
+		public String nonGenericMethod(int input) {
+			return "Hello";
 		}
 	}
 
-	public static class Super1<T> extends Super0<T> {
-		T method1(T input) {
-			return null;
-		}
-	}
-
-	public static class Super2<T> extends Super1<T> {
-		T method2(T input) {
-			return null;
-		}
-	}
-
-	public static class Super3 extends Super2<String> {
-
-	}
-
+	@SuppressWarnings("unused")
 	public interface GG<A, B extends GG<A, B>> {}
 
 	public interface GI<X extends GG<Integer, X>> extends GG<Integer, X> {}
@@ -818,8 +595,10 @@ public class ClazzTest {
 
 	public interface II7 extends GG2<String, II7> {}
 
+	@SuppressWarnings("unused")
 	public interface G1<G extends G1<G, G>, H extends G1<H, H>> {}
 
+	@SuppressWarnings("unused")
 	public interface G2<X, SELF extends G2<X, SELF>> {}
 
 	public interface G3<SELF extends G3<SELF>> extends G2<SELF, SELF> {}
@@ -838,18 +617,23 @@ public class ClazzTest {
 
 	public interface G7X<A extends G7X<B, C, X, A>, B extends G7X<C, A, X, B>, X, C extends G7X<A, B, X, C>> {}
 
+	@SuppressWarnings("unused")
 	public interface G8<T extends G8<? extends G8<T>>> {}
 
+	@SuppressWarnings("unused")
 	public interface Loop<X extends DeLoop<? extends Loop<X>>> {}
 
+	@SuppressWarnings("unused")
 	public interface DeLoop<X extends Loop<? extends DeLoop<X>>> {}
 
 	public static class LoopDeLoop<F extends List<D>, D extends List<F>> {}
 
+	@SuppressWarnings("unused")
 	public interface Stuff<S, X> {}
 
 	public interface Things<T> extends Stuff<T, Long> {}
 
+	@SuppressWarnings("unused")
 	public interface Group<G, B> extends Things<G> {}
 
 	public interface StringGroup extends Group<Number, String> {}
