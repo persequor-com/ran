@@ -54,7 +54,7 @@ public class Clazz<T> {
 			return raw(null);
 		}
 		if (type instanceof Class) {
-			return of((Class<?>) type, genericMap);
+			return of((Class<?>) type, genericMap); // todo the names might not match?
 		}
 		if (type instanceof GenericArrayType) {
 			return of((GenericArrayType) type, genericMap);
@@ -99,9 +99,9 @@ public class Clazz<T> {
 		// wildcards can have weaker / different bounds than the original type,
 		// so we choose the more specific out of default bounds and wildcard bounds
 		// currently we correctly resolve only some basic cases
-		Map<String, Clazz<?>> loopStopMap = genericMap.keySet().stream()
-				.filter(k -> genericMap.get(k) == LOOP_STOP)
-				.collect(Collectors.toMap(k -> k, k -> LOOP_STOP));
+		Map<String, Clazz<?>> loopStopMap = genericMap.keySet().stream() // todo the names do not match?
+				.filter(k -> genericMap.get(k) == LOOP_STOP || genericMap.get(k) == SELF)
+				.collect(Collectors.toMap(k -> k, genericMap::get));
 		List<Clazz> defaultGenerics = of((Class<?>) parameterizedType.getRawType(), loopStopMap).generics;
 
 		List<Clazz> specificGenerics = getMostSpecific(parameterizedType, (List) generics, (List) defaultGenerics);
@@ -118,7 +118,7 @@ public class Clazz<T> {
 			throw new IllegalArgumentException("multiple bounds are not supported " + typeVariable);
 		}
 
-		Map<String, Clazz<?>> newMap = new HashMap<>(genericMap);
+		Map<String, Clazz<?>> newMap = new HashMap<>(genericMap);  // todo the names do not match?
 		newMap.put(typeVariable.getName(), LOOP_STOP);
 
 		if (!(bounds[0] instanceof ParameterizedType)) {
@@ -602,7 +602,7 @@ public class Clazz<T> {
 		// there can be <? extends Collection<String>> and <? extends List<?>> which should
 		// resolve into List<String>. I managed to make it work, but it broke many other things
 		if (actualType == LOOP_STOP || defaultType == LOOP_STOP) {
-			return actualType == LOOP_STOP ? defaultType : actualType;
+			return LOOP_STOP;
 		}
 		if (actualType.clazz == defaultType.clazz) {
 			return actualType;

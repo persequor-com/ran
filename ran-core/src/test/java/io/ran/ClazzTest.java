@@ -483,6 +483,8 @@ public class ClazzTest {
 
 	@Test
 	public void testLoopDeLoop() {
+		Clazz<?> loop = Clazz.of(Loop.class);
+
 		assertThrows(IllegalStateException.class, () -> Clazz.of(Loop.class));
 
 		assertThrows(IllegalStateException.class, () -> Clazz.of(DeLoop.class));
