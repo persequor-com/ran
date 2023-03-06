@@ -2,9 +2,7 @@ package io.ran;
 
 import org.junit.Test;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -13,7 +11,8 @@ import java.util.function.Function;
 import java.util.stream.BaseStream;
 import java.util.stream.Stream;
 
-import static io.ran.ClazzTest.assertClazz;
+import static io.ran.testclasses.AssertHelpers.assertClazz;
+import static io.ran.testclasses.AssertHelpers.g;
 import static org.junit.Assert.*;
 
 public class ClazzMethodTest {
@@ -207,7 +206,7 @@ public class ClazzMethodTest {
 
 		// needs to decide between ListHolder<List<String>> and ListHolder<List<Object>>
 		Clazz<?> listHolderOfString = makeMethod.getReturnType();
-		assertClazz(listHolderOfString, ListHolder.class, new ClazzTest.Holder(List.class, String.class));
+		assertClazz(listHolderOfString, ListHolder.class, g(List.class, String.class));
 
 		ClazzMethod getMethod = listHolderOfString.methods().find("get", List.class).orElseThrow(RuntimeException::new);
 		assertTrue(getMethod.hasGenericFromClass());
@@ -226,7 +225,7 @@ public class ClazzMethodTest {
 
 		// needs to decide between StringListHolder<List<Object>> or StringListHolder<List<String>>
 		Clazz<?> stringListHolderOfWildcard = makeMethod.getReturnType();
-		assertClazz(stringListHolderOfWildcard, StringListHolder.class, new ClazzTest.Holder(List.class, String.class));
+		assertClazz(stringListHolderOfWildcard, StringListHolder.class, g(List.class, String.class));
 
 		ClazzMethod getMethod = stringListHolderOfWildcard.methods().find("get", List.class).orElseThrow(RuntimeException::new);
 		assertTrue(getMethod.hasGenericFromClass());

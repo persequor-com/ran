@@ -141,7 +141,7 @@ public class ClazzMethod {
 	}
 
 	public Clazz<?> getDeclaringClazz() {
-		return Clazz.of(method.getDeclaringClass());
+		return actualClass.findGenericSuper(method.getDeclaringClass());
 	}
 
 	public MethodSignature getSignature() {

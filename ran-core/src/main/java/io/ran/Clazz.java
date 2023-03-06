@@ -10,7 +10,6 @@ package io.ran;
 
 import io.ran.token.CamelHumpToken;
 import io.ran.token.Token;
-import org.omg.CORBA.PRIVATE_MEMBER;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -29,13 +28,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Stack;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Clazz<T> {
 	private static final String COVERAGE_FIELD_PATTERN = "__\\$.*\\$__";
-	private static final Clazz<Void> SELF = new Clazz<>(Void.class);
+	public static final Clazz<Void> SELF = new Clazz<>(Void.TYPE);
+	public static final Clazz<Void> LOOP_STOP = new Clazz<>(Void.TYPE);
 	public String className;
 	public Class<T> clazz;
 	public List<Clazz<?>> generics = new ArrayList<>();
@@ -55,7 +54,7 @@ public class Clazz<T> {
 			return raw(null);
 		}
 		if (type instanceof Class) {
-			return of((Class<?>) type);
+			return of((Class<?>) type, genericMap);
 		}
 		if (type instanceof GenericArrayType) {
 			return of((GenericArrayType) type, genericMap);
@@ -72,10 +71,9 @@ public class Clazz<T> {
 		throw new IllegalArgumentException("unhandled Type type: " + type.getClass());
 	}
 
-	public static Clazz of(Class<?> clazz) {
-		if(clazz != null) {
-			// todo make shared map and add as you resolve?
-			return Clazz.ofClazzes(clazz, Stream.of(clazz.getTypeParameters()).map(Clazz::of).collect(Collectors.toList()));
+	public static Clazz of(Class<?> clazz, Map<String, Clazz<?>> genericMap) {
+		if (clazz != null) {
+			return Clazz.ofClazzes(clazz, Stream.of(clazz.getTypeParameters()).map(typeParam -> Clazz.of(typeParam, genericMap)).collect(Collectors.toList()));
 		}
 		return raw(null);
 	}
@@ -98,8 +96,13 @@ public class Clazz<T> {
 		List<Clazz> generics = Arrays.stream(parameterizedType.getActualTypeArguments())
 				.map(t -> of(t, genericMap))
 				.collect(Collectors.toList());
-		// wildcards can have weaker bounds than the original type
-		List<Clazz> defaultGenerics = of(parameterizedType.getRawType()).generics;
+		// wildcards can have weaker / different bounds than the original type,
+		// so we choose the more specific out of default bounds and wildcard bounds
+		// currently we correctly resolve only some basic cases
+		Map<String, Clazz<?>> loopStopMap = genericMap.keySet().stream()
+				.filter(k -> genericMap.get(k) == LOOP_STOP)
+				.collect(Collectors.toMap(k -> k, k -> LOOP_STOP));
+		List<Clazz> defaultGenerics = of((Class<?>) parameterizedType.getRawType(), loopStopMap).generics;
 
 		List<Clazz> specificGenerics = getMostSpecific(parameterizedType, (List) generics, (List) defaultGenerics);
 		return Clazz.ofClazzes((Class<?>) parameterizedType.getRawType(), specificGenerics);
@@ -115,65 +118,30 @@ public class Clazz<T> {
 			throw new IllegalArgumentException("multiple bounds are not supported " + typeVariable);
 		}
 
-		Type bound = bounds[0];
-		if (bound instanceof Class) {
-			return Clazz.of((Class<?>) bound);
-		}
-		if (bound instanceof TypeVariable) {
-			return of((TypeVariable<?>) bound, genericMap);
-//			String boundName = ((TypeVariable<?>) bound).getName();
-//			if (genericMap.containsKey(boundName)) {
-//				return genericMap.get(boundName);
-//			}
-//			return new Clazz<>(Object.class);
-		}
-		if (bound instanceof ParameterizedType) {
-			ParameterizedType bpt = (ParameterizedType) bounds[0];
-			if(bpt.getActualTypeArguments().length == 1) { // todo you can have multiple args bound to itself
-				Type tv2 = bpt.getActualTypeArguments()[0];
-				if(typeVariable == tv2) {
-					Clazz self = Clazz.ofClazzes((Class) bpt.getRawType());
-					self.generics.add(self);
-					self.genericMap.put(tv2.getTypeName(), self);
-					return self;
-					//return Clazz.ofClazzes((Class)bpt.getRawType(), new Clazz((Class)bpt.getRawType()));
-					////return Clazz.of(bpt.getRawType(), genericMap);
-				} else if((tv2 instanceof WildcardType)
-						&& ((WildcardType)tv2).getLowerBounds().length == 1
-						&& ((WildcardType)tv2).getLowerBounds()[0] == typeVariable) {
-					return Clazz.ofClazzes((Class)bpt.getRawType(), new Clazz((Class)bpt.getRawType()));
-				} else {
-					System.out.println("Not same type: "+typeVariable+" and "+tv2);
-				}
-			} else if(bpt.getActualTypeArguments().length > 1) {
-				List<Clazz> genricParams = Stream.of(bpt.getActualTypeArguments())
-						.map(tv2 -> {
-							if (tv2 instanceof TypeVariable && tv2 == typeVariable) {
-								return new Clazz<>((Class) bpt.getRawType()); // todo this makes raw class and then generic pointing to it, find a way to loop it
-							} else if (tv2 instanceof TypeVariable && genericMap.containsKey(((TypeVariable<?>)tv2).getName())) {
-								return genericMap.get(((TypeVariable<?>)tv2).getName());
-							} else if(tv2 instanceof ParameterizedType) {
-								return of(tv2, genericMap);
-							} else if (tv2 instanceof Class) {
-								return new Clazz((Class) tv2);
-							} else {
-								return new Clazz<>(Object.class);
-							}
-						})
-						.collect(Collectors.toList());
-				return Clazz.ofClazzes((Class)bpt.getRawType(), genricParams);
+		Map<String, Clazz<?>> newMap = new HashMap<>(genericMap);
+		newMap.put(typeVariable.getName(), LOOP_STOP);
 
-				//System.out.println("More than one actual: "+bpt.getActualTypeArguments().length);
-			}
-			return Clazz.of(bound, genericMap);
+		if (!(bounds[0] instanceof ParameterizedType)) {
+			return of(bounds[0], newMap);
 		}
 
-		throw new IllegalArgumentException("Unsupported type of bound " + bound.getClass());
+		newMap.put(typeVariable.getName(), SELF);
+
+		ParameterizedType bound = (ParameterizedType) bounds[0];
+		List<Clazz> genericParams = Stream.of(bound.getActualTypeArguments())
+				.map(boundTypeArg -> {
+					if (boundTypeArg.equals(typeVariable)) {
+						return SELF;
+					}
+					return of(boundTypeArg, newMap);
+				})
+				.collect(Collectors.toList());
+		return Clazz.ofClazzes((Class<?>) bound.getRawType(), genericParams);
 	}
 
-	// todo check type count?
+	// todo check type count and bounds?
 	public static <T> Clazz<T> ofClasses(Class<T> clazz, Class<?>... generics) {
-		return new Clazz<T>(clazz, Arrays.stream(generics).map(Clazz::of).toArray(Clazz[]::new));
+		return new Clazz<>(clazz, Arrays.stream(generics).map(Clazz::of).toArray(Clazz[]::new));
 	}
 
 	public static Clazz ofClazzes(Class clazz, Clazz<?>... generics) {
@@ -235,6 +203,9 @@ public class Clazz<T> {
 				TypeVariable<Class<T>>[] typeVariables = clazz.getTypeParameters();
 				if (typeVariables.length == generics.size()) {
 					for (int i = 0; i < generics.size(); i++) {
+						if (generics.get(i) == LOOP_STOP) {
+							throw new IllegalStateException("infinite loop detected");
+						}
 						TypeVariable<Class<T>> typeVariable = typeVariables[i];
 						Type bound0 = typeVariable.getBounds()[0];
 						if (generics.get(i) == SELF ||
@@ -460,7 +431,7 @@ public class Clazz<T> {
 		Property.PropertyList fields = Property.list();
 
 		for (Field field : getFields()) {
-			if (isPublicStatic(field) || !includeNonProperties && !isPropertyField(field)) {
+			if (isPublicStatic(field) || (!includeNonProperties && !isPropertyField(field))) {
 				continue;
 			}
 			Token token = Token.camelHump(field.getName());
@@ -569,20 +540,11 @@ public class Clazz<T> {
 		};
 	}
 
-	public Map<String, String> initialTypeMap() {
-		return genericMap.keySet().stream().collect(Collectors.toMap(k -> k, k-> k));
-	}
-
-	Clazz<?> findGenericSuper(Class<?> ofClazz) {
-		return findGenericSuper(ofClazz, initialTypeMap());
-	}
-
 	/**
 	 * @param ofClazz superclass or generic interface of `this`
-	 * @param thisTypeToSubType should be result of `this.initialGenericSuperMap()` which will be modified to contain mapping from the returned Clazz'es type parameter names to parameter names of `this`
 	 * @return Clazz of `ofClazz` with generics set as specified by `this`
 	 */
-	Clazz<?> findGenericSuper(Class<?> ofClazz, Map<String, String> thisTypeToSubType) {
+	Clazz<?> findGenericSuper(Class<?> ofClazz) {
 		if (clazz.equals(Object.class)) {
 			return null;
 		}
@@ -591,61 +553,24 @@ public class Clazz<T> {
 		}
 		Clazz<?> superClass = getSuper();
 		if (superClass != null && superClass.clazz != null) {
-			Type genericSuperClass = clazz.getGenericSuperclass();
-			Map<String, String> superTypeToSubType = genericSuperClass == null ? initialTypeMap() : linkGenericTypes(thisTypeToSubType, genericSuperClass);
-			Clazz<?> duperClass = superClass.findGenericSuper(ofClazz, superTypeToSubType);
+			Clazz<?> duperClass = superClass.findGenericSuper(ofClazz);
 			if (duperClass != null) {
-				thisTypeToSubType.clear();
-				thisTypeToSubType.putAll(superTypeToSubType);
 				return duperClass;
 			}
 		}
 		if (!ofClazz.isInterface()) {
 			return null;
 		}
-		for (Type superInterface : clazz.getGenericInterfaces()) { // todo non generic interfaces?
-			Map<String, String> superTypeToSubType = linkGenericTypes(thisTypeToSubType, superInterface);
-			Clazz<?> duperInterface = Clazz.of(superInterface, genericMap).findGenericSuper(ofClazz, superTypeToSubType);
+		for (Type superInterface : clazz.getGenericInterfaces()) {
+			Clazz<?> duperInterface = Clazz.of(superInterface, genericMap).findGenericSuper(ofClazz);
 			if (duperInterface != null) {
-				thisTypeToSubType.clear();
-				thisTypeToSubType.putAll(superTypeToSubType);
 				return duperInterface;
 			}
 		}
 		return null;
 	}
 
-	// link type parameter names between a class/interface, and its super class/interface
-	private static Map<String, String> linkGenericTypes(Map<String, String> thisTypeToSubType, Type parent) {
-		if (!(parent instanceof ParameterizedType)) {
-			return Collections.emptyMap();
-		}
-
-		ParameterizedType parentType = (ParameterizedType) parent;
-		Class<?> parentClass = (Class<?>) parentType.getRawType();
-		Type[] superTypes = parentClass.getTypeParameters();
-		Type[] thisTypes = parentType.getActualTypeArguments();
-		if (superTypes.length != thisTypes.length) {
-			throw new IllegalArgumentException("type params count does not match actual type args count " + parentType);
-		}
-
-		Map<String, String> superTypeToSubType = new HashMap<>();
-		for (int i = 0; i < thisTypes.length; i++) {
-			if (thisTypes[i] instanceof TypeVariable) {
-				if (!(superTypes[i] instanceof TypeVariable)) {
-					throw new IllegalArgumentException("actual type arg is TypeVariable, but super type param is not " + superTypes[i].getClass());
-				}
-				String thisTypeName = ((TypeVariable<?>) thisTypes[i]).getName();
-				if (thisTypeToSubType.containsKey(thisTypeName)) {
-					String subTypeName = thisTypeToSubType.get(thisTypeName);
-					superTypeToSubType.put(superTypes[i].getTypeName(), subTypeName);
-				}
-			}
-		}
-		return superTypeToSubType;
-	}
-
-	public boolean equals(Clazz<?> clazz) {
+	public boolean equals(Clazz<?> clazz) { // todo what about other equals
 		return this.clazz.equals(clazz.clazz);
 	}
 
@@ -657,84 +582,40 @@ public class Clazz<T> {
 		return clazz.equals(Void.class) || clazz.equals(void.class);
 	}
 
-	private static List<Clazz> getMostSpecific(Type parentType, List<Clazz<?>> actualTypes, List<Clazz<?>> defaultTypes) {
+	private static List<Clazz> getMostSpecific(ParameterizedType parentType, List<Clazz<?>> actualTypes, List<Clazz<?>> defaultTypes) {
 		if (actualTypes.size() != defaultTypes.size()) {
 			throw new IllegalArgumentException("mismatch in generics count " + actualTypes.size() + " and " + defaultTypes.size() + " for " + parentType);
 		}
 
 		List<Clazz> specificTypes = new ArrayList<>(actualTypes.size());
 		for (int i = 0; i < actualTypes.size(); i++) {
-			Clazz<?> moreSpecific = getMostSpecific(actualTypes.get(i), defaultTypes.get(i));
-			if (moreSpecific == null) {
+			Clazz<?> mostSpecific = getMostSpecific(actualTypes.get(i), defaultTypes.get(i));
+			if (mostSpecific == null) {
 				throw new IllegalArgumentException("Conflicting generics " + actualTypes.get(i) + " and " + defaultTypes.get(i) + " at index " + i + " of " + parentType);
 			}
-			specificTypes.add(moreSpecific);
+			specificTypes.add(mostSpecific);
 		}
 		return specificTypes;
 	}
 
 	private static Clazz<?> getMostSpecific(Clazz<?> actualType, Clazz<?> defaultType) {
+		// there can be <? extends Collection<String>> and <? extends List<?>> which should
+		// resolve into List<String>. I managed to make it work, but it broke many other things
+		if (actualType == LOOP_STOP || defaultType == LOOP_STOP) {
+			return actualType == LOOP_STOP ? defaultType : actualType;
+		}
 		if (actualType.clazz == defaultType.clazz) {
-			// filter out loops and then add them back?
-			List<Clazz<?>> actualGenerics = new ArrayList<>(actualType.generics);
-			List<Clazz<?>> defaultGenerics = new ArrayList<>(defaultType.generics);
-			Stack<Integer> selfIndices = new Stack<>();
-			for (int i = actualGenerics.size() - 1; i >= 0; i--) {
-				if (actualGenerics.get(i) == actualType) {
-					if (defaultGenerics.get(i) != defaultType) {
-						throw new IllegalArgumentException("actual type is loop but default is not");
-					}
-					selfIndices.add(0, i);
-					actualGenerics.remove(i);
-					defaultGenerics.remove(i);
-				}
-			}
-			List<Clazz> newGenerics = getMostSpecific(actualType.clazz, actualGenerics, defaultGenerics);
-			selfIndices.forEach(i -> newGenerics.add(i, SELF));
-			return Clazz.ofClazzes(actualType.clazz, newGenerics);
+			return actualType;
 		}
-
-		Clazz<?> superClass, subClass;
-		boolean actualIsSub;
 		if (defaultType.clazz.isAssignableFrom(actualType.clazz)) {
-			superClass = defaultType;
-			subClass = actualType;
-			actualIsSub = true;
-		} else if (actualType.clazz.isAssignableFrom(defaultType.clazz)) {
-			superClass = actualType;
-			subClass = defaultType;
-			actualIsSub = false;
-		} else {
-			return null;
+			return actualType;
 		}
-
-		if (subClass.generics.isEmpty() || superClass.generics.isEmpty()) {
-			return subClass;
+		if (actualType.clazz.isAssignableFrom(defaultType.clazz)) {
+			return defaultType;
 		}
-		// get most specific generics from common parent, and replace matching generics in subClass
-		// for example List<Object> and Collection<String> gives List<String>
-		// see StringCollectionHolderFactory in tests
-		Map<String, String> parentTypeToSubClassType = subClass.initialTypeMap();
-		Clazz<?> parent = subClass.findGenericSuper(superClass.clazz, parentTypeToSubClassType);
-		List<Clazz<?>> parentActualTypes = actualIsSub ? parent.generics : superClass.generics;
-		List<Clazz<?>> parentDefaultTypes = actualIsSub ? superClass.generics : parent.generics;
-
-		Clazz<?> specificParent = Clazz.ofClazzes(parent.clazz, getMostSpecific(parent.clazz, parentActualTypes, parentDefaultTypes));
-		List<Clazz> newSubClassGenerics = new ArrayList<>(subClass.generics);
-		parentTypeToSubClassType.forEach((parentType, subClassType) -> {
-			int subClassTypeIndex = findIndex(subClass, subClassType);
-			newSubClassGenerics.set(subClassTypeIndex, specificParent.genericMap.get(parentType));
-		});
-		return Clazz.ofClazzes(subClass.clazz, newSubClassGenerics);
-	}
-
-	private static int findIndex(Clazz<?> clazz, String typeName) {
-		Clazz<?> type = clazz.genericMap.get(typeName);
-		for (int i = 0; i < clazz.generics.size(); i++) {
-			if (clazz.generics.get(i) == type) {
-				return i;
-			}
+		if (actualType == SELF || defaultType == SELF) {
+			return SELF;
 		}
-		throw new IllegalArgumentException("Generic map of " + clazz + " does not contain " + typeName);
+		return null;
 	}
 }
