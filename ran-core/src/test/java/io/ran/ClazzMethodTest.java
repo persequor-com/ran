@@ -317,4 +317,11 @@ public class ClazzMethodTest extends TestCase {
 		assertEquals(BaseStream.class, retType.generics.get(1).clazz);
 		//TODO: assertSame(retType, retType.generics.get(1));
 	}
+
+	@Test
+	public void test_ObjectMethods() {
+		Clazz<?> c = Clazz.of(Object.class);
+		assertEquals(12, c.methods().size());
+	}
+
 }
