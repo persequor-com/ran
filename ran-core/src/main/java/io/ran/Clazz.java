@@ -514,6 +514,9 @@ public class Clazz<T> {
 
 
 	public Object getDefaultValue() {
+		if (isVoid()) {
+			return null;
+		}
 		if (isPrimitive()) {
 			return Primitives.get(clazz).getDefaultValue();
 		}
