@@ -13,6 +13,7 @@ import io.ran.Property;
 import io.ran.token.Token;
 import org.junit.Test;
 
+import javax.sql.DataSource;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.UUID;
@@ -101,6 +102,11 @@ public class SchemaBuilderTest {
 			values.forEach(ta -> {
 				result.append(ta.getAction().apply(ta));
 			});
+		}
+
+		@Override
+		public void execute(Collection<TableAction> tableActions, DataSource dataSourceToExecuteOn) {
+			execute(tableActions);
 		}
 	}
 }

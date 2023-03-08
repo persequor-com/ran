@@ -12,18 +12,19 @@ import io.ran.TypeDescriber;
 import io.ran.token.TableToken;
 import io.ran.token.Token;
 
+import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
 public abstract class SchemaBuilder<SB extends SchemaBuilder<SB, TB, CB, IB, ITB>, TB extends TableBuilder<TB, CB, IB>, CB extends ColumnBuilder<CB>, IB extends IndexBuilder<IB>, ITB extends ITableBuilder<TB, CB, IB>> {
-	private SchemaExecutor executor;
+	private final SchemaExecutor executor;
 
 	public SchemaBuilder(SchemaExecutor executor) {
 		this.executor = executor;
 	}
 
-	private List<TableAction> tableActions = new ArrayList<>();
+	private final List<TableAction> tableActions = new ArrayList<>();
 
 	abstract protected TB getTableBuilder();
 
@@ -79,4 +80,8 @@ public abstract class SchemaBuilder<SB extends SchemaBuilder<SB, TB, CB, IB, ITB
 	public void build() {
 		executor.execute(tableActions);
 	}
+
+	public void build(DataSource dataSourceToExecuteOn) {
+		executor.execute(tableActions, dataSourceToExecuteOn);
+	};
 }
