@@ -292,7 +292,7 @@ public class ClazzMethodTest {
 		assertTrue(makeMethod.hasGenericFromMethod());
 
 		ClazzMethod getMethod = makeMethod.getReturnType().methods().find("get", List.class).get();
-		assertMethod(StringListHolder.class, getMethod, g(List.class, String.class));
+		assertMethod(g(StringListHolder.class, g(List.class, String.class)), getMethod, g(List.class, String.class));
 		assertTrue(getMethod.hasGenericFromClass());
 		assertFalse(getMethod.hasGenericFromMethod());
 	}
@@ -308,7 +308,7 @@ public class ClazzMethodTest {
 		assertTrue(makeMethod.hasGenericFromMethod());
 
 		ClazzMethod getMethod = makeMethod.getReturnType().methods().find("get", List.class).get();
-		assertMethod(ListHolder.class, getMethod, g(List.class, String.class));
+		assertMethod(g(ListHolder.class, g(List.class, String.class)), getMethod, g(List.class, String.class));
 		assertTrue(getMethod.hasGenericFromClass());
 		assertFalse(getMethod.hasGenericFromMethod());
 	}

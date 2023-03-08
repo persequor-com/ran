@@ -51,7 +51,7 @@ public class AssertHelpers {
 				innerAssert(params.get(i).getClazz(), paramTypes[i]);
 			}
 		} catch (AssertionError e) {
-			throw new AssertionError("Type mismatch for parameter " + i + " of " + method);
+			throw new AssertionError("Type mismatch for parameter " + i + " of " + method, e);
 		}
 	}
 
