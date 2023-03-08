@@ -79,7 +79,7 @@ public class Clazz<T> {
 
 	public static Clazz of(GenericArrayType genericArray, Map<String, Clazz<?>> genericMap) {
 		Clazz<?> arrType = of(genericArray.getGenericComponentType(), genericMap);
-		return new Clazz(Array.newInstance(arrType.clazz, 0).getClass(), arrType.generics);
+		return arrType.getArrayType();
 	}
 
 	public static Clazz of(WildcardType wildcardType, Map<String, Clazz<?>> genericMap) {
@@ -258,10 +258,7 @@ public class Clazz<T> {
 	}
 
 	public Clazz<?> getArrayType() {
-		if (isArray()) {
-			return null;
-		}
-		return Clazz.of(java.lang.reflect.Array.newInstance(clazz, 0).getClass());
+		return new Clazz(Array.newInstance(clazz, 0).getClass(), generics);
 	}
 
 	public int size() {
@@ -503,6 +500,9 @@ public class Clazz<T> {
 
 
 	public Object getDefaultValue() {
+		if (isVoid()) {
+			return null;
+		}
 		if (isPrimitive()) {
 			return Primitives.get(clazz).getDefaultValue();
 		}
@@ -537,6 +537,9 @@ public class Clazz<T> {
 	 * @return Clazz of `ofClazz` with generics set as specified by `this`
 	 */
 	Clazz<?> findGenericSuper(Class<?> ofClazz) {
+		if (ofClazz.equals(Object.class)) { // todo I added this, is it an issue?
+			return new Clazz<>(Object.class);
+		}
 		if (clazz.equals(Object.class)) {
 			return null;
 		}

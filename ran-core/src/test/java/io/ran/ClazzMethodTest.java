@@ -265,6 +265,18 @@ public class ClazzMethodTest {
 		assertFalse(streamMethod.hasGenericFromMethod());
 	}
 
+	@Test
+	public void testObjectMethods() {
+		Clazz<?> object = Clazz.of(Object.class);
+		assertEquals(12, object.methods().size());
+
+		Clazz<?> string = Clazz.of(String.class);
+		Clazz<?> object2 = string.getSuper();
+		assertEquals(12, object2.methods().size());
+
+
+	}
+
 	// coincidentally works, but swapping the order breaks it
 	@Test
 	public void testMoreSpecificFirstLevelSame1() {
