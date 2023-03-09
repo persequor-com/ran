@@ -73,7 +73,11 @@ public class Clazz<T> {
 	public static Clazz of(Class<?> clazz, Map<String, Clazz<?>> prevGenericMap) {
 		if (clazz != null) {
 			Map<String, Clazz<?>> loopStopMap = prevGenericMap.keySet().stream().filter(k -> prevGenericMap.get(k) == LOOP_STOP).collect(Collectors.toMap(k -> k, k -> LOOP_STOP));
-			return new Clazz(clazz, Stream.of(clazz.getTypeParameters()).map(type -> Clazz.of(type, loopStopMap)).collect(Collectors.toList()));
+			try {
+				return new Clazz(clazz, Stream.of(clazz.getTypeParameters()).map(type -> Clazz.of(type, loopStopMap)).collect(Collectors.toList()));
+			} catch (IllegalStateException e) {
+				return raw(clazz);
+			}
 		}
 		return raw(null);
 	}
