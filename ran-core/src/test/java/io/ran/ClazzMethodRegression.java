@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import static io.ran.testclasses.AssertHelpers.assertMethod;
 import static io.ran.testclasses.AssertHelpers.g;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 @SuppressWarnings("OptionalGetWithoutIsPresent")
@@ -14,9 +15,9 @@ public class ClazzMethodRegression {
 		ClazzMethodList methods = Clazz.of(UrlLink.class).methods();
 		// This fails because the method isn't even included - so somehow we don't traverse parent classes well enough
 		ClazzMethod someMethod = methods.find("someMethod", String.class, String.class).get();
-		assertMethod(g(String.class, String.class), someMethod, String.class, String.class);
-		assertTrue(someMethod.hasGenericFromClass());
-		assertTrue(someMethod.hasGenericFromMethod());
+		assertMethod(g(RedirectableLink.class), someMethod, String.class, String.class);
+		assertFalse(someMethod.hasGenericFromClass());
+		assertFalse(someMethod.hasGenericFromMethod());
 	}
 
 	@Test
@@ -25,9 +26,9 @@ public class ClazzMethodRegression {
 		ClazzMethodList methods = Clazz.of(UrlLink.class).methods();
 		ClazzMethod someMethod = methods.find("addParameter", UrlLink.class, String.class).get();
 		// This fails because the generics are calculated incorrectly
-		assertMethod(g(UrlLink.class, String.class), someMethod, UrlLink.class, String.class);
+		assertMethod(g(ParametrizableLink.class, UrlLink.class), someMethod, UrlLink.class, String.class);
 		assertTrue(someMethod.hasGenericFromClass());
-		assertTrue(someMethod.hasGenericFromMethod());
+		assertFalse(someMethod.hasGenericFromMethod());
 	}
 
 

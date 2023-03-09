@@ -474,6 +474,31 @@ public class ClazzTest {
 		assertClazz(stuff2, Stuff.class, Number.class, Long.class);
 	}
 
+	@Test
+	public void testUrlLink() {
+		Clazz<?> urlLink = Clazz.of(UrlLink.class);
+		Clazz<?> parametrizableLink = urlLink.findGenericSuper(ParametrizableLink.class);
+
+		Clazz<?> badLink = Clazz.of(BadLink.class);
+		Clazz<?> para = badLink.findGenericSuper(ParametrizableLink.class);
+
+		Clazz<?> weird = Clazz.of(Weird.class); // todo fails because LOOP_STOP is based just on String "T"
+		// instead should be based on TypeVariable which combines the declaring class and the type name
+	}
+
+	// todo more raw generic class tests needed
+
+	public static class Normal<T extends String> {}
+	public static class Weird<T extends Normal> {}
+
+	public static class BadLink extends ParametrizableLink {}
+
+	public static class UrlLink extends ParametrizableLink<UrlLink> {
+
+	}
+
+	public static class ParametrizableLink<T extends ParametrizableLink> {}
+
 	public static class GenericClass<T> {
 		@SuppressWarnings("unused")
 		public void method(T t) {

@@ -49,20 +49,11 @@ public class Clazz<T> {
 	}
 
 	public static Clazz of(Type type, Map<String, Clazz<?>> genericMap) {
-		// FIXME: Remove this (Avoid infinite recursion)
-		{
-			StackTraceElement[] st = Thread.currentThread().getStackTrace();
-			if(st.length > 500) {
-				return of(Object.class);
-				//System.out.println("Aw, we have: "+st.length+" of stack");
-			}
-
-		}
 		if (type == null) {
 			return raw(null);
 		}
 		if (type instanceof Class) {
-			return of((Class<?>) type);
+			return of((Class<?>) type, genericMap);
 		}
 		if (type instanceof GenericArrayType) {
 			return of((GenericArrayType) type, genericMap);
@@ -79,13 +70,10 @@ public class Clazz<T> {
 		throw new IllegalArgumentException("unhandled Type type: " + type.getClass());
 	}
 
-	public static Clazz of(Class<?> clazz) {
+	public static Clazz of(Class<?> clazz, Map<String, Clazz<?>> prevGenericMap) {
 		if (clazz != null) {
-			List<Clazz<?>> map = new ArrayList<>();
-			Stream.of(clazz.getTypeParameters())
-					.map(Clazz::of)
-					.forEach(gc -> map.add(gc));
-			return new Clazz(clazz, map);
+			Map<String, Clazz<?>> loopStopMap = prevGenericMap.keySet().stream().filter(k -> prevGenericMap.get(k) == LOOP_STOP).collect(Collectors.toMap(k -> k, k -> LOOP_STOP));
+			return new Clazz(clazz, Stream.of(clazz.getTypeParameters()).map(type -> Clazz.of(type, loopStopMap)).collect(Collectors.toList()));
 		}
 		return raw(null);
 	}
@@ -105,7 +93,7 @@ public class Clazz<T> {
 	}
 
 	public static Clazz of(ParameterizedType parameterizedType, Map<String, Clazz<?>> genericMap) {
-		List<Clazz<?>> generics = Arrays.stream(parameterizedType.getActualTypeArguments())
+		List<Clazz> generics = Arrays.stream(parameterizedType.getActualTypeArguments())
 				.map(t -> {
 					Clazz<?> res = of(t, genericMap);
 					if (res == LOOP_STOP) {
@@ -117,9 +105,13 @@ public class Clazz<T> {
 		// wildcards can have weaker / different bounds than the original type,
 		// so we choose the more specific out of default bounds and wildcard bounds
 		// currently we correctly resolve only some basic cases
-		List<Clazz<?>> defaultGenerics = of((Class<?>) parameterizedType.getRawType()).generics;
-
-		List<Clazz> specificGenerics = getMostSpecific(parameterizedType, generics, defaultGenerics);
+		List<Clazz> specificGenerics;
+		try {
+			List<Clazz<?>> defaultGenerics = of((Class<?>) parameterizedType.getRawType()).generics;
+			specificGenerics = getMostSpecific(parameterizedType, generics, defaultGenerics);
+		} catch (IllegalStateException e) {
+			specificGenerics = generics;
+		}
 		return new Clazz((Class<?>) parameterizedType.getRawType(), specificGenerics);
 	}
 
@@ -295,7 +287,11 @@ public class Clazz<T> {
 	}
 
 	public Clazz<?> getSuper() {
-		if (clazz.getGenericSuperclass() != null) {
+		Type genericSuper = clazz.getGenericSuperclass();
+		if (genericSuper != null) {
+			if (genericSuper instanceof Class) {
+				return raw((Class<?>) genericSuper);
+			}
 			return Clazz.of(clazz.getGenericSuperclass(), this.genericMap);
 		}
 		return Clazz.of(clazz.getSuperclass());
@@ -590,7 +586,7 @@ public class Clazz<T> {
 		return clazz.equals(Void.class) || clazz.equals(void.class);
 	}
 
-	private static List<Clazz> getMostSpecific(ParameterizedType parentType, List<Clazz<?>> actualTypes, List<Clazz<?>> defaultTypes) {
+	private static List<Clazz> getMostSpecific(ParameterizedType parentType, List<Clazz> actualTypes, List<Clazz<?>> defaultTypes) {
 		if (actualTypes.size() != defaultTypes.size()) {
 			throw new IllegalArgumentException("mismatch in generics count " + actualTypes.size() + " and " + defaultTypes.size() + " for " + parentType);
 		}
