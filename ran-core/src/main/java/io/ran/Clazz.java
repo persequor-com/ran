@@ -49,6 +49,15 @@ public class Clazz<T> {
 	}
 
 	public static Clazz of(Type type, Map<String, Clazz<?>> genericMap) {
+		// FIXME: Remove this (Avoid infinite recursion)
+		{
+			StackTraceElement[] st = Thread.currentThread().getStackTrace();
+			if(st.length > 500) {
+				return of(Object.class);
+				//System.out.println("Aw, we have: "+st.length+" of stack");
+			}
+
+		}
 		if (type == null) {
 			return raw(null);
 		}
@@ -72,7 +81,11 @@ public class Clazz<T> {
 
 	public static Clazz of(Class<?> clazz) {
 		if (clazz != null) {
-			return new Clazz(clazz, Stream.of(clazz.getTypeParameters()).map(Clazz::of).collect(Collectors.toList()));
+			List<Clazz<?>> map = new ArrayList<>();
+			Stream.of(clazz.getTypeParameters())
+					.map(Clazz::of)
+					.forEach(gc -> map.add(gc));
+			return new Clazz(clazz, map);
 		}
 		return raw(null);
 	}
