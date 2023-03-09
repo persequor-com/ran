@@ -483,13 +483,26 @@ public class ClazzTest {
 		Clazz<?> para = badLink.findGenericSuper(ParametrizableLink.class);
 
 		Clazz<?> weird = Clazz.of(Weird.class); // todo fails because LOOP_STOP is based just on String "T"
+		weird.methods();
+		Clazz<?> weird2 = Clazz.of(Weird2.class); // todo fails because LOOP_STOP is based just on String "T"
+		weird2.methods();
 		// instead should be based on TypeVariable which combines the declaring class and the type name
+		//Weird w = new Weird();
+		//w.myTea().myTea();
 	}
 
 	// todo more raw generic class tests needed
+	interface Ninja {
 
-	public static class Normal<T extends String> {}
-	public static class Weird<T extends Normal> {}
+	}
+	public static class Normal<T extends Ninja> {
+		public T myTea() { return null; };
+	}
+	public static class Weird<T extends Normal> {
+		public T myTea() { return null; }
+	}
+
+	public static class Weird2<T extends Weird2> {}
 
 	public static class BadLink extends ParametrizableLink {}
 
