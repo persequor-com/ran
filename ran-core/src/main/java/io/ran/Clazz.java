@@ -468,10 +468,22 @@ public class Clazz<T> {
 				Arrays.stream(working.clazz.getDeclaredMethods()).filter(m -> !m.isBridge()).forEach(m -> {
 					result.put(m, new ClazzMethod(this, finalWorking, m));
 				});
+				Arrays.stream(working.clazz.getInterfaces())
+						.flatMap(inter -> Stream.of(inter.getMethods()))
+						.filter(m -> !m.isBridge())
+						.filter(m -> result.keySet().stream().noneMatch(otherM -> getSignatureOfMethod(m).equals(getSignatureOfMethod(otherM))))
+						.forEach(m -> {
+					result.put(m, new ClazzMethod(this, finalWorking, m));
+				});
 			}
 			working = working.getSuper();
 		} while (working.clazz != null && !Object.class.equals(working.clazz));
 		return new ClazzMethodList(result.values());
+	}
+
+	private static String getSignatureOfMethod(Method method) {
+		// TODO: What about static/final/etc.? method.getModifiers()
+		return method.getReturnType().getName()+" "+method.getName()+"("+Stream.of(method.getParameters()).map(p->p.getType().getName()).collect(Collectors.joining(","));
 	}
 
 	public static boolean isPropertyField(Field field) {
