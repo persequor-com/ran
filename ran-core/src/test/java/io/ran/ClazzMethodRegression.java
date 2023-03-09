@@ -58,7 +58,7 @@ public class ClazzMethodRegression {
 		ClazzMethod someMethod = methods.find("addParameter", ParametrizableLink.class, String.class).get();
 		assertEquals(ParametrizableLink.class, someMethod.getReturnType().clazz);
 		// This fails because the generics are calculated incorrectly
-		assertMethod(g(ParametrizableLink.class, UrlLink.class), someMethod, UrlLink.class, String.class);
+		assertMethod(g(ParametrizableLink.class, ParametrizableLink.class), someMethod, ParametrizableLink.class, String.class);
 		assertTrue(someMethod.hasGenericFromClass());
 		assertFalse(someMethod.hasGenericFromMethod());
 	}
