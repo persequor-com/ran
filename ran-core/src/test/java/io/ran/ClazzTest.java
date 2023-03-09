@@ -491,6 +491,21 @@ public class ClazzTest {
 		//w.myTea().myTea();
 	}
 
+	// todo
+//	@Test
+//	public void testUrlLink() {
+//		Clazz<?> urlLinkBase = Clazz.of(UrlLink.class).findGenericSuper(ParametrizableLink.class);
+//		assertClazz(urlLinkBase, ParametrizableLink.class, UrlLink.class);
+//
+//		Clazz<?> badLinkBase = Clazz.of(BadLink.class).findGenericSuper(ParametrizableLink.class);
+//		assertClazz(badLinkBase, ParametrizableLink.class);
+//
+//		Clazz<?> weird = Clazz.of(Weird.class);
+//		assertClazz(weird, Weird.class, g(Normal.class, g(List.class, Object.class)));
+//	}
+//  public static abstract class Normal<T extends List<?>> {}
+//	public static class Weird<T extends Normal<?>> {}
+
 	// todo more raw generic class tests needed
 	interface Ninja {
 

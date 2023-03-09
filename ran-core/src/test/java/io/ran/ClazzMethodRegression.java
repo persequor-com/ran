@@ -2,8 +2,7 @@ package io.ran;
 
 import org.junit.Test;
 
-import static io.ran.testclasses.AssertHelpers.assertMethod;
-import static io.ran.testclasses.AssertHelpers.g;
+import static io.ran.testclasses.AssertHelpers.*;
 import static org.junit.Assert.*;
 
 @SuppressWarnings("OptionalGetWithoutIsPresent")
@@ -58,7 +57,7 @@ public class ClazzMethodRegression {
 		ClazzMethod someMethod = methods.find("addParameter", ParametrizableLink.class, String.class).get();
 		assertEquals(ParametrizableLink.class, someMethod.getReturnType().clazz);
 		// This fails because the generics are calculated incorrectly
-		assertMethod(g(ParametrizableLink.class, ParametrizableLink.class), someMethod, ParametrizableLink.class, String.class);
+		assertMethod(g(ParametrizableLink.class, self()), someMethod, r(ParametrizableLink.class), String.class);
 		assertTrue(someMethod.hasGenericFromClass());
 		assertFalse(someMethod.hasGenericFromMethod());
 	}

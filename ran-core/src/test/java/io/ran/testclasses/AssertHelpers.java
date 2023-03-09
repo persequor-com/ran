@@ -62,7 +62,12 @@ public class AssertHelpers {
 			assertClazz(actual, (Class<?>) expected);
 		} else if (expected instanceof Holder) {
 			Holder holder = (Holder) expected;
-			assertClazz(actual, holder.type, holder.generics);
+			if (holder.isRaw()) {
+				assertSame(holder.type, actual.clazz);
+				assertEquals(0, actual.generics.size());
+			} else {
+				assertClazz(actual, holder.type, holder.generics);
+			}
 		} else {
 			fail("unknown type " + expected.getClass());
 		}
@@ -81,9 +86,23 @@ public class AssertHelpers {
 		public static final Holder self = new Holder(null);
 		private final Class<?> type;
 		private final Object[] generics;
+		private Holder(Class<?> type) {
+			this.type = type;
+			this.generics = new Object[0];
+		}
 		private Holder(Class<?> type, Object... generics) {
+			if (generics.length == 0) {
+				throw new IllegalArgumentException("Can't use g() without generics. Use g(A.class, B.class) to define A<B>, or r(A.class) to define A");
+			}
 			this.type = type;
 			this.generics = generics;
 		}
+		boolean isRaw() {
+			return generics.length == 0;
+		}
+	}
+
+	public static Holder r(Class<?> rawType) {
+		return new Holder(rawType);
 	}
 }
