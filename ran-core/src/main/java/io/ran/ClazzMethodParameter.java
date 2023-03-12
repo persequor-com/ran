@@ -10,17 +10,18 @@ package io.ran;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.Collections;
 
 public class ClazzMethodParameter {
 	private final String name;
 	private final Clazz clazz;
 
-	public ClazzMethodParameter(Clazz<?> actualClass, Method method, Parameter p) {
+	public ClazzMethodParameter(Clazz<?> declaringClass, Parameter p) {
 		this.name = p.getName();
-		Class<?> declaringClass = method.getDeclaringClass();
-		Clazz<?> genericSuper = actualClass.findGenericSuper(declaringClass);
-		clazz = Clazz.of(p.getParameterizedType(), genericSuper != null ? genericSuper.genericMap : Collections.emptyMap());
+		clazz = Clazz.of(p.getParameterizedType(), declaringClass.genericMap);
+	}
+
+	public ClazzMethodParameter(Clazz<?> actualClass, Method method, Parameter p) {
+		this(actualClass.findGenericSuper(method.getDeclaringClass()), p);
 	}
 
 	public String getName() {
