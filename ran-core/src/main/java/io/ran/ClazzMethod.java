@@ -18,6 +18,7 @@ import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -141,7 +142,7 @@ public class ClazzMethod {
 	public Clazz<?> getReturnType() {
 		Class<?> declaringClass = method.getDeclaringClass();
 		Clazz<?> genericSuper = actualClass.findGenericSuper(declaringClass);
-		return Clazz.of(method.getGenericReturnType(), genericSuper.genericMap);
+		return Clazz.of(method.getGenericReturnType(), genericSuper.genericMap, Collections.emptySet());
 	}
 
 	public Clazz<?> getDeclaringClazz() {

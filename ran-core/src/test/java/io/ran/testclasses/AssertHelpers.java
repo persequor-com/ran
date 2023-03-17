@@ -9,6 +9,11 @@ import java.util.List;
 import static org.junit.Assert.*;
 
 public class AssertHelpers {
+	public static void assertClazz(Clazz<?> clazz, Holder rawHolder) {
+		assertTrue("this overload is only to assert raw Clazzes", rawHolder.isRaw());
+		assertSame(rawHolder.type, clazz.clazz);
+	}
+
 	public static void assertClazz(Clazz<?> clazz, Class<?> type, Object... generics) {
 		assertSame(type, clazz.clazz);
 		assertEquals(generics.length, clazz.generics.size());

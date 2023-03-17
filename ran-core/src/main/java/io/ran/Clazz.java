@@ -24,16 +24,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Clazz<T> {
 	private static final String COVERAGE_FIELD_PATTERN = "__\\$.*\\$__";
-	public static final Clazz<Void> LOOP_STOP = new Clazz<>(Void.TYPE);
 	public String className;
 	public Class<T> clazz;
 	public List<Clazz<?>> generics = new ArrayList<>();
@@ -45,81 +46,71 @@ public class Clazz<T> {
 	}
 
 	public static Clazz of(Type type) {
-		return of(type, Collections.emptyMap());
+		return of(type, Collections.emptyMap(), Collections.emptySet());
 	}
 
-	public static Clazz of(Type type, Map<String, Clazz<?>> genericMap) {
+	public static Clazz of(Type type, Map<String, Clazz<?>> genericMap, Set<String> loopStop) {
 		if (type == null) {
 			return raw(null);
 		}
 		if (type instanceof Class) {
-			return of((Class<?>) type, genericMap);
+			return of((Class<?>) type, loopStop);
 		}
 		if (type instanceof GenericArrayType) {
-			return of((GenericArrayType) type, genericMap);
+			return of((GenericArrayType) type, genericMap, loopStop);
 		}
 		if (type instanceof WildcardType) {
-			return of((WildcardType) type, genericMap);
+			return of((WildcardType) type, genericMap, loopStop);
 		}
 		if (type instanceof ParameterizedType) {
-			return of((ParameterizedType) type, genericMap);
+			return of((ParameterizedType) type, genericMap, loopStop);
 		}
 		if (type instanceof TypeVariable) {
-			return of((TypeVariable<?>) type, genericMap);
+			return of((TypeVariable<?>) type, genericMap, loopStop);
 		}
 		throw new IllegalArgumentException("unhandled Type type: " + type.getClass());
 	}
 
-	public static Clazz of(Class<?> clazz, Map<String, Clazz<?>> prevGenericMap) {
+	public static Clazz of(Class<?> clazz, Set<String> loopStop) {
 		if (clazz != null) {
-			Map<String, Clazz<?>> loopStopMap = prevGenericMap.keySet().stream().filter(k -> prevGenericMap.get(k) == LOOP_STOP).collect(Collectors.toMap(k -> k, k -> LOOP_STOP));
-			try {
-				return new Clazz(clazz, Stream.of(clazz.getTypeParameters()).map(type -> Clazz.of(type, loopStopMap)).collect(Collectors.toList()));
-			} catch (IllegalStateException e) {
+			String name = clazz.getName();
+			if (loopStop.contains(name)) {
 				return raw(clazz);
 			}
+			Set<String> newLoopStop = new HashSet<>(loopStop);
+			newLoopStop.add(name);
+			return new Clazz(clazz, Stream.of(clazz.getTypeParameters()).map(type -> Clazz.of(type, Collections.emptyMap(), newLoopStop)).collect(Collectors.toList()));
 		}
 		return raw(null);
 	}
 
-	public static Clazz of(GenericArrayType genericArray, Map<String, Clazz<?>> genericMap) {
-		Clazz<?> arrType = of(genericArray.getGenericComponentType(), genericMap);
+	public static Clazz of(GenericArrayType genericArray, Map<String, Clazz<?>> genericMap, Set<String> loopStop) {
+		Clazz<?> arrType = of(genericArray.getGenericComponentType(), genericMap, loopStop);
 		return arrType.getArrayType();
 	}
 
-	public static Clazz of(WildcardType wildcardType, Map<String, Clazz<?>> genericMap) {
+	public static Clazz of(WildcardType wildcardType, Map<String, Clazz<?>> genericMap, Set<String> loopStop) {
 		// todo warning that we ignore lower bounds?
 		Type[] bounds = wildcardType.getUpperBounds();
 		if (bounds.length > 1) {
 			throw new IllegalArgumentException("multiple bounds are not supported " + wildcardType);
 		}
-		return Clazz.of(bounds[0], genericMap);
+		return Clazz.of(bounds[0], genericMap, loopStop);
 	}
 
-	public static Clazz of(ParameterizedType parameterizedType, Map<String, Clazz<?>> genericMap) {
+	public static Clazz of(ParameterizedType parameterizedType, Map<String, Clazz<?>> genericMap, Set<String> loopStop) {
 		List<Clazz> generics = Arrays.stream(parameterizedType.getActualTypeArguments())
-				.map(t -> {
-					Clazz<?> res = of(t, genericMap);
-					if (res == LOOP_STOP) {
-						throw new IllegalStateException("infinite loop detected");
-					}
-					return res;
-				})
+				.map(t -> of(t, genericMap, loopStop))
 				.collect(Collectors.toList());
 		// wildcards can have weaker / different bounds than the original type,
 		// so we choose the more specific out of default bounds and wildcard bounds
 		// currently we correctly resolve only some basic cases
-		List<Clazz> specificGenerics;
-		try {
-			List<Clazz<?>> defaultGenerics = of((Class<?>) parameterizedType.getRawType()).generics;
-			specificGenerics = getMostSpecific(parameterizedType, generics, defaultGenerics);
-		} catch (IllegalStateException e) {
-			specificGenerics = generics;
-		}
+		List<Clazz> defaultGenerics = of((Class<?>) parameterizedType.getRawType(), loopStop).generics;
+		List<Clazz> specificGenerics = getMostSpecific(parameterizedType, generics, defaultGenerics);
 		return new Clazz((Class<?>) parameterizedType.getRawType(), specificGenerics);
 	}
 
-	public static Clazz of(TypeVariable<?> typeVariable, Map<String, Clazz<?>> genericMap) {
+	public static Clazz of(TypeVariable<?> typeVariable, Map<String, Clazz<?>> genericMap, Set<String> loopStop) {
 		if (genericMap.containsKey(typeVariable.getName())) {
 			return genericMap.get(typeVariable.getName());
 		}
@@ -129,23 +120,20 @@ public class Clazz<T> {
 			throw new IllegalArgumentException("multiple bounds are not supported " + typeVariable);
 		}
 
-		Map<String, Clazz<?>> newMap = new HashMap<>(genericMap);
-		newMap.put(typeVariable.getName(), LOOP_STOP);
-
-		if (!(bounds[0] instanceof ParameterizedType)) {
-			return of(bounds[0], newMap);
+		String fullName = typeVariable.getGenericDeclaration().toString() + " " + typeVariable.getName();
+		if (loopStop.contains(fullName)) {
+			if (bounds[0] instanceof Class) {
+				return raw((Class<?>) bounds[0]);
+			}
+			if (bounds[0] instanceof ParameterizedType) {
+				return raw((Class<?>) ((ParameterizedType) bounds[0]).getRawType());
+			}
+			throw new RuntimeException("unhandled bound type " + bounds[0].getClass());
 		}
+		Set<String> newLoopStop = new HashSet<>(loopStop);
+		newLoopStop.add(fullName);
 
-		ParameterizedType bound = (ParameterizedType) bounds[0];
-		List<Clazz> genericParams = Stream.of(bound.getActualTypeArguments())
-				.map(boundTypeArg -> {
-					if (boundTypeArg.equals(typeVariable)) {
-						return raw((Class<?>) bound.getRawType());
-					}
-					return of(boundTypeArg, newMap);
-				})
-				.collect(Collectors.toList());
-		return new Clazz((Class<?>) bound.getRawType(), genericParams);
+		return of(bounds[0], genericMap, newLoopStop);
 	}
 
 	// todo check type count and bounds?
@@ -212,9 +200,6 @@ public class Clazz<T> {
 				TypeVariable<Class<T>>[] typeVariables = clazz.getTypeParameters();
 				if (typeVariables.length == generics.size()) {
 					for (int i = 0; i < generics.size(); i++) {
-						if (generics.get(i) == LOOP_STOP) {
-							throw new IllegalStateException("infinite loop detected");
-						}
 						genericMap.put(typeVariables[i].getName(), generics.get(i));
 					}
 				} else {
@@ -296,7 +281,7 @@ public class Clazz<T> {
 			if (genericSuper instanceof Class) {
 				return raw((Class<?>) genericSuper);
 			}
-			return Clazz.of(clazz.getGenericSuperclass(), this.genericMap);
+			return Clazz.of(clazz.getGenericSuperclass(), this.genericMap, Collections.emptySet());
 		}
 		return Clazz.of(clazz.getSuperclass());
 	}
@@ -582,7 +567,7 @@ public class Clazz<T> {
 			return null;
 		}
 		for (Type superInterface : clazz.getGenericInterfaces()) {
-			Clazz<?> duperInterface = Clazz.of(superInterface, genericMap).findGenericSuper(ofClazz);
+			Clazz<?> duperInterface = Clazz.of(superInterface, genericMap, Collections.emptySet()).findGenericSuper(ofClazz);
 			if (duperInterface != null) {
 				return duperInterface;
 			}
@@ -602,8 +587,14 @@ public class Clazz<T> {
 		return clazz.equals(Void.class) || clazz.equals(void.class);
 	}
 
-	private static List<Clazz> getMostSpecific(ParameterizedType parentType, List<Clazz> actualTypes, List<Clazz<?>> defaultTypes) {
+	private static List<Clazz> getMostSpecific(ParameterizedType parentType, List<Clazz> actualTypes, List<Clazz> defaultTypes) {
 		if (actualTypes.size() != defaultTypes.size()) {
+			if (actualTypes.isEmpty()) {
+				return defaultTypes;
+			}
+			if (defaultTypes.isEmpty()) {
+				return actualTypes;
+			}
 			throw new IllegalArgumentException("mismatch in generics count " + actualTypes.size() + " and " + defaultTypes.size() + " for " + parentType);
 		}
 
@@ -621,9 +612,6 @@ public class Clazz<T> {
 	private static Clazz<?> getMostSpecific(Clazz<?> actualType, Clazz<?> defaultType) {
 		// there can be <? extends Collection<String>> and <? extends List<?>> which should
 		// resolve into List<String>. I managed to make it work, but it broke many other things
-		if (actualType == LOOP_STOP || defaultType == LOOP_STOP) {
-			return LOOP_STOP;
-		}
 		if (actualType.clazz == defaultType.clazz) {
 			return actualType;
 		}

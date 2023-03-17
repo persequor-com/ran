@@ -10,6 +10,7 @@ package io.ran;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.util.Collections;
 
 public class ClazzMethodParameter {
 	private final String name;
@@ -17,7 +18,7 @@ public class ClazzMethodParameter {
 
 	public ClazzMethodParameter(Clazz<?> declaringClass, Parameter p) {
 		this.name = p.getName();
-		clazz = Clazz.of(p.getParameterizedType(), declaringClass.genericMap);
+		clazz = Clazz.of(p.getParameterizedType(), declaringClass.genericMap, Collections.emptySet());
 	}
 
 	public ClazzMethodParameter(Clazz<?> actualClass, Method method, Parameter p) {

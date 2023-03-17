@@ -10,7 +10,6 @@ package io.ran;
 
 import io.ran.testclasses.Regular;
 import io.ran.token.Token;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -415,7 +414,7 @@ public class ClazzTest {
 		assertClazz(ii7_gg2_gg, GG.class, String.class, II7.class);
 	}
 
-	//@Test
+	@Test
 	public void testSelfReferencing2() {
 		Clazz<?> g1 = Clazz.of(G1.class);
 		assertClazz(g1, G1.class, g(G1.class, self(), self()), g(G1.class, self(), self()));
@@ -435,32 +434,48 @@ public class ClazzTest {
 		Clazz<?> g4_g2 = g4.findGenericSuper(G2.class);
 		assertClazz(g4_g2, G2.class, g(G4.class, self()), g(G4.class, self()));
 
-		assertThrows(IllegalStateException.class, () -> Clazz.of(G5.class));
+		Clazz<?> g5 = Clazz.of(G5.class);
+		assertClazz(g5, G5.class, self(), self());
 
 		Clazz<?> g5x = Clazz.ofClazzes(G5X.class, Clazz.raw(G5X.class), Clazz.of(String.class), Clazz.raw(G5X.class));
 		assertClazz(g5x, G5X.class, self(), String.class, self());
 
-		assertThrows(IllegalStateException.class, () -> Clazz.of(G6.class));
+		Clazz<?> g6 = Clazz.of(G6.class);
+		assertClazz(g6, G6.class, self(), self());
 
 		Clazz<?> g6x = Clazz.ofClazzes(G6X.class, Clazz.raw(G6X.class), Clazz.raw(G6X.class), Clazz.of(String.class));
 		assertClazz(g6x, G6X.class, self(), self(), String.class);
 
-		assertThrows(IllegalStateException.class, () -> Clazz.of(G7.class));
+		Clazz<?> g7 = Clazz.of(G7.class);
+		assertClazz(g7, G7.class, self(), self(), self());
 
 		Clazz<?> g7x = Clazz.ofClazzes(G7X.class, Clazz.raw(G7X.class), Clazz.raw(G7X.class), Clazz.of(String.class), Clazz.raw(G7X.class));
 		assertClazz(g7x, G7X.class, self(), self(), String.class, self());
 
-		assertThrows(IllegalStateException.class, () -> Clazz.of(G8.class));
+		Clazz<?> g8 = Clazz.of(G8.class);
+		assertClazz(g8, G8.class, self());
+
 	}
 
-	@Ignore("Ignore the test since we don't expect these loops - rather we get a semi correct response")
 	@Test
 	public void testLoopDeLoop() {
-		assertThrows(IllegalStateException.class, () -> Clazz.of(Loop.class));
+		Clazz<?> loop = Clazz.of(Loop.class);
+		assertTrue(2 < assertLooping(loop, Loop.class, DeLoop.class));
 
-		assertThrows(IllegalStateException.class, () -> Clazz.of(DeLoop.class));
+		Clazz<?> deLoop = Clazz.of(DeLoop.class);
+		assertTrue(2 < assertLooping(deLoop, DeLoop.class, Loop.class));
 
-		assertThrows(IllegalStateException.class, () -> Clazz.of(LoopDeLoop.class));
+		Clazz<?> loopDeLoop = Clazz.of(LoopDeLoop.class);
+		assertClazz(loopDeLoop, LoopDeLoop.class, g(List.class, self()), g(List.class, self()));
+	}
+
+	private int assertLooping(Clazz<?> current, Class<?> thisClass, Class<?> otherClass) {
+		assertSame(thisClass, current.clazz);
+		if (current.generics.isEmpty()) {
+			return 1;
+		}
+		assertEquals(1, current.generics.size());
+		return 1 + assertLooping(current.generics.get(0), otherClass, thisClass);
 	}
 
 	@Test
@@ -479,55 +494,56 @@ public class ClazzTest {
 	@Test
 	public void testUrlLink() {
 		Clazz<?> urlLink = Clazz.of(UrlLink.class);
-		Clazz<?> parametrizableLink = urlLink.findGenericSuper(ParametrizableLink.class);
+		Clazz<?> urlLink_parameterizableLink = urlLink.findGenericSuper(ParameterizableLink.class);
+		assertClazz(urlLink_parameterizableLink, ParameterizableLink.class, UrlLink.class);
 
 		Clazz<?> badLink = Clazz.of(BadLink.class);
-		Clazz<?> para = badLink.findGenericSuper(ParametrizableLink.class);
+		Clazz<?> badLink_parameterizableLink = badLink.findGenericSuper(ParameterizableLink.class);
+		assertClazz(badLink_parameterizableLink, r(ParameterizableLink.class));
 
-		Clazz<?> weird = Clazz.of(Weird.class); // todo fails because LOOP_STOP is based just on String "T"
+		Clazz<?> weird = Clazz.of(Weird.class);
 		weird.methods();
-		Clazz<?> weird2 = Clazz.of(Weird2.class); // todo fails because LOOP_STOP is based just on String "T"
+		Clazz<?> weird2 = Clazz.of(Weird2.class);
 		weird2.methods();
-		// instead should be based on TypeVariable which combines the declaring class and the type name
-		//Weird w = new Weird();
-		//w.myTea().myTea();
 	}
 
-	// todo
-//	@Test
-//	public void testUrlLink() {
-//		Clazz<?> urlLinkBase = Clazz.of(UrlLink.class).findGenericSuper(ParametrizableLink.class);
-//		assertClazz(urlLinkBase, ParametrizableLink.class, UrlLink.class);
-//
-//		Clazz<?> badLinkBase = Clazz.of(BadLink.class).findGenericSuper(ParametrizableLink.class);
-//		assertClazz(badLinkBase, ParametrizableLink.class);
-//
-//		Clazz<?> weird = Clazz.of(Weird.class);
-//		assertClazz(weird, Weird.class, g(Normal.class, g(List.class, Object.class)));
-//	}
-//  public static abstract class Normal<T extends List<?>> {}
-//	public static class Weird<T extends Normal<?>> {}
+	@Test
+	public void testWildcardInBound() {
+		Clazz<?> weird = Clazz.of(WildOuter.class);
+		assertClazz(weird, WildOuter.class, g(WildInner.class, g(List.class, Object.class)));
+	}
 
 	// todo more raw generic class tests needed
-	interface Ninja {
 
-	}
+	interface Ninja {}
+
 	public static class Normal<T extends Ninja> {
-		public T myTea() { return null; };
-	}
-	public static class Weird<T extends Normal> {
+		@SuppressWarnings("unused")
 		public T myTea() { return null; }
 	}
 
-	public static class Weird2<T extends Weird2> {}
-
-	public static class BadLink extends ParametrizableLink {}
-
-	public static class UrlLink extends ParametrizableLink<UrlLink> {
-
+	@SuppressWarnings("rawtypes")
+	public static class Weird<T extends Normal> {
+		@SuppressWarnings("unused")
+		public T myTea() { return null; }
 	}
 
-	public static class ParametrizableLink<T extends ParametrizableLink> {}
+	@SuppressWarnings({"rawtypes", "unused"})
+	public static class Weird2<T extends Weird2> {}
+
+	@SuppressWarnings("rawtypes")
+	public static class BadLink extends ParameterizableLink {}
+
+	public static class UrlLink extends ParameterizableLink<UrlLink> {}
+
+	@SuppressWarnings({"rawtypes", "unused"})
+	public static class ParameterizableLink<T extends ParameterizableLink> {}
+
+	@SuppressWarnings("unused")
+	public static abstract class WildInner<T extends List<?>> {}
+
+	@SuppressWarnings("unused")
+	public static class WildOuter<T extends WildInner<?>> {}
 
 	public static class GenericClass<T> {
 		@SuppressWarnings("unused")
