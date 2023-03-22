@@ -16,6 +16,7 @@ import javax.inject.Inject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -111,7 +112,7 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 	private void createSetterWrappers() {
 		try {
 			for (Method method : wrapperClass.getMethods()) {
-				if (!method.getName().startsWith("set")) {
+				if (!method.getName().startsWith("set") || Modifier.isStatic(method.getModifiers())) {
 					continue;
 				}
 				Token column = Token.javaMethod(method.getName().substring(3));

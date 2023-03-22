@@ -16,8 +16,8 @@ import java.io.PrintWriter;
 public class MapperGenerator {
 	public Wrapped generate(AutoMapperClassLoader classLoader, Clazz clazz) {
 		try {
-//			Path path = Paths.get("/tmp/ran/"+clazz.getSimpleName()+"$Ran$Mapper.class");
-//			Path pathQuery = Paths.get("/tmp/ran/"+clazz.getSimpleName()+"$Ran$Query.class");
+//			Path path = Paths.get("/tmp/ran/" + clazz.getSimpleName() + "$Ran$Mapper.class");
+//			Path pathQuery = Paths.get("/tmp/ran/" + clazz.getSimpleName() + "$Ran$Query.class");
 
 			MappingClassWriter visitor = new MappingClassWriter(clazz.clazz);
 			byte[] bytes = visitor.toByteArray();
@@ -27,8 +27,8 @@ public class MapperGenerator {
 
 			QueryClassWriter visitor2 = new QueryClassWriter(clazz.clazz);
 			byte[] bytes2 = visitor2.toByteArray();
-			CheckClassAdapter.verify(new ClassReader(bytes2), false, new PrintWriter(System.out));
 //			Files.write(pathQuery, bytes2);
+			CheckClassAdapter.verify(new ClassReader(bytes2), false, new PrintWriter(System.out));
 
 
 			return new Wrapped(classLoader.define(visitor.getName(), bytes), classLoader.define(visitor2.getName(), bytes2));
@@ -47,5 +47,4 @@ public class MapperGenerator {
 			this.query = query;
 		}
 	}
-
 }
