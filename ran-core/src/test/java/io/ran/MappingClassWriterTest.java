@@ -15,5 +15,6 @@ public class MappingClassWriterTest {
         Class<ClassWithStaticMembers> classWithStaticMembers = AutoMapper.get(ClassWithStaticMembers.class);
         List<Method> methods = Arrays.asList(classWithStaticMembers.getDeclaredMethods());
         assertFalse(methods.stream().anyMatch(m -> m.getName().equals("setSomethingStatic")));
+	    assertFalse(methods.stream().anyMatch(m -> m.getName().equals("setSomethingElseStatic")));
     }
 }

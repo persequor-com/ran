@@ -3,6 +3,8 @@ package io.ran.testclasses;
 public class ClassWithStaticMembers {
     private static int somethingStatic = 10;
 
+	private static int somethingElseStatic = 15;
+
     public static int getSomethingStatic() {
         return somethingStatic;
     }
