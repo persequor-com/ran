@@ -1,0 +1,13 @@
+#EditorConfig, see https://editorconfig.org
+root = true
+
+[*]
+end_of_line = lf
+insert_final_newline = true
+
+[*.java]
+indent_style = tab
+charset = utf-8
+ij_any_keep_indents_on_empty_lines = false
+ij_any_keep_line_breaks = true
+ij_java_class_count_to_use_import_on_demand = 999

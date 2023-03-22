@@ -1,3 +1,11 @@
+/* Copyright 2021 PSQR
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 package io.ran.testclasses;
 
 import io.ran.PrimaryKey;
@@ -7,34 +15,34 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GraphNode {
-    @PrimaryKey
-    private String id;
-    @Relation(via = GraphNodeLink.class, fields = "id", relationFields = "toId", autoSave = true)
-    private List<GraphNode> previousNodes = new ArrayList<>();
-    @Relation(via = GraphNodeLink.class, fields = "id", relationFields = "fromId", autoSave = true)
-    private List<GraphNode> nextNodes = new ArrayList<>();
+	@PrimaryKey
+	private String id;
+	@Relation(via = GraphNodeLink.class, fields = "id", relationFields = "toId", autoSave = true)
+	private List<GraphNode> previousNodes = new ArrayList<>();
+	@Relation(via = GraphNodeLink.class, fields = "id", relationFields = "fromId", autoSave = true)
+	private List<GraphNode> nextNodes = new ArrayList<>();
 
-    public String getId() {
-        return id;
-    }
+	public String getId() {
+		return id;
+	}
 
-    public void setId(String id) {
-        this.id = id;
-    }
+	public void setId(String id) {
+		this.id = id;
+	}
 
-    public List<GraphNode> getPreviousNodes() {
-        return previousNodes;
-    }
+	public List<GraphNode> getPreviousNodes() {
+		return previousNodes;
+	}
 
-    public void setPreviousNodes(List<GraphNode> previousNodes) {
-        this.previousNodes = previousNodes;
-    }
+	public void setPreviousNodes(List<GraphNode> previousNodes) {
+		this.previousNodes = previousNodes;
+	}
 
-    public List<GraphNode> getNextNodes() {
-        return nextNodes;
-    }
+	public List<GraphNode> getNextNodes() {
+		return nextNodes;
+	}
 
-    public void setNextNodes(List<GraphNode> nextNodes) {
-        this.nextNodes = nextNodes;
-    }
+	public void setNextNodes(List<GraphNode> nextNodes) {
+		this.nextNodes = nextNodes;
+	}
 }
