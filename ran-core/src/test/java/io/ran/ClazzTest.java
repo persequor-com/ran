@@ -693,6 +693,7 @@ public class ClazzTest {
 		assertEquals("__hello__", list.get(1).getSnakeCase());
 	}
 
+	@SuppressWarnings("unused")
 	public static class CoverageTest {
 		public int hi;
 		public int __hello__;
