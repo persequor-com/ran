@@ -469,7 +469,7 @@ public class Clazz<T> {
 	}
 
 	public static boolean isPropertyField(Field field) {
-		return CamelHumpToken.is(field.getName()) && !Modifier.isTransient(field.getModifiers()) && field.getAnnotation(Relation.class) == null;
+		return CamelHumpToken.is(field.getName()) && !Modifier.isTransient(field.getModifiers()) && field.getAnnotation(Relation.class) == null && !Modifier.isStatic(field.getModifiers());
 	}
 
 	public static boolean isPublicStatic(Field field) {
