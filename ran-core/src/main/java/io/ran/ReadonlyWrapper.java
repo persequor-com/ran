@@ -26,14 +26,14 @@ public class ReadonlyWrapper {
 		}
 	}
 
-	private static  <T, W extends T> Class<W> internalWrap(Class<W> wc) {
+	private static <T, W extends T> Class<W> internalWrap(Class<W> wc) {
 		Class t = (List.class.isAssignableFrom(wc)) ? ArrayList.class : wc;
 
 		return wrapped.computeIfAbsent(wc, c -> {
 			try {
 //				Path path = Paths.get("/tmp/" + wc.getSimpleName() + "Readonly.class");
 
-				ReadonlyWrapperWriter<W, T> visitor = new ReadonlyWrapperWriter<W, T>(t);
+				ReadonlyWrapperWriter<T> visitor = new ReadonlyWrapperWriter<T>(t);
 				byte[] bytes = visitor.toByteArray();
 				CheckClassAdapter.verify(new ClassReader(bytes), false, new PrintWriter(System.out));
 //				Files.write(path, bytes);

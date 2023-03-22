@@ -14,7 +14,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.HashMap;
@@ -25,15 +24,12 @@ import static org.junit.Assert.*;
 public class AutoWrapperTest {
 	GuiceHelper.GuiceGenericFactory factory;
 	private Injector injector;
-	private AutoMapper autoMapper;
 	private AutoWrapper autoWrapper;
-	private ReadonlyWrapper readonlyWrapper;
 
 	@Before
 	public void setup() {
 		injector = Guice.createInjector();
-		autoMapper = new AutoMapper();
-		factory = new GuiceHelper.GuiceGenericFactory(autoMapper, injector);
+		factory = new GuiceHelper.GuiceGenericFactory(new AutoMapper(), injector);
 		autoWrapper = new AutoWrapper(factory);
 	}
 

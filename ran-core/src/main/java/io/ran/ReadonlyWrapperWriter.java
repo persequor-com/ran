@@ -2,34 +2,34 @@ package io.ran;
 
 import org.objectweb.asm.Opcodes;
 
-import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Set;
 
-public class ReadonlyWrapperWriter<WRAPPER extends WRAPPEE, WRAPPEE> extends AutoMapperClassWriter {
-	private String signature;
-	private String internalName;
+public class ReadonlyWrapperWriter<WRAPPEE> extends AutoMapperClassWriter {
 	Clazz wrapperGenerated;
-	Clazz wrappeeClass;
+	Clazz<WRAPPEE> wrappeeClass;
 
 	public ReadonlyWrapperWriter(Class<WRAPPEE> wrappee) {
 		super(wrappee);
 		postFix = "Readonly";
 
 		this.wrappeeClass = Clazz.of(wrappee);
-		internalName = this.wrapperClazz.getInternalName();
+		String internalName = this.wrapperClazz.getInternalName();
 
 		if (internalName.startsWith("java/")) {
 			internalName = "io/ran/" + internalName;
 		}
-		String fullname = internalName + postFix;
-		wrapperGenerated = Clazz.of(fullname);
+		String fullName = internalName + postFix;
+		wrapperGenerated = Clazz.of(fullName);
 
-		signature = this.wrapperClazz.getSignature();
+		String signature = this.wrapperClazz.getSignature();
 		if (signature.startsWith("Ljava/")) {
 			signature = "Lio/ran/" + signature.substring(1);
 		}
-		visit(Opcodes.V1_8, Access.Public.getOpCode(), fullname, this.wrapperClazz.generics.isEmpty() ? null : signature, wrapperClazz.getInternalName(), new String[]{Clazz.ofClazzes(Wrappee.class, wrapperClazz, wrappeeClass).getInternalName()});
+		visit(Opcodes.V1_8, Access.Public.getOpCode(), fullName, this.wrapperClazz.generics.isEmpty() ? null : signature, wrapperClazz.getInternalName(), new String[]{Clazz.ofClazzes(Wrappee.class, wrapperClazz, wrappeeClass).getInternalName()});
 
 		field(Access.Private, "_wrappee", wrappeeClass, false);
 
