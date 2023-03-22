@@ -8,8 +8,6 @@
  */
 package io.ran;
 
-import io.ran.testclasses.Regular;
-import io.ran.token.Token;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -24,15 +22,6 @@ import static org.junit.Assert.*;
 
 @SuppressWarnings({"InnerClassMayBeStatic", "OptionalGetWithoutIsPresent"})
 public class ClazzTest {
-
-	@Test
-	public void fieldsOnSuperClass() { // todo move but where?
-		Property.PropertyList properties = Clazz.of(Regular.class).getProperties();
-
-		assertEquals(2, properties.size());
-		assertTrue(properties.stream().anyMatch(p -> p.getToken().equals(Token.of("reg"))));
-		assertTrue(properties.stream().anyMatch(p -> p.getToken().equals(Token.of("sup"))));
-	}
 
 	@Test
 	public void classWithGenericArgument() {
@@ -308,165 +297,187 @@ public class ClazzTest {
 
 	@Test
 	public void testSelfReferencing1() {
-		Clazz<?> gg = Clazz.of(GG.class);
-		assertClazz(gg, GG.class, Object.class, self());
-
-		Clazz<?> gi = Clazz.of(GI.class);
-		assertClazz(gi, GI.class, g(GG.class, Integer.class, self()));
-		Clazz<?> gi_gg = gi.findGenericSuper(GG.class);
-		assertClazz(gi_gg, GG.class, Integer.class, self());
-
-		Clazz<?> ii = Clazz.of(II.class);
-		assertClazz(ii, II.class);
-		Clazz<?> ii_gi = ii.findGenericSuper(GI.class);
-		assertClazz(ii_gi, GI.class, II.class);
-		Clazz<?> ii_gg = ii.findGenericSuper(GG.class);
-		assertClazz(ii_gg, GG.class, Integer.class, II.class);
-		Clazz<?> ii_gi_gg = ii_gi.findGenericSuper(GG.class);
-		assertClazz(ii_gi_gg, GG.class, Integer.class, II.class);
-
-		Clazz<?> ii2 = Clazz.of(II2.class);
-		assertClazz(ii2, II2.class);
-		Clazz<?> ii2_gi = ii2.findGenericSuper(GI.class);
-		assertClazz(ii2_gi, GI.class, II.class);
-		Clazz<?> ii2_gg = ii2.findGenericSuper(GG.class);
-		assertClazz(ii2_gg, GG.class, Integer.class, II.class);
-		Clazz<?> ii2_gi_gg = ii2_gi.findGenericSuper(GG.class);
-		assertClazz(ii2_gi_gg, GG.class, Integer.class, II.class);
-
-		Clazz<?> gi2 = Clazz.of(GI2.class);
-		assertClazz(gi2, GI2.class, g(GI.class, self()));
-		Clazz<?> gi2_gg = gi2.findGenericSuper(GG.class);
-		assertClazz(gi2_gg, GG.class, Integer.class, g(GI.class, self()));
-
-		Clazz<?> ii3 = Clazz.of(II3.class);
-		assertClazz(ii3, II3.class);
-		Clazz<?> ii3_gi2 = ii3.findGenericSuper(GI2.class);
-		assertClazz(ii3_gi2, GI2.class, II.class);
-		Clazz<?> ii3_gg = ii3.findGenericSuper(GG.class);
-		assertClazz(ii3_gg, GG.class, Integer.class, II.class);
-		Clazz<?> ii3_gi2_gg = ii3_gi2.findGenericSuper(GG.class);
-		assertClazz(ii3_gi2_gg, GG.class, Integer.class, II.class);
-
-		Clazz<?> ii4 = Clazz.of(II4.class);
-		assertClazz(ii4, II4.class);
-		Clazz<?> ii4_gi = ii4.findGenericSuper(GI.class);
-		assertClazz(ii4_gi, GI.class, II4.class);
-		Clazz<?> ii4_gg = ii4.findGenericSuper(GG.class);
-		assertClazz(ii4_gg, GG.class, Integer.class, II4.class);
-		Clazz<?> ii4_gi_gg = ii4_gi.findGenericSuper(GG.class);
-		assertClazz(ii4_gi_gg, GG.class, Integer.class, II4.class);
-
-		Clazz<?> gi3 = Clazz.of(GI3.class);
-		assertClazz(gi3, GI3.class, Object.class);
-		Clazz<?> gi3_gg = gi3.findGenericSuper(GG.class);
-		assertClazz(gi3_gg, GG.class, Object.class, g(GI3.class, Object.class));
-		Clazz<?> gi3s = Clazz.ofClasses(GI3.class, String.class);
-		assertClazz(gi3s, GI3.class, String.class);
-		Clazz<?> gi3s_gg = gi3s.findGenericSuper(GG.class);
-		assertClazz(gi3s_gg, GG.class, String.class, g(GI3.class, String.class));
-
-		Clazz<?> gi4 = Clazz.of(GI4.class);
-		assertClazz(gi4, GI4.class, self());
-		Clazz<?> gi4_gi = gi4.findGenericSuper(GI.class);
-		assertClazz(gi4_gi, GI.class, g(GI4.class, self()));
-		Clazz<?> gi4_gg = gi4.findGenericSuper(GG.class);
-		assertClazz(gi4_gg, GG.class, Integer.class, g(GI4.class, self()));
-		Clazz<?> gi4_gi_gg = gi4_gi.findGenericSuper(GG.class);
-		assertClazz(gi4_gi_gg, GG.class, Integer.class, g(GI4.class, self()));
-
-		Clazz<?> gi5 = Clazz.of(GI5.class);
-		assertClazz(gi5, GI5.class, self());
-		Clazz<?> gi5_gg = gi5.findGenericSuper(GG.class);
-		assertClazz(gi5_gg, GG.class, g(GI5.class, self()), g(GI5.class, self()));
-
-		Clazz<?> ii5 = Clazz.of(II5.class);
-		assertClazz(ii5, II5.class);
-		Clazz<?> ii5_gi3 = ii5.findGenericSuper(GI3.class);
-		assertClazz(ii5_gi3, GI3.class, String.class);
-		Clazz<?> ii5_gg = ii5.findGenericSuper(GG.class);
-		assertClazz(ii5_gg, GG.class, String.class, g(GI3.class, String.class));
-		Clazz<?> ii5_gi3_gg = ii5_gi3.findGenericSuper(GG.class);
-		assertClazz(ii5_gi3_gg, GG.class, String.class, g(GI3.class, String.class));
-
-		Clazz<?> ii6 = Clazz.of(II6.class);
-		assertClazz(ii6, II6.class);
-		Clazz<?> ii6_gg = ii6.findGenericSuper(GG.class);
-		assertClazz(ii6_gg, GG.class, String.class, II6.class);
-
-		Clazz<?> gg2 = Clazz.of(GG2.class);
-		assertClazz(gg2, GG2.class, g(Comparable.class, self()), self());
-		Clazz<?> gg2_gg = gg2.findGenericSuper(GG.class);
-		assertClazz(gg2_gg, GG.class, g(Comparable.class, self()), g(GG2.class, g(Comparable.class, self()), self()));
-
-		Clazz<?> gg3 = Clazz.of(GG3.class);
-		assertClazz(gg3, GG3.class, self(), g(Comparable.class, self()));
-		Clazz<?> gg3_gg = gg3.findGenericSuper(GG.class);
-		assertClazz(gg3_gg, GG.class, g(Comparable.class, self()), g(GG3.class, self(), g(Comparable.class, self())));
-
-		Clazz<?> ii7 = Clazz.of(II7.class);
-		assertClazz(ii7, II7.class);
-		Clazz<?> ii7_gg2 = ii7.findGenericSuper(GG2.class);
-		assertClazz(ii7_gg2, GG2.class, String.class, II7.class);
-		Clazz<?> ii7_gg = ii7.findGenericSuper(GG.class);
-		assertClazz(ii7_gg, GG.class, String.class, II7.class);
-		Clazz<?> ii7_gg2_gg = ii7_gg2.findGenericSuper(GG.class);
-		assertClazz(ii7_gg2_gg, GG.class, String.class, II7.class);
+		{
+			Clazz<?> gg = Clazz.of(GG.class);
+			assertClazz(gg, GG.class, Object.class, self());
+		}
+		{
+			Clazz<?> gi = Clazz.of(GI.class);
+			assertClazz(gi, GI.class, g(GG.class, Integer.class, self()));
+			Clazz<?> gi_gg = gi.findGenericSuper(GG.class);
+			assertClazz(gi_gg, GG.class, Integer.class, self());
+		}
+		{
+			Clazz<?> ii = Clazz.of(II.class);
+			assertClazz(ii, II.class);
+			Clazz<?> ii_gi = ii.findGenericSuper(GI.class);
+			assertClazz(ii_gi, GI.class, II.class);
+			Clazz<?> ii_gg = ii.findGenericSuper(GG.class);
+			assertClazz(ii_gg, GG.class, Integer.class, II.class);
+			Clazz<?> ii_gi_gg = ii_gi.findGenericSuper(GG.class);
+			assertClazz(ii_gi_gg, GG.class, Integer.class, II.class);
+		}
+		{
+			Clazz<?> ii2 = Clazz.of(II2.class);
+			assertClazz(ii2, II2.class);
+			Clazz<?> ii2_gi = ii2.findGenericSuper(GI.class);
+			assertClazz(ii2_gi, GI.class, II.class);
+			Clazz<?> ii2_gg = ii2.findGenericSuper(GG.class);
+			assertClazz(ii2_gg, GG.class, Integer.class, II.class);
+			Clazz<?> ii2_gi_gg = ii2_gi.findGenericSuper(GG.class);
+			assertClazz(ii2_gi_gg, GG.class, Integer.class, II.class);
+		}
+		{
+			Clazz<?> gi2 = Clazz.of(GI2.class);
+			assertClazz(gi2, GI2.class, g(GI.class, self()));
+			Clazz<?> gi2_gg = gi2.findGenericSuper(GG.class);
+			assertClazz(gi2_gg, GG.class, Integer.class, g(GI.class, self()));
+		}
+		{
+			Clazz<?> ii3 = Clazz.of(II3.class);
+			assertClazz(ii3, II3.class);
+			Clazz<?> ii3_gi2 = ii3.findGenericSuper(GI2.class);
+			assertClazz(ii3_gi2, GI2.class, II.class);
+			Clazz<?> ii3_gg = ii3.findGenericSuper(GG.class);
+			assertClazz(ii3_gg, GG.class, Integer.class, II.class);
+			Clazz<?> ii3_gi2_gg = ii3_gi2.findGenericSuper(GG.class);
+			assertClazz(ii3_gi2_gg, GG.class, Integer.class, II.class);
+		}
+		{
+			Clazz<?> gi3 = Clazz.of(GI3.class);
+			assertClazz(gi3, GI3.class, Object.class);
+			Clazz<?> gi3_gg = gi3.findGenericSuper(GG.class);
+			assertClazz(gi3_gg, GG.class, Object.class, g(GI3.class, Object.class));
+			Clazz<?> gi3s = Clazz.ofClasses(GI3.class, String.class);
+			assertClazz(gi3s, GI3.class, String.class);
+			Clazz<?> gi3s_gg = gi3s.findGenericSuper(GG.class);
+			assertClazz(gi3s_gg, GG.class, String.class, g(GI3.class, String.class));
+		}
+		{
+			Clazz<?> gi4 = Clazz.of(GI4.class);
+			assertClazz(gi4, GI4.class, self());
+			Clazz<?> gi4_gi = gi4.findGenericSuper(GI.class);
+			assertClazz(gi4_gi, GI.class, g(GI4.class, self()));
+			Clazz<?> gi4_gg = gi4.findGenericSuper(GG.class);
+			assertClazz(gi4_gg, GG.class, Integer.class, g(GI4.class, self()));
+			Clazz<?> gi4_gi_gg = gi4_gi.findGenericSuper(GG.class);
+			assertClazz(gi4_gi_gg, GG.class, Integer.class, g(GI4.class, self()));
+		}
+		{
+			Clazz<?> gi5 = Clazz.of(GI5.class);
+			assertClazz(gi5, GI5.class, self());
+			Clazz<?> gi5_gg = gi5.findGenericSuper(GG.class);
+			assertClazz(gi5_gg, GG.class, g(GI5.class, self()), g(GI5.class, self()));
+		}
+		{
+			Clazz<?> ii5 = Clazz.of(II5.class);
+			assertClazz(ii5, II5.class);
+			Clazz<?> ii5_gi3 = ii5.findGenericSuper(GI3.class);
+			assertClazz(ii5_gi3, GI3.class, String.class);
+			Clazz<?> ii5_gg = ii5.findGenericSuper(GG.class);
+			assertClazz(ii5_gg, GG.class, String.class, g(GI3.class, String.class));
+			Clazz<?> ii5_gi3_gg = ii5_gi3.findGenericSuper(GG.class);
+			assertClazz(ii5_gi3_gg, GG.class, String.class, g(GI3.class, String.class));
+		}
+		{
+			Clazz<?> ii6 = Clazz.of(II6.class);
+			assertClazz(ii6, II6.class);
+			Clazz<?> ii6_gg = ii6.findGenericSuper(GG.class);
+			assertClazz(ii6_gg, GG.class, String.class, II6.class);
+		}
+		{
+			Clazz<?> gg2 = Clazz.of(GG2.class);
+			assertClazz(gg2, GG2.class, g(Comparable.class, self()), self());
+			Clazz<?> gg2_gg = gg2.findGenericSuper(GG.class);
+			assertClazz(gg2_gg, GG.class, g(Comparable.class, self()), g(GG2.class, g(Comparable.class, self()), self()));
+		}
+		{
+			Clazz<?> gg3 = Clazz.of(GG3.class);
+			assertClazz(gg3, GG3.class, self(), g(Comparable.class, self()));
+			Clazz<?> gg3_gg = gg3.findGenericSuper(GG.class);
+			assertClazz(gg3_gg, GG.class, g(Comparable.class, self()), g(GG3.class, self(), g(Comparable.class, self())));
+		}
+		{
+			Clazz<?> ii7 = Clazz.of(II7.class);
+			assertClazz(ii7, II7.class);
+			Clazz<?> ii7_gg2 = ii7.findGenericSuper(GG2.class);
+			assertClazz(ii7_gg2, GG2.class, String.class, II7.class);
+			Clazz<?> ii7_gg = ii7.findGenericSuper(GG.class);
+			assertClazz(ii7_gg, GG.class, String.class, II7.class);
+			Clazz<?> ii7_gg2_gg = ii7_gg2.findGenericSuper(GG.class);
+			assertClazz(ii7_gg2_gg, GG.class, String.class, II7.class);
+		}
 	}
 
 	@Test
 	public void testSelfReferencing2() {
-		Clazz<?> g1 = Clazz.of(G1.class);
-		assertClazz(g1, G1.class, g(G1.class, self(), self()), g(G1.class, self(), self()));
-
-		Clazz<?> g2 = Clazz.of(G2.class);
-		assertClazz(g2, G2.class, Object.class, self());
-		Clazz<?> g2s = Clazz.ofClazzes(G2.class, Clazz.of(String.class), Clazz.raw(G2.class));
-		assertClazz(g2s, G2.class, String.class, self());
-
-		Clazz<?> g3 = Clazz.of(G3.class);
-		assertClazz(g3, G3.class, self());
-		Clazz<?> g3_g2 = g3.findGenericSuper(G2.class);
-		assertClazz(g3_g2, G2.class, g(G3.class, self()), g(G3.class, self()));
-
-		Clazz<?> g4 = Clazz.of(G4.class);
-		assertClazz(g4, G4.class, self());
-		Clazz<?> g4_g2 = g4.findGenericSuper(G2.class);
-		assertClazz(g4_g2, G2.class, g(G4.class, self()), g(G4.class, self()));
-
-		Clazz<?> g5 = Clazz.of(G5.class);
-		assertClazz(g5, G5.class, self(), self());
-
-		Clazz<?> g5x = Clazz.ofClazzes(G5X.class, Clazz.raw(G5X.class), Clazz.of(String.class), Clazz.raw(G5X.class));
-		assertClazz(g5x, G5X.class, self(), String.class, self());
-
-		Clazz<?> g6 = Clazz.of(G6.class);
-		assertClazz(g6, G6.class, self(), self());
-
-		Clazz<?> g6x = Clazz.ofClazzes(G6X.class, Clazz.raw(G6X.class), Clazz.raw(G6X.class), Clazz.of(String.class));
-		assertClazz(g6x, G6X.class, self(), self(), String.class);
-
-		Clazz<?> g7 = Clazz.of(G7.class);
-		assertClazz(g7, G7.class, self(), self(), self());
-
-		Clazz<?> g7x = Clazz.ofClazzes(G7X.class, Clazz.raw(G7X.class), Clazz.raw(G7X.class), Clazz.of(String.class), Clazz.raw(G7X.class));
-		assertClazz(g7x, G7X.class, self(), self(), String.class, self());
-
-		Clazz<?> g8 = Clazz.of(G8.class);
-		assertClazz(g8, G8.class, self());
+		{
+			Clazz<?> g1 = Clazz.of(G1.class);
+			assertClazz(g1, G1.class, g(G1.class, self(), self()), g(G1.class, self(), self()));
+		}
+		{
+			Clazz<?> g2 = Clazz.of(G2.class);
+			assertClazz(g2, G2.class, Object.class, self());
+			Clazz<?> g2s = Clazz.ofClazzes(G2.class, Clazz.of(String.class), Clazz.raw(G2.class));
+			assertClazz(g2s, G2.class, String.class, self());
+		}
+		{
+			Clazz<?> g3 = Clazz.of(G3.class);
+			assertClazz(g3, G3.class, self());
+			Clazz<?> g3_g2 = g3.findGenericSuper(G2.class);
+			assertClazz(g3_g2, G2.class, g(G3.class, self()), g(G3.class, self()));
+		}
+		{
+			Clazz<?> g4 = Clazz.of(G4.class);
+			assertClazz(g4, G4.class, self());
+			Clazz<?> g4_g2 = g4.findGenericSuper(G2.class);
+			assertClazz(g4_g2, G2.class, g(G4.class, self()), g(G4.class, self()));
+		}
+		{
+			Clazz<?> g5 = Clazz.of(G5.class);
+			assertClazz(g5, G5.class, self(), self());
+		}
+		{
+			Clazz<?> g5x = Clazz.ofClazzes(G5X.class, Clazz.raw(G5X.class), Clazz.of(String.class), Clazz.raw(G5X.class));
+			assertClazz(g5x, G5X.class, self(), String.class, self());
+		}
+		{
+			Clazz<?> g6 = Clazz.of(G6.class);
+			assertClazz(g6, G6.class, self(), self());
+		}
+		{
+			Clazz<?> g6x = Clazz.ofClazzes(G6X.class, Clazz.raw(G6X.class), Clazz.raw(G6X.class), Clazz.of(String.class));
+			assertClazz(g6x, G6X.class, self(), self(), String.class);
+		}
+		{
+			Clazz<?> g7 = Clazz.of(G7.class);
+			assertClazz(g7, G7.class, self(), self(), self());
+		}
+		{
+			Clazz<?> g7x = Clazz.ofClazzes(G7X.class, Clazz.raw(G7X.class), Clazz.raw(G7X.class), Clazz.of(String.class), Clazz.raw(G7X.class));
+			assertClazz(g7x, G7X.class, self(), self(), String.class, self());
+		}
+		{
+			Clazz<?> g8 = Clazz.of(G8.class);
+			assertClazz(g8, G8.class, self());
+		}
 
 	}
 
 	@Test
 	public void testLoopDeLoop() {
-		Clazz<?> loop = Clazz.of(Loop.class);
-		assertTrue(2 < assertLooping(loop, Loop.class, DeLoop.class));
-
-		Clazz<?> deLoop = Clazz.of(DeLoop.class);
-		assertTrue(2 < assertLooping(deLoop, DeLoop.class, Loop.class));
-
-		Clazz<?> loopDeLoop = Clazz.of(LoopDeLoop.class);
-		assertClazz(loopDeLoop, LoopDeLoop.class, g(List.class, self()), g(List.class, self()));
+		{
+			Clazz<?> loop = Clazz.of(Loop.class);
+			assertTrue(2 < assertLooping(loop, Loop.class, DeLoop.class));
+		}
+		{
+			Clazz<?> deLoop = Clazz.of(DeLoop.class);
+			assertTrue(2 < assertLooping(deLoop, DeLoop.class, Loop.class));
+		}
+		{
+			Clazz<?> loopDeLoop = Clazz.of(LoopDeLoop.class);
+			assertClazz(loopDeLoop, LoopDeLoop.class, g(List.class, self()), g(List.class, self()));
+		}
 	}
 
 	private int assertLooping(Clazz<?> current, Class<?> thisClass, Class<?> otherClass) {
@@ -493,18 +504,22 @@ public class ClazzTest {
 
 	@Test
 	public void testUrlLink() {
-		Clazz<?> urlLink = Clazz.of(UrlLink.class);
-		Clazz<?> urlLink_parameterizableLink = urlLink.findGenericSuper(ParameterizableLink.class);
-		assertClazz(urlLink_parameterizableLink, ParameterizableLink.class, UrlLink.class);
-
-		Clazz<?> badLink = Clazz.of(BadLink.class);
-		Clazz<?> badLink_parameterizableLink = badLink.findGenericSuper(ParameterizableLink.class);
-		assertClazz(badLink_parameterizableLink, r(ParameterizableLink.class));
-
-		Clazz<?> weird = Clazz.of(Weird.class);
-		weird.methods();
-		Clazz<?> weird2 = Clazz.of(Weird2.class);
-		weird2.methods();
+		{
+			Clazz<?> urlLink = Clazz.of(UrlLink.class);
+			Clazz<?> urlLink_parameterizableLink = urlLink.findGenericSuper(ParameterizableLink.class);
+			assertClazz(urlLink_parameterizableLink, ParameterizableLink.class, UrlLink.class);
+		}
+		{
+			Clazz<?> badLink = Clazz.of(BadLink.class);
+			Clazz<?> badLink_parameterizableLink = badLink.findGenericSuper(ParameterizableLink.class);
+			assertClazz(badLink_parameterizableLink, r(ParameterizableLink.class));
+		}
+		{
+			Clazz<?> weird = Clazz.of(Weird.class);
+			weird.methods();
+			Clazz<?> weird2 = Clazz.of(Weird2.class);
+			weird2.methods();
+		}
 	}
 
 	@Test
@@ -513,7 +528,176 @@ public class ClazzTest {
 		assertClazz(weird, WildOuter.class, g(WildInner.class, g(List.class, Object.class)));
 	}
 
-	// todo more raw generic class tests needed
+	@Test
+	public void testSelfReferencingRaw1() {
+		// quite useless i guess, but it's already there, so I leave it
+		{
+			Clazz<?> ggr = Clazz.of(GGr.class);
+			assertClazz(ggr, GGr.class, Object.class, self());
+		}
+		{
+			Clazz<?> gir1 = Clazz.of(GIr1.class);
+			assertClazz(gir1, GIr1.class, g(GGr.class, Object.class, self()));
+			Clazz<?> gir1_ggr = gir1.findGenericSuper(GGr.class);
+			assertClazz(gir1_ggr, GGr.class, Integer.class, g(GGr.class, Object.class, self()));
+		}
+		{
+			Clazz<?> gir2 = Clazz.of(GIr2.class);
+			assertClazz(gir2, GIr2.class, g(GGr.class, Object.class, self()));
+			Clazz<?> gir2_ggr = gir2.findGenericSuper(GGr.class);
+			assertClazz(gir2_ggr, GGr.class, Object.class, self());
+		}
+		{
+			Clazz<?> gir3 = Clazz.of(GIr3.class);
+			assertClazz(gir3, GIr3.class, g(GGr.class, Integer.class, self()));
+			Clazz<?> gir3_ggr = gir3.findGenericSuper(GGr.class);
+			assertClazz(gir3_ggr, GGr.class, Object.class, self());
+		}
+		{
+			Clazz<?> gir4 = Clazz.of(GIr4.class);
+			assertClazz(gir4, GIr4.class, g(GGr.class, Integer.class, self()));
+			Clazz<?> gir4_ggr = gir4.findGenericSuper(GGr.class);
+			assertClazz(gir4_ggr, GGr.class, Integer.class, self());
+		}
+		{
+			Clazz<?> gir5 = Clazz.of(GIr5.class);
+			assertClazz(gir5, GIr5.class, g(GG.class, Object.class, self()));
+			Clazz<?> gir5_gg = gir5.findGenericSuper(GG.class);
+			assertClazz(gir5_gg, GG.class, Object.class, self());
+		}
+		{
+			Clazz<?> gir6 = Clazz.of(GIr6.class);
+			assertClazz(gir6, GIr6.class, g(GG.class, Integer.class, self()));
+			Clazz<?> gir6_gg = gir6.findGenericSuper(GG.class);
+			assertClazz(gir6_gg, GG.class, Object.class, self());
+		}
+		{
+			Clazz<?> iir1 = Clazz.of(IIr1.class);
+			assertClazz(iir1, IIr1.class);
+			Clazz<?> iir1_gir1 = iir1.findGenericSuper(GIr1.class);
+			assertClazz(iir1_gir1, GIr1.class, IIr1.class);
+			Clazz<?> iir1_gir1_ggr = iir1_gir1.findGenericSuper(GGr.class);
+			assertClazz(iir1_gir1_ggr, GGr.class, Integer.class, IIr1.class);
+			Clazz<?> iir1_ggr = iir1.findGenericSuper(GGr.class);
+			assertClazz(iir1_ggr, GGr.class, Integer.class, IIr1.class);
+		}
+		{
+			Clazz<?> iir2 = Clazz.of(IIr2.class);
+			assertClazz(iir2, IIr2.class);
+			Clazz<?> iir2_gir2 = iir2.findGenericSuper(GIr2.class);
+			assertClazz(iir2_gir2, GIr2.class, IIr2.class);
+			Clazz<?> iir2_gir2_ggr = iir2_gir2.findGenericSuper(GGr.class);
+			assertClazz(iir2_gir2_ggr, GGr.class, Object.class, self());
+			Clazz<?> iir2_ggr = iir2.findGenericSuper(GGr.class);
+			assertClazz(iir2_ggr, GGr.class, Object.class, self());
+		}
+		{
+			Clazz<?> iir4 = Clazz.of(IIr4.class);
+			assertClazz(iir4, IIr4.class);
+			Clazz<?> iir4_gir4 = iir4.findGenericSuper(GIr4.class);
+			assertClazz(iir4_gir4, GIr4.class, IIr4.class);
+			Clazz<?> iir4_gir4_ggr = iir4_gir4.findGenericSuper(GGr.class);
+			assertClazz(iir4_gir4_ggr, GGr.class, Integer.class, IIr4.class);
+			Clazz<?> iir4_ggr = iir4.findGenericSuper(GGr.class);
+			assertClazz(iir4_ggr, GGr.class, Integer.class, IIr4.class);
+		}
+		{
+			Clazz<?> iir5 = Clazz.of(IIr5.class);
+			assertClazz(iir5, IIr5.class);
+			Clazz<?> iir5_gir5 = iir5.findGenericSuper(GIr5.class);
+			assertClazz(iir5_gir5, GIr5.class, IIr5.class);
+			Clazz<?> iir5_gir5_gg = iir5_gir5.findGenericSuper(GG.class);
+			assertClazz(iir5_gir5_gg, GG.class, Object.class, self());
+			Clazz<?> iir5_gg = iir5.findGenericSuper(GG.class);
+			assertClazz(iir5_gg, GG.class, Object.class, self());
+		}
+		{
+			Clazz<?> ii2r1 = Clazz.of(II2r1.class);
+			assertClazz(ii2r1, II2r1.class);
+			Clazz<?> ii2r1_gir1 = ii2r1.findGenericSuper(GIr1.class);
+			assertClazz(ii2r1_gir1, GIr1.class, IIr1.class);
+			Clazz<?> ii2r1_gir1_ggr = ii2r1_gir1.findGenericSuper(GGr.class);
+			assertClazz(ii2r1_gir1_ggr, GGr.class, Integer.class, IIr1.class);
+			Clazz<?> ii2r1_ggr = ii2r1.findGenericSuper(GGr.class);
+			assertClazz(ii2r1_ggr, GGr.class, Integer.class, IIr1.class);
+		}
+		{
+			Clazz<?> ii2r2 = Clazz.of(II2r2.class);
+			assertClazz(ii2r2, II2r2.class);
+			Clazz<?> ii2r2_gir2 = ii2r2.findGenericSuper(GIr2.class);
+			assertClazz(ii2r2_gir2, GIr2.class, IIr2.class);
+			Clazz<?> ii2r2_gir2_ggr = ii2r2_gir2.findGenericSuper(GGr.class);
+			assertClazz(ii2r2_gir2_ggr, GGr.class, Object.class, self());
+			Clazz<?> ii2r2_ggr = ii2r2.findGenericSuper(GGr.class);
+			assertClazz(ii2r2_ggr, GGr.class, Object.class, self());
+		}
+		{
+			Clazz<?> ii2r4 = Clazz.of(II2r4.class);
+			assertClazz(ii2r4, II2r4.class);
+			Clazz<?> ii2r4_gir4 = ii2r4.findGenericSuper(GIr4.class);
+			assertClazz(ii2r4_gir4, GIr4.class, IIr4.class);
+			Clazz<?> ii2r4_gir4_ggr = ii2r4_gir4.findGenericSuper(GGr.class);
+			assertClazz(ii2r4_gir4_ggr, GGr.class, Integer.class, IIr4.class);
+			Clazz<?> ii2r4_ggr = ii2r4.findGenericSuper(GGr.class);
+			assertClazz(ii2r4_ggr, GGr.class, Integer.class, IIr4.class);
+		}
+		{
+			Clazz<?> ii2r5 = Clazz.of(II2r5.class);
+			assertClazz(ii2r5, II2r5.class);
+			Clazz<?> ii2r5_gir5 = ii2r5.findGenericSuper(GIr5.class);
+			assertClazz(ii2r5_gir5, GIr5.class, IIr5.class);
+			Clazz<?> ii2r5_gir5_gg = ii2r5_gir5.findGenericSuper(GG.class);
+			assertClazz(ii2r5_gir5_gg, GG.class, Object.class, self());
+			Clazz<?> ii2r5_gg = ii2r5.findGenericSuper(GG.class);
+			assertClazz(ii2r5_gg, GG.class, Object.class, self());
+		}
+	}
+
+	@Test
+	public void testSelfReferencingRaw2() {
+		{
+			Clazz<?> rawSelf = Clazz.of(RawSelf.class);
+			assertClazz(rawSelf, RawSelf.class, self());
+		}
+		{
+			Clazz<?> rawMe = Clazz.ofClasses(RawMe.class, Integer.class);
+			assertClazz(rawMe, RawMe.class, Integer.class);
+			Clazz<?> rawMe_rawSelf = rawMe.findGenericSuper(RawSelf.class);
+			assertClazz(rawMe_rawSelf, RawSelf.class, g(RawMe.class, Integer.class));
+		}
+		{
+			Clazz<?> rawMeWild = Clazz.ofClasses(RawMeWild.class, Integer.class);
+			assertClazz(rawMeWild, RawMeWild.class, Integer.class);
+			Clazz<?> rawMeWild_rawSelf = rawMeWild.findGenericSuper(RawSelf.class);
+			assertClazz(rawMeWild_rawSelf, RawSelf.class, g(RawMeWild.class, Number.class));
+		}
+		{
+			Clazz<?> rawMeRaw = Clazz.ofClasses(RawMeRaw.class, Integer.class);
+			assertClazz(rawMeRaw, RawMeRaw.class, Integer.class);
+			Clazz<?> rawMeRaw_rawSelf = rawMeRaw.findGenericSuper(RawSelf.class);
+			assertClazz(rawMeRaw_rawSelf, RawSelf.class, g(RawMeRaw.class, Number.class));
+		}
+		{
+			Clazz<?> rawMeRawSelf = Clazz.ofClasses(RawMeRawSelf.class, Integer.class);
+			assertClazz(rawMeRawSelf, RawMeRawSelf.class, Integer.class);
+			Clazz<?> rawMeRawSelf_rawSelf = rawMeRawSelf.findGenericSuper(RawSelf.class);
+			assertClazz(rawMeRawSelf_rawSelf, RawSelf.class, self());
+		}
+	}
+
+	@Test
+	public void testCoverageFieldPattern() {
+		Property.PropertyList list = Clazz.of(CoverageTest.class).getProperties();
+		assertEquals(2, list.size());
+		assertEquals("hi", list.get(0).getSnakeCase());
+		assertEquals("__hello__", list.get(1).getSnakeCase());
+	}
+
+	public static class CoverageTest {
+		public int hi;
+		public int __hello__;
+		public int __$hej$__;
+	}
 
 	interface Ninja {}
 
@@ -648,8 +832,6 @@ public class ClazzTest {
 
 	public interface II3 extends GI2<II> {}
 
-	public interface II4 extends GI<II4> {}
-
 	public interface GI3<X> extends GG<X, GI3<X>> {}
 
 	public interface GI4<X extends GI4<X>> extends GI<X> {}
@@ -709,4 +891,53 @@ public class ClazzTest {
 
 	public interface StringGroup extends Group<Number, String> {}
 
+	@SuppressWarnings({"rawtypes", "unused"})
+	public interface GGr<A, B extends GGr> {}
+
+	@SuppressWarnings("rawtypes")
+	public interface GIr1<X extends GGr> extends GGr<Integer, X> {}
+
+	@SuppressWarnings({"rawtypes", "unused"})
+	public interface GIr2<X extends GGr> extends GGr {}
+
+	@SuppressWarnings({"rawtypes", "unused"})
+	public interface GIr3<X extends GGr<Integer, X>> extends GGr {}
+
+	public interface GIr4<X extends GGr<Integer, X>> extends GGr<Integer, X> {}
+
+	@SuppressWarnings({"rawtypes", "unused"})
+	public interface GIr5<X extends GG> extends GG {}
+
+	@SuppressWarnings({"rawtypes", "unused"})
+	public interface GIr6<X extends GG<Integer, X>> extends GG {}
+
+	public interface IIr1 extends GIr1<IIr1> {}
+
+	public interface IIr2 extends GIr2<IIr2> {}
+
+	public interface IIr4 extends GIr4<IIr4> {}
+
+	public interface IIr5 extends GIr5<IIr5> {}
+
+	public interface II2r1 extends GIr1<IIr1> {}
+
+	public interface II2r2 extends GIr2<IIr2> {}
+
+	public interface II2r4 extends GIr4<IIr4> {}
+
+	public interface II2r5 extends GIr5<IIr5> {}
+
+	@SuppressWarnings({"rawtypes", "unused"})
+	public interface RawSelf<T extends RawSelf> {}
+
+	public interface RawMe<T extends Number> extends RawSelf<RawMe<T>> {}
+
+	@SuppressWarnings("unused")
+	public interface RawMeWild<T extends Number> extends RawSelf<RawMeWild<?>> {}
+
+	@SuppressWarnings({"rawtypes", "unused"})
+	public interface RawMeRaw<T extends Number> extends RawSelf<RawMeRaw> {}
+
+	@SuppressWarnings({"rawtypes", "unused"})
+	public interface RawMeRawSelf<T extends Number> extends RawSelf<RawSelf> {}
 }

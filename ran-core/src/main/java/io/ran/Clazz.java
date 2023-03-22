@@ -90,7 +90,6 @@ public class Clazz<T> {
 	}
 
 	public static Clazz of(WildcardType wildcardType, Map<String, Clazz<?>> genericMap, Set<String> loopStop) {
-		// todo warning that we ignore lower bounds?
 		Type[] bounds = wildcardType.getUpperBounds();
 		if (bounds.length > 1) {
 			throw new IllegalArgumentException("multiple bounds are not supported " + wildcardType);
@@ -290,7 +289,6 @@ public class Clazz<T> {
 		return Primitives.get(clazz).getPrimitiveOffset();
 	}
 
-
 	public String getDescriptor() {
 		if (isPrimitive()) {
 			return Primitives.get(clazz).getDescriptor();
@@ -310,7 +308,6 @@ public class Clazz<T> {
 		}
 		return "L" + getInternalName() + (generics.isEmpty() ? "" : "<" + (generics.stream().map(Clazz::getSignature).collect(Collectors.joining())) + ">") + ";";
 	}
-
 
 	@Override
 	public boolean equals(Object o) {
@@ -418,7 +415,7 @@ public class Clazz<T> {
 		Property.PropertyList fields = Property.list();
 
 		for (Field field : getFields()) {
-			if (isPublicStatic(field) || (!includeNonProperties && !isPropertyField(field))) {
+			if (isPublicStatic(field) || (!includeNonProperties && !isPropertyField(field)) || field.getName().matches(COVERAGE_FIELD_PATTERN)) {
 				continue;
 			}
 			Token token = Token.camelHump(field.getName());
@@ -479,11 +476,9 @@ public class Clazz<T> {
 		return Modifier.isPublic(field.getModifiers()) && Modifier.isStatic(field.getModifiers());
 	}
 
-
 	public static boolean isRelationField(Field field) {
 		return CamelHumpToken.is(field.getName()) && field.getAnnotation(Relation.class) != null;
 	}
-
 
 	public List<Field> getFields() {
 		List<Field> fields = new ArrayList<>();
@@ -503,11 +498,9 @@ public class Clazz<T> {
 		return getFields().stream().filter(Clazz::isPropertyField).collect(Collectors.toList());
 	}
 
-
 	public List<Field> getDeclaredPropertyFields() {
 		return Stream.of(clazz.getDeclaredFields()).filter(Clazz::isPropertyField).collect(Collectors.toList());
 	}
-
 
 	public Object getDefaultValue() {
 		if (isVoid()) {
