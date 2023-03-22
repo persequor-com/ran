@@ -17,27 +17,27 @@ public class ReadonlyWrapperWriter<WRAPPER extends WRAPPEE, WRAPPEE> extends Aut
 		postFix = "Readonly";
 
 		this.wrappeeClass = Clazz.of(wrappee);
-		internalName =  this.clazz.getInternalName();
+		internalName = this.wrapperClazz.getInternalName();
 
 		if (internalName.startsWith("java/")) {
-			internalName = "io/ran/"+internalName;
+			internalName = "io/ran/" + internalName;
 		}
 		String fullname = internalName + postFix;
 		wrapperGenerated = Clazz.of(fullname);
 
-		signature = this.clazz.getSignature();
+		signature = this.wrapperClazz.getSignature();
 		if (signature.startsWith("Ljava/")) {
-			signature = "Lio/ran/"+signature.substring(1);
+			signature = "Lio/ran/" + signature.substring(1);
 		}
-		visit(Opcodes.V1_8, Access.Public.getOpCode(), fullname, this.clazz.generics.isEmpty() ? null : signature, clazz.getInternalName(), new String[]{Clazz.ofClazzes(Wrappee.class, clazz, wrappeeClass).getInternalName()});
+		visit(Opcodes.V1_8, Access.Public.getOpCode(), fullname, this.wrapperClazz.generics.isEmpty() ? null : signature, wrapperClazz.getInternalName(), new String[]{Clazz.ofClazzes(Wrappee.class, wrapperClazz, wrappeeClass).getInternalName()});
 
 		field(Access.Private, "_wrappee", wrappeeClass, false);
 
-		Arrays.asList(clazz.clazz.getConstructors()).forEach(c -> {
+		Arrays.asList(wrapperClazz.clazz.getConstructors()).forEach(c -> {
 			MethodWriter mw = method(Access.of(c.getModifiers()), new MethodSignature(c));
 			mw.load(0);
 			int i = 0;
-			for (Parameter p : Arrays.asList(c.getParameters())) {
+			for (Parameter p : c.getParameters()) {
 				mw.load(++i, Clazz.of(p.getType()));
 			}
 
@@ -56,7 +56,7 @@ public class ReadonlyWrapperWriter<WRAPPER extends WRAPPEE, WRAPPEE> extends Aut
 	private void buildWrappeeImplementations() {
 		try {
 			ClazzMethod cm = new ClazzMethod(Clazz.of(Wrappee.class), Wrappee.class.getMethod("wrappee"));
-			if(!clazz.declaresMethod(cm)) {
+			if (!wrapperClazz.declaresMethod(cm)) {
 				MethodWriter mw = method(Access.Public, cm.getSignature());
 				mw.load(0);
 				mw.getField(wrapperGenerated, "_wrappee", wrappeeClass);
@@ -65,7 +65,7 @@ public class ReadonlyWrapperWriter<WRAPPER extends WRAPPEE, WRAPPEE> extends Aut
 			}
 
 			cm = new ClazzMethod(Clazz.of(Wrappee.class), Wrappee.class.getMethod("wrappee", Object.class));
-			if(!clazz.declaresMethod(cm)) {
+			if (!wrapperClazz.declaresMethod(cm)) {
 				MethodWriter mw = method(Access.Public, cm.getSignature());
 				mw.load(0);
 				mw.load(1, Clazz.of(Object.class));
@@ -74,7 +74,7 @@ public class ReadonlyWrapperWriter<WRAPPER extends WRAPPEE, WRAPPEE> extends Aut
 				mw.returnNothing();
 				mw.end();
 			}
-		} catch(Exception e){
+		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}

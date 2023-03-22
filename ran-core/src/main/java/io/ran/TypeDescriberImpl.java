@@ -1,10 +1,22 @@
+/* Copyright 2021 PSQR
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 package io.ran;
 
 import io.ran.token.Token;
 
-import javax.management.remote.JMXServerErrorException;
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -98,7 +110,7 @@ public class TypeDescriberImpl<T> implements TypeDescriber<T> {
 	}
 
 	public ClazzMethod method(String methodToken) {
-		return methods().stream().filter(cm -> cm.matches(methodToken)).findFirst().orElseThrow(() -> new RuntimeException("Could not find method bytoken "+methodToken+" on "+clazz.clazz.getName()));
+		return methods().stream().filter(cm -> cm.matches(methodToken)).findFirst().orElseThrow(() -> new RuntimeException("Could not find method bytoken " + methodToken + " on " + clazz.clazz.getName()));
 	}
 
 	@Override
@@ -121,7 +133,7 @@ public class TypeDescriberImpl<T> implements TypeDescriber<T> {
 
 			if (relation != null) {
 				Token token = Token.camelHump(field.getName());
-				Token idToken = Token.camelHump(field.getName()+"Id");
+				Token idToken = Token.camelHump(field.getName() + "Id");
 				boolean isCollection = field.getType().isAssignableFrom(Collection.class) || field.getType().isAssignableFrom(List.class);
 
 
@@ -141,7 +153,7 @@ public class TypeDescriberImpl<T> implements TypeDescriber<T> {
 		Clazz<?> relationForFields = relationAnnotation.via() != None.class ? Clazz.of(relationAnnotation.via()) : relation;
 
 		if (relationFields.size() > 0) {
-			relationFields.stream().map(Token::get).map(t ->  relationForFields.getProperties().get(t)).forEach(relationKeys::add);
+			relationFields.stream().map(Token::get).map(t -> relationForFields.getProperties().get(t)).forEach(relationKeys::add);
 		}
 		if (fields.size() > 0) {
 			fields.stream().map(Token::get).map(properties::get).forEach(selfKeys::add);
@@ -184,7 +196,7 @@ public class TypeDescriberImpl<T> implements TypeDescriber<T> {
 						toRelation.get().getToKeys().matchesKeys(relationDescriber.getToKeys());
 
 				if (toMatchesFrom) {
-					throw new RuntimeException("Invalid via relation configuration. 'fields' and 'relationsFields' must match. See configuration on "+relationDescriber.getFromClass().getSimpleName()+"."+relationDescriber.getField().camelHump());
+					throw new RuntimeException("Invalid via relation configuration. 'fields' and 'relationsFields' must match. See configuration on " + relationDescriber.getFromClass().getSimpleName() + "." + relationDescriber.getField().camelHump());
 				}
 
 
@@ -211,7 +223,7 @@ public class TypeDescriberImpl<T> implements TypeDescriber<T> {
 
 			relationDescriber.getVia().add(RelationDescriber
 					.describer(via
-							,from.getRelationFields().stream().filter(f -> f.getName().equals(token.camelHump())).findFirst().orElseThrow(RuntimeException::new).getAnnotation(Relation.class)
+							, from.getRelationFields().stream().filter(f -> f.getName().equals(token.camelHump())).findFirst().orElseThrow(RuntimeException::new).getAnnotation(Relation.class)
 							, token
 							, relation
 							, toRelation.map(RelationDescriber::getFromKeys)

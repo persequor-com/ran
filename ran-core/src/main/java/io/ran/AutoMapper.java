@@ -1,7 +1,10 @@
-/* Copyright (C) Persequor ApS - All Rights Reserved
- * Unauthorized copying of this file, via any medium is strictly prohibited
- * Proprietary and confidential
- * Written by Persequor Development Team <partnersupport@persequor.com>, 
+/* Copyright 2021 PSQR
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package io.ran;
 
@@ -19,9 +22,9 @@ public class AutoMapper {
 	}
 
 	public static void map(Class aClass) {
-		if(!mapped.containsKey(aClass)) {
+		if (!mapped.containsKey(aClass)) {
 			synchronized (AutoMapper.class) {
-				if(!mapped.containsKey(aClass)) {
+				if (!mapped.containsKey(aClass)) {
 					try {
 						MapperGenerator.Wrapped wrapped = mapperGenerator.generate(classLoader, Clazz.of(aClass));
 
@@ -38,14 +41,14 @@ public class AutoMapper {
 		}
 	}
 
-	public synchronized static  <X, Z extends X> Class<Z> get(Class<X> xClass) {
-		if(!mapped.containsKey(xClass)) {
+	public synchronized static <X, Z extends X> Class<Z> get(Class<X> xClass) {
+		if (!mapped.containsKey(xClass)) {
 			map(xClass);
 		}
-		return (Class<Z>)mapped.get(xClass);
+		return (Class<Z>) mapped.get(xClass);
 	}
 
-	public synchronized static  <X, Z extends  X> Class<Z> getQueryMaps(Class<X> xClass) {
+	public synchronized static <X, Z extends X> Class<Z> getQueryMaps(Class<X> xClass) {
 		return query.get(xClass);
 	}
 }
