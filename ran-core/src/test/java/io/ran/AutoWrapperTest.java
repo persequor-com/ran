@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.*;
@@ -60,10 +61,21 @@ public class AutoWrapperTest {
 		instance.setId("muh");
 		TestClassWrapper wrapped = autoWrapper.wrap(TestClassWrapper.class, instance);
 		wrapped.setNumbers(4, 5, 6);
-		assertEquals("muh4-5-6", wrapped.toString());
+		wrapped.setId("mah");
+		assertEquals("mah4-5-6", wrapped.toString());
 		assertEquals(4, instance.getaShort());
 		assertEquals(5, instance.getInteger());
 		assertEquals(6, instance.getaLong());
+
+		instance.setaShort((short) 7);
+		instance.setInteger(8);
+		instance.setaLong(9);
+		instance.setId("meh");
+
+		assertEquals("meh7-8-9", wrapped.toString());
+		assertEquals(7, wrapped.getaShort());
+		assertEquals(8, wrapped.getInteger());
+		assertEquals(9, wrapped.getaLong());
 	}
 
 	@Test
@@ -73,7 +85,18 @@ public class AutoWrapperTest {
 		instance.setaList(new ArrayList<>());
 		instance.getaList().add("moo");
 		instance.getaList().add("quack");
+
 		TestClass wrapped = ReadonlyWrapper.readonlyWrap(TestClass.class, instance);
+
+		assertEquals(1, wrapped.getaShort());
+		List<String> wrappedList = wrapped.getaList();
+		assertEquals(2, wrappedList.size());
+		assertEquals("moo", wrapped.getaList().get(0));
+		assertEquals("quack", wrapped.getaList().get(1));
+
+		instance.setaShort((short) 3);
+
+		assertEquals(3, wrapped.getaShort());
 
 		try {
 			wrapped.setaShort((short) 2);

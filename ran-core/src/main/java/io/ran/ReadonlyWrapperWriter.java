@@ -80,7 +80,7 @@ public class ReadonlyWrapperWriter<WRAPPEE> extends AutoMapperClassWriter {
 	}
 
 	private void buildMethods() {
-		Set<String> defined = new HashSet<>();
+		Set<String> defined = new HashSet<>(); // todo does not work, getMethodSignature() is not appropriate key
 
 		wrappeeClass.methods().stream().sorted(Comparator.comparing((ClazzMethod cm) -> cm.getDeclaringClazz().equals(wrappeeClass))).forEach(cm -> {
 			if (defined.contains(cm.getSignature().getMethodSignature())) {
