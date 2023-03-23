@@ -10,7 +10,7 @@ import java.util.Set;
 
 public class ReadonlyWrapperWriter<WRAPPEE> extends AutoMapperClassWriter {
 	Clazz wrapperGenerated;
-	Clazz<WRAPPEE> wrappeeClass;
+	Clazz<WRAPPEE> wrappeeClass; // todo seems same as wrapperClazz, remove?
 
 	public ReadonlyWrapperWriter(Class<WRAPPEE> wrappee) {
 		super(wrappee);
