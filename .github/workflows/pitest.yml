@@ -7,7 +7,7 @@ on:
 
 jobs:
   pitest:
-    runs-on: [self-hosted, linux]
+    runs-on: linux
     name: PITest
     steps:
       - uses: isamadrid90/gradle-pitest-comment-action@v1.0.0-beta
