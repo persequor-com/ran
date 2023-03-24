@@ -704,13 +704,17 @@ public class ClazzTest {
 
 	public static class Normal<T extends Ninja> {
 		@SuppressWarnings("unused")
-		public T myTea() { return null; }
+		public T myTea() {
+			return null;
+		}
 	}
 
 	@SuppressWarnings("rawtypes")
 	public static class Weird<T extends Normal> {
 		@SuppressWarnings("unused")
-		public T myTea() { return null; }
+		public T myTea() {
+			return null;
+		}
 	}
 
 	@SuppressWarnings({"rawtypes", "unused"})
