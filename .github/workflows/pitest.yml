@@ -2,6 +2,9 @@
 # From https://github.com/isamadrid90/gradle-pitest-comment-action/blob/main/action.yml
 #
 name: 'Pitest - With summary comment'
+on:
+  pull_request:
+
 description: 'Action to execute PITest in a project with gradle and leave a comment with the summary of the execution'
 inputs:
   repo-token:
