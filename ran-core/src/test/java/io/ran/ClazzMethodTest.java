@@ -193,12 +193,8 @@ public class ClazzMethodTest {
 	public void testGenericSuperWildcard() {
 		// <U extends Comparable<? super U>> NestedSelfSub orderBy(Function<String, U> sortingKeyExtractor)
 		ClazzMethod orderBy = Clazz.of(NestedSelfSub.class).methods().find("orderBy", NestedSelfSub.class, Function.class).get();
-		assertMethod(NestedSelfSub.class, orderBy,
-				/* return type */   NestedSelfSub.class,
-				/* arg 0 */            g(Function.class,
-						String.class,
-						g(Comparable.class,
-								Object.class)));
+		assertMethod(NestedSelfSub.class, orderBy, NestedSelfSub.class,
+				g(Function.class, String.class, g(Comparable.class, Object.class)));
 		assertFalse(orderBy.hasGenericFromClass());
 		assertTrue(orderBy.hasGenericFromMethod());
 	}
@@ -220,7 +216,6 @@ public class ClazzMethodTest {
 	public void testICassandraEventsQuery_ReturnCase_fromWildCard() {
 		Clazz<?> parent = Clazz.of(IEventService.class);
 		ClazzMethod pMethod = parent.methods().find("cassandraQuery", ICassandraEventsQuery.class).get();
-
 
 		Clazz<?> c = pMethod.getReturnType();
 		assertEquals(1, c.generics.size());
