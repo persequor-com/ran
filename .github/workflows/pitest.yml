@@ -17,4 +17,3 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           reports-retention: 1
           reports-path: "ran-core/build/reports/pitest"
-          working-directory: project
