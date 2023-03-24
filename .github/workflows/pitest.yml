@@ -1,9 +1,15 @@
 #
 # From https://github.com/isamadrid90/gradle-pitest-comment-action/blob/main/action.yml
 #
-uses: isamadrid90/gradle-pitest-comment-action@v1.0.0-beta
-with:
-  repo-token: ${{ secrets.GITHUB_TOKEN }}
-  reports-retention: 1
-  reports-path: "ran-core/build/reports/pitest"
-  working-directory: project
+name: PITest
+on:
+  pull_request:
+
+jobs:
+  pitest:
+    uses: isamadrid90/gradle-pitest-comment-action@v1.0.0-beta
+    with:
+      repo-token: ${{ secrets.GITHUB_TOKEN }}
+      reports-retention: 1
+      reports-path: "ran-core/build/reports/pitest"
+      working-directory: project
