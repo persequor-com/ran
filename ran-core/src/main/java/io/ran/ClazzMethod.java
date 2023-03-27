@@ -126,7 +126,7 @@ public class ClazzMethod {
 	}
 
 	/**
-	 * @return true if the method either returns or takes generic parameters defined at  method-level.
+	 * @return true if the method either returns or takes generic parameters defined at method-level. Wildcards are treated as method-level generic types.
 	 */
 	public boolean hasGenericFromMethod() {
 		for (Type type : getAllGenericTypes()) {
