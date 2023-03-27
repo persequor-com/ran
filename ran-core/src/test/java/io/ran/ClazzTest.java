@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static io.ran.testclasses.AssertHelpers.*;
@@ -413,7 +414,7 @@ public class ClazzTest {
 	public void testSelfReferencing2() {
 		{
 			Clazz<?> g1 = Clazz.of(G1.class);
-			assertClazz(g1, G1.class, g(G1.class, self(), self()), g(G1.class, self(), self()));
+			assertClazz(g1, G1.class, self(), self());
 		}
 		{
 			Clazz<?> g2 = Clazz.of(G2.class);
@@ -741,6 +742,55 @@ public class ClazzTest {
 		assertEquals("__hello__", list.get(1).getSnakeCase());
 	}
 
+	@Test
+	public void testInvalidGenerics() {
+		Clazz<?> obj = Clazz.of(Object.class);
+		Clazz<?> string = Clazz.of(String.class);
+		Clazz<?> number = Clazz.of(Number.class);
+		Clazz<?> integer = Clazz.of(Integer.class);
+		Clazz<?> rawList = Clazz.raw(List.class);
+		Clazz<?> objList = Clazz.ofClasses(List.class, Object.class);
+		Clazz<?> numList = Clazz.ofClasses(List.class, Number.class);
+		Clazz<?> intList = Clazz.ofClasses(List.class, Integer.class);
+		Clazz<?> strList = Clazz.ofClasses(List.class, String.class);
+
+		// non-generic class rejects generics
+		new Clazz<>(String.class);
+		assertThrows(IllegalArgumentException.class, () -> new Clazz<>(String.class, obj));
+
+		// generic class requires 0 or correct number of generics
+		new Clazz<>(Function.class);
+		assertThrows(IllegalArgumentException.class, () -> new Clazz<>(Function.class, obj));
+		new Clazz<>(Function.class, obj, obj);
+		assertThrows(IllegalArgumentException.class, () -> new Clazz<>(List.class, obj, obj, obj));
+
+		// top level bounds are enforced
+		new Clazz<>(NumberHolder.class, number);
+		new Clazz<>(NumberHolder.class, integer);
+		assertThrows(IllegalArgumentException.class, () -> new Clazz<>(NumberHolder.class, obj));
+		assertThrows(IllegalArgumentException.class, () -> new Clazz<>(NumberHolder.class, string));
+
+		// inner bounds are enforced
+		new Clazz<>(NumberListHolder.class);
+		new Clazz<>(NumberListHolder.class, rawList);
+		new Clazz<>(NumberListHolder.class, numList);
+		new Clazz<>(NumberListHolder.class, intList);
+		assertThrows(IllegalArgumentException.class, () -> new Clazz<>(StringHolder.class, objList));
+		assertThrows(IllegalArgumentException.class, () -> new Clazz<>(StringHolder.class, strList));
+
+		// inner bounds with arrays
+		new Clazz<>(NumberListHolder[].class);
+		new Clazz<>(NumberListHolder[].class, rawList);
+		new Clazz<>(NumberListHolder[].class, numList);
+		new Clazz<>(NumberListHolder[].class, intList);
+		assertThrows(IllegalArgumentException.class, () -> new Clazz<>(StringHolder[].class, objList));
+		assertThrows(IllegalArgumentException.class, () -> new Clazz<>(StringHolder[].class, strList));
+
+		// feel free to add more
+	}
+
+	// todo test creation of clazzes with invalid generics
+
 	@SuppressWarnings("unused")
 	public static class CoverageTest {
 		public int hi;
@@ -1023,4 +1073,10 @@ public class ClazzTest {
 
 	@SuppressWarnings({"rawtypes", "unused"})
 	public interface IiStringHolderHolder<T extends IStringHolder> {}
+
+	@SuppressWarnings("unused")
+	public static class NumberHolder<T extends Number> {}
+
+	@SuppressWarnings("unused")
+	public static class NumberListHolder<T extends List<? extends Number>> {}
 }
