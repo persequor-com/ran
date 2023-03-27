@@ -275,14 +275,7 @@ public class Clazz<T> {
 	}
 
 	public Clazz<?> getSuper() {
-		Type genericSuper = clazz.getGenericSuperclass();
-		if (genericSuper != null) {
-			if (genericSuper instanceof Class) {
-				return raw((Class<?>) genericSuper);
-			}
-			return Clazz.of(clazz.getGenericSuperclass(), this.genericMap, Collections.emptySet());
-		}
-		return Clazz.of(clazz.getSuperclass());
+		return Clazz.of(clazz.getGenericSuperclass(), this.genericMap, Collections.emptySet());
 	}
 
 	public int getPrimitiveOffset() {
@@ -438,15 +431,15 @@ public class Clazz<T> {
 	}
 
 	public ClazzMethodList methods() {
-		Map<Method, ClazzMethod> result = new LinkedHashMap();
-		Clazz working = this;
+		Map<Method, ClazzMethod> result = new LinkedHashMap<>();
+		Clazz<?> working = this;
 		do {
 			if (clazz.isInterface()) {
-				Arrays.stream(working.clazz.getMethods())
+				Arrays.stream(clazz.getMethods())
 						.filter(m -> !m.isBridge())
 						.forEach(m -> result.put(m, new ClazzMethod(this, m)));
 			} else {
-				Clazz finalWorking = working;
+				Clazz<?> finalWorking = working;
 				Arrays.stream(working.clazz.getDeclaredMethods())
 						.filter(m -> !m.isBridge())
 						.forEach(m -> result.put(m, new ClazzMethod(this, finalWorking, m)));

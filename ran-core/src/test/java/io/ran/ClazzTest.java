@@ -683,6 +683,54 @@ public class ClazzTest {
 			Clazz<?> rawMeRawSelf_rawSelf = rawMeRawSelf.findGenericSuper(RawSelf.class);
 			assertClazz(rawMeRawSelf_rawSelf, RawSelf.class, self());
 		}
+		{
+			Clazz<?> rawRawSelf = Clazz.ofClasses(RawRawSelf.class, Integer.class);
+			assertClazz(rawRawSelf, RawRawSelf.class, Integer.class);
+			Clazz<?> rawRawSelf_rawSelf = rawRawSelf.findGenericSuper(RawSelf.class);
+			assertClazz(rawRawSelf_rawSelf, RawSelf.class, self());
+		}
+	}
+
+	@Test
+	public void testRawSuper() {
+		{
+			Clazz<?> rawHolder = Clazz.of(RawHolder.class);
+			assertClazz(rawHolder, RawHolder.class);
+			Clazz<?> rawHolder_StringHolder = rawHolder.findGenericSuper(StringHolder.class);
+			assertClazz(rawHolder_StringHolder, StringHolder.class, String.class);
+		}
+		{
+			Clazz<?> iRawHolder = Clazz.of(IRawHolder.class);
+			assertClazz(iRawHolder, IRawHolder.class);
+			Clazz<?> iRawHolder_IStringHolder = iRawHolder.findGenericSuper(IStringHolder.class);
+			assertClazz(iRawHolder_IStringHolder, IStringHolder.class, String.class);
+		}
+		{
+			Clazz<?> iRawHolderImpl = Clazz.of(IRawHolderImpl.class);
+			assertClazz(iRawHolderImpl, IRawHolderImpl.class);
+			Clazz<?> iRawHolderImpl_IStringHolder = iRawHolderImpl.findGenericSuper(IStringHolder.class);
+			assertClazz(iRawHolderImpl_IStringHolder, IStringHolder.class, String.class);
+		}
+	}
+
+	@Test
+	public void testRawGenericBounds() {
+		{
+			Clazz<?> stringHolderHolder = Clazz.of(StringHolderHolder.class);
+			assertClazz(stringHolderHolder, StringHolderHolder.class, g(StringHolder.class, String.class));
+		}
+		{
+			Clazz<?> iStringHolderHolder = Clazz.of(IStringHolderHolder.class);
+			assertClazz(iStringHolderHolder, IStringHolderHolder.class, g(StringHolder.class, String.class));
+		}
+		{
+			Clazz<?> eyeStringHolderHolder = Clazz.of(iStringHolderHolder.class);
+			assertClazz(eyeStringHolderHolder, iStringHolderHolder.class, g(IStringHolder.class, String.class));
+		}
+		{
+			Clazz<?> iiStringHolderHolder = Clazz.of(IiStringHolderHolder.class);
+			assertClazz(iiStringHolderHolder, IiStringHolderHolder.class, g(IStringHolder.class, String.class));
+		}
 	}
 
 	@Test
@@ -945,4 +993,34 @@ public class ClazzTest {
 
 	@SuppressWarnings({"rawtypes", "unused"})
 	public interface RawMeRawSelf<T extends Number> extends RawSelf<RawSelf> {}
+
+	@SuppressWarnings({"rawtypes", "unused"})
+	public interface RawRawSelf<T extends Number> extends RawSelf {}
+
+	@SuppressWarnings("unused")
+	public static class StringHolder<T extends String> {}
+
+	@SuppressWarnings("rawtypes")
+	public static class RawHolder extends StringHolder {}
+
+	@SuppressWarnings("unused")
+	public interface IStringHolder<T extends String> {}
+
+	@SuppressWarnings("rawtypes")
+	public interface IRawHolder extends IStringHolder {}
+
+	@SuppressWarnings("rawtypes")
+	public static class IRawHolderImpl implements IStringHolder {}
+
+	@SuppressWarnings({"rawtypes", "unused"})
+	public static class StringHolderHolder<T extends StringHolder> {}
+
+	@SuppressWarnings({"rawtypes", "unused"})
+	public interface IStringHolderHolder<T extends StringHolder> {}
+
+	@SuppressWarnings({"rawtypes", "unused"})
+	public static class iStringHolderHolder<T extends IStringHolder> {}
+
+	@SuppressWarnings({"rawtypes", "unused"})
+	public interface IiStringHolderHolder<T extends IStringHolder> {}
 }

@@ -199,7 +199,6 @@ public class ClazzMethodTest {
 		assertTrue(orderBy.hasGenericFromMethod());
 	}
 
-
 	@Test
 	public void testICassandraEventsQuery_ReturnCase() {
 		Clazz<?> c = Clazz.of(ICassandraEventsQuery.class);
@@ -268,8 +267,6 @@ public class ClazzMethodTest {
 		Clazz<?> string = Clazz.of(String.class);
 		Clazz<?> object2 = string.getSuper();
 		assertEquals(12, object2.methods().size());
-
-
 	}
 
 	// coincidentally works, but swapping the order breaks it
@@ -327,7 +324,6 @@ public class ClazzMethodTest {
 		assertThrows(IllegalArgumentException.class,
 				() -> Clazz.of(StringSetHolderFactory.class).methods().find("make", ListHolder.class));
 	}
-
 
 	@Test
 	public void testDeepGenerics() {
