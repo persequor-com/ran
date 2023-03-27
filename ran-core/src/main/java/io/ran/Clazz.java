@@ -592,7 +592,7 @@ public class Clazz<T> {
 	}
 
 	Clazz<?> findGenericSuper(Class<?> ofClazz, Set<String> loopStop) {
-		if (ofClazz.equals(Object.class)) { // todo I added this, is it an issue?
+		if (ofClazz.equals(Object.class)) {
 			return new Clazz<>(Object.class);
 		}
 		if (clazz.equals(Object.class)) {
@@ -620,6 +620,7 @@ public class Clazz<T> {
 		return null;
 	}
 
+	@Deprecated
 	public boolean equals(Clazz<?> clazz) { // todo what about other equals
 		return this.clazz.equals(clazz.clazz);
 	}
