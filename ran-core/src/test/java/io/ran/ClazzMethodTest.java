@@ -332,9 +332,9 @@ public class ClazzMethodTest {
 		assertFalse(allOff.hasGenericFromMethod());
 	}
 
-	// todo test method level raw generics (also as wildcard bounds)
+	// todo test method-level raw generics (also as wildcard bounds)
 
-	// todo test .methods() if 2 same methods come from 2 different interfaces
+	// todo test .methods() if interface has 2 same methods that come from 2 different superinterfaces
 	// todo test .methods() if you have default method coming from superinterface of interface that you implement
 
 	@SuppressWarnings("unused")

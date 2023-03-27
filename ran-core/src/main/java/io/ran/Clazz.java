@@ -386,18 +386,17 @@ public class Clazz<T> {
 	}
 
 	public String classRepresentation() {
-		if (clazz.isPrimitive()) {
-			return getSimpleName();
-		}
-		if (clazz != null) {
-			String simpleName = getSimpleName();
-			if (clazz.getEnclosingClass() != null) {
-				simpleName = clazz.getEnclosingClass().getSimpleName() + "." + simpleName;
-			}
-			return simpleName + (generics.isEmpty() ? "" : "<" + generics.stream().map(Clazz::classRepresentation).collect(Collectors.joining(", ")) + ">");
-		} else {
+		if (clazz == null) {
 			return className;
 		}
+		String simpleName = getSimpleName();
+		if (clazz.isPrimitive()) {
+			return simpleName;
+		}
+		if (clazz.getEnclosingClass() != null) {
+			simpleName = clazz.getEnclosingClass().getSimpleName() + "." + simpleName;
+		}
+		return simpleName + (generics.isEmpty() ? "" : "<" + generics.stream().map(Clazz::classRepresentation).collect(Collectors.joining(", ")) + ">");
 	}
 
 	public String representation() {
@@ -486,6 +485,8 @@ public class Clazz<T> {
 		return fields;
 	}
 
+	// todo for generating classes it is useful to get methods except default ones from Object,
+	// but it should be explained, or this method be renamed and we should also have a generic version
 	public ClazzMethodList methods() {
 		Map<Method, ClazzMethod> result = new LinkedHashMap<>();
 		Clazz<?> working = this;
@@ -512,7 +513,6 @@ public class Clazz<T> {
 	}
 
 	private static String getSignatureOfMethod(Method method) {
-		// TODO: What about static/final/etc.? method.getModifiers()
 		return method.getReturnType().getName() + " " + method.getName() + "(" + Stream.of(method.getParameters()).map(p -> p.getType().getName()).collect(Collectors.joining(","));
 	}
 
@@ -620,8 +620,8 @@ public class Clazz<T> {
 		return null;
 	}
 
-	@Deprecated
-	public boolean equals(Clazz<?> clazz) { // todo what about other equals
+	@Deprecated // use equals(Object) or compare .clazz yourself
+	public boolean equals(Clazz<?> clazz) {
 		return this.clazz.equals(clazz.clazz);
 	}
 
