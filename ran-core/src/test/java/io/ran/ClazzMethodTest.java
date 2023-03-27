@@ -200,52 +200,29 @@ public class ClazzMethodTest {
 	}
 
 	@Test
-	public void testICassandraEventsQuery_ReturnCase() {
-		Clazz<?> c = Clazz.of(ICassandraEventsQuery.class);
-		ClazzMethod addMethod = c.methods().find("byMatchParentID", NestedSelf.class, Collection.class).get();
-		assertTrue(addMethod.hasGenericFromClass());
-		assertFalse(addMethod.hasGenericFromMethod());
-		Clazz<?> retType = addMethod.getReturnType();
-		assertEquals(NestedSelf.class, retType.clazz);
-		assertEquals(1, retType.generics.size());
-		assertEquals(NestedSelf.class, retType.generics.get(0).clazz);
-	}
-
-	@Test
 	public void testICassandraEventsQuery_ReturnCase_fromWildCard() {
-		Clazz<?> parent = Clazz.of(IEventService.class);
-		ClazzMethod pMethod = parent.methods().find("cassandraQuery", ICassandraEventsQuery.class).get();
+		Clazz<?> iEventService = Clazz.of(IEventService.class);
+		ClazzMethod cassandraQuery = iEventService.methods().find("cassandraQuery", ICassandraEventsQuery.class).get();
 
-		Clazz<?> c = pMethod.getReturnType();
-		assertEquals(1, c.generics.size());
-		assertEquals(NestedSelf.class, c.generics.get(0).clazz);
+		assertMethod(IEventService.class, cassandraQuery, g(ICassandraEventsQuery.class, g(NestedSelf.class, self())));
 
-		ClazzMethod addMethod = c.methods().find("byMatchParentID", NestedSelf.class, Collection.class).get();
-		assertTrue(addMethod.hasGenericFromClass());
-		assertFalse(addMethod.hasGenericFromMethod());
-		Clazz<?> retType = addMethod.getReturnType();
-		assertEquals(NestedSelf.class, retType.clazz);
-		assertEquals(1, retType.generics.size());
-		assertEquals(NestedSelf.class, retType.generics.get(0).clazz);
+		ClazzMethod byMatchParentID = cassandraQuery.getReturnType().methods().find("byMatchParentID", NestedSelf.class, Collection.class).get();
+		assertTrue(byMatchParentID.hasGenericFromClass());
+		assertFalse(byMatchParentID.hasGenericFromMethod());
+		assertMethod(g(ICassandraEventsQuery.class, g(NestedSelf.class, self())), byMatchParentID, g(NestedSelf.class, self()), g(Collection.class, String.class));
 	}
 
 	@Test
 	public void testStreamMethod() {
-		Clazz<?> parent = Clazz.of(WithStreamMethod.class);
-		ClazzMethod method = parent.methods().find("myStream", Stream.class).get();
+		Clazz<?> withStreamMethod = Clazz.of(WithStreamMethod.class);
+		ClazzMethod myStream = withStreamMethod.methods().find("myStream", Stream.class).get();
 
-		Clazz<?> c = method.getReturnType();
-		assertEquals(Stream.class, c.clazz);
-		assertEquals(1, c.generics.size());
-		assertEquals(String.class, c.generics.get(0).clazz);
+		assertMethod(WithStreamMethod.class, myStream, g(Stream.class, String.class));
 
-		ClazzMethod streamMethod = c.methods().find("sequential", Stream.class).get();
-		assertTrue(streamMethod.hasGenericFromClass());
-		assertFalse(streamMethod.hasGenericFromMethod());
-		Clazz<?> retType = streamMethod.getReturnType();
-		assertEquals(Stream.class, retType.clazz);
-		assertEquals(1, retType.generics.size());
-		assertEquals(String.class, retType.generics.get(0).clazz);
+		ClazzMethod sequential = myStream.getReturnType().methods().find("sequential", Stream.class).get();
+		assertTrue(sequential.hasGenericFromClass());
+		assertFalse(sequential.hasGenericFromMethod());
+		assertMethod(g(BaseStream.class, String.class, g(Stream.class, String.class)), sequential, g(Stream.class, String.class));
 	}
 
 	@Test
