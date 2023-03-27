@@ -332,6 +332,8 @@ public class ClazzMethodTest {
 		assertFalse(allOff.hasGenericFromMethod());
 	}
 
+	// todo test method level raw generics (also as wildcard bounds)
+
 	@SuppressWarnings("unused")
 	public static class GenericTester<T> {
 		public T method1(T input) {

@@ -16,10 +16,11 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -92,12 +93,12 @@ public class ClazzMethod {
 		return Modifier.isSynchronized(method.getModifiers());
 	}
 
-	private List<Type> getAllGenericTypes() {
-		ArrayList<Type> types = new ArrayList<>();
+	private Set<Type> getAllGenericTypes() {
+		Set<Type> types = new HashSet<>();
 		types.add(method.getGenericReturnType());
 		types.addAll(Arrays.asList(method.getGenericParameterTypes()));
 		types.addAll(Arrays.asList(method.getGenericExceptionTypes()));
-		return types.stream().flatMap(this::flattenGenericTypes).collect(Collectors.toList());
+		return types.stream().flatMap(this::flattenGenericTypes).collect(Collectors.toSet());
 	}
 
 	private Stream<Type> flattenGenericTypes(Type type) {
