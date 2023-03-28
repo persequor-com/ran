@@ -218,39 +218,43 @@ public class Clazz<T> {
 		}
 
 		if (!generics.isEmpty()) {
-			Class<?> arrayUnwrap = clazz;
-			while (arrayUnwrap.isArray()) {
-				arrayUnwrap = arrayUnwrap.getComponentType();
-			}
-			TypeVariable<?>[] typeVariables = arrayUnwrap.getTypeParameters();
-			if (typeVariables.length != generics.size()) {
-				throw new IllegalArgumentException("Wrong number of generic parameters for " + clazz + ". Expected " + typeVariables.length + ", but " + generics.size() + " were provided");
-			}
-
-			for (int i = 0; i < generics.size(); i++) {
-				Clazz<?> genericType = generics.get(i);
-				for (Type boundType : typeVariables[i].getBounds()) {
-					// we could support lower bounds and multiple upper bounds just for checking
-					if (!genericType.is(of(boundType, Collections.emptyMap(), loopStop), loopStop)) {
-						throw new IllegalArgumentException("Invalid generic parameter " + genericType + " at index " + i + " for " + clazz + ". Does not match bound " + boundType);
-					}
-				}
-				genericMap.put(typeVariables[i].getName(), genericType);
-			}
+			verifyGenerics(generics, loopStop);
 			this.generics.addAll(generics);
 		}
 
 		getAnnotations();
 	}
 
-	public boolean is(Clazz bound, Set<String> loopStop) {
+	private void verifyGenerics(List<Clazz<?>> generics, Set<String> loopStop) {
+		Class<?> arrayUnwrap = clazz;
+		while (arrayUnwrap.isArray()) {
+			arrayUnwrap = arrayUnwrap.getComponentType();
+		}
+		TypeVariable<?>[] typeVariables = arrayUnwrap.getTypeParameters();
+		if (typeVariables.length != generics.size()) {
+			throw new IllegalArgumentException("Wrong number of generic parameters for " + clazz + ". Expected " + typeVariables.length + ", but got " + generics.size());
+		}
+
+		for (int i = 0; i < generics.size(); i++) {
+			Clazz<?> genericType = generics.get(i);
+			for (Type boundType : typeVariables[i].getBounds()) {
+				// we could support lower bounds and multiple upper bounds just for checking
+				if (!genericType.is(of(boundType, Collections.emptyMap(), loopStop), loopStop)) {
+					throw new IllegalArgumentException("Invalid generic parameter " + genericType + " at index " + i + " for " + clazz + ". Does not match bound " + boundType);
+				}
+			}
+			genericMap.put(typeVariables[i].getName(), genericType);
+		}
+	}
+
+	public boolean is(Clazz<?> bound, Set<String> loopStop) {
 		if (!bound.clazz.isAssignableFrom(clazz)) {
 			return false;
 		}
 		if (bound.generics.isEmpty()) {
 			return true;
 		}
-		Clazz thisBound = findGenericSuper(bound.clazz, loopStop);
+		Clazz<?> thisBound = findGenericSuper(bound.clazz, loopStop);
 		if (thisBound.generics.isEmpty()) {
 			return true;
 		}
@@ -259,7 +263,7 @@ public class Clazz<T> {
 		}
 
 		for (int i = 0; i < thisBound.generics.size(); i++) {
-			if (!((Clazz)thisBound.generics.get(i)).is((Clazz) bound.generics.get(i), loopStop)) {
+			if (!(thisBound.generics.get(i)).is(bound.generics.get(i), loopStop)) {
 				return false;
 			}
 		}
