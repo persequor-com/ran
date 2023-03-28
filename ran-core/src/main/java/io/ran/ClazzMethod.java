@@ -9,30 +9,40 @@
 package io.ran;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ClazzMethod {
-	private final List<Annotation> annotations;
-	private final String name;
-	private final List<ClazzMethodParameter> parameters;
+	private final Clazz<?> actualClass;
 	private final Method method;
-	private final String methodToken;
+	private final List<ClazzMethodParameter> parameters;
+
+	public ClazzMethod(Clazz<?> actualClass, Clazz<?> declaringClass, Method method) {
+		this.actualClass = actualClass;
+		this.method = method;
+		parameters = Stream.of(method.getParameters()).map(p -> new ClazzMethodParameter(declaringClass, p)).collect(Collectors.toList());
+	}
 
 	public ClazzMethod(Clazz<?> actualClass, Method method) {
+		this.actualClass = actualClass;
 		this.method = method;
-		this.name = method.getName();
-		this.methodToken = method.toString();
-		this.annotations = Arrays.asList(method.getAnnotations());
 		parameters = Stream.of(method.getParameters()).map(p -> new ClazzMethodParameter(actualClass, method, p)).collect(Collectors.toList());
 	}
 
 	public String getName() {
-		return name;
+		return method.getName();
 	}
 
 	public List<ClazzMethodParameter> parameters() {
@@ -44,7 +54,7 @@ public class ClazzMethod {
 	}
 
 	public boolean matches(String token) {
-		return this.methodToken.equals(token);
+		return method.toString().equals(token);
 	}
 
 	public int getModifiers() {
@@ -83,12 +93,61 @@ public class ClazzMethod {
 		return Modifier.isSynchronized(method.getModifiers());
 	}
 
+	private Set<Type> getAllGenericTypes() {
+		Set<Type> types = new HashSet<>();
+		types.add(method.getGenericReturnType());
+		types.addAll(Arrays.asList(method.getGenericParameterTypes()));
+		types.addAll(Arrays.asList(method.getGenericExceptionTypes()));
+		return types.stream().flatMap(this::flattenGenericTypes).collect(Collectors.toSet());
+	}
+
+	private Stream<Type> flattenGenericTypes(Type type) {
+		if (type instanceof ParameterizedType) {
+			return Arrays.stream(((ParameterizedType) type).getActualTypeArguments()).flatMap(this::flattenGenericTypes);
+		}
+		if (type instanceof GenericArrayType) {
+			return flattenGenericTypes(((GenericArrayType) type).getGenericComponentType());
+		}
+		return Stream.of(type);
+	}
+
+	/**
+	 * @return true when the method either returns or takes generic parameters defined at class-level. Method level parameter containing class level parameter does not count.
+	 */
+	public boolean hasGenericFromClass() {
+		for (Type type : getAllGenericTypes()) {
+			if (type instanceof TypeVariable) {
+				if (((TypeVariable<?>) type).getGenericDeclaration() == method.getDeclaringClass()) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * @return true if the method either returns or takes generic parameters defined at method-level. Wildcards are treated as method-level generic types.
+	 */
+	public boolean hasGenericFromMethod() {
+		for (Type type : getAllGenericTypes()) {
+			if (type instanceof TypeVariable) {
+				if (((TypeVariable<?>) type).getGenericDeclaration() == method)
+					return true;
+			} else if (type instanceof WildcardType) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public Clazz<?> getReturnType() {
-		return Clazz.of(method.getReturnType());
+		Class<?> declaringClass = method.getDeclaringClass();
+		Clazz<?> genericSuper = actualClass.findGenericSuper(declaringClass);
+		return Clazz.of(method.getGenericReturnType(), genericSuper.genericMap, Collections.emptySet());
 	}
 
 	public Clazz<?> getDeclaringClazz() {
-		return Clazz.of(method.getDeclaringClass());
+		return actualClass.findGenericSuper(method.getDeclaringClass());
 	}
 
 	public MethodSignature getSignature() {

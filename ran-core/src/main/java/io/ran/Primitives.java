@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class Primitives {
-	private static int DEFAULT_BOOLEAN;
+	private static boolean DEFAULT_BOOLEAN;
 	private static byte DEFAULT_BYTE;
 	private static short DEFAULT_SHORT;
 	private static int DEFAULT_INT;
