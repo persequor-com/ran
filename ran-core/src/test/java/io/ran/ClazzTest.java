@@ -789,8 +789,6 @@ public class ClazzTest {
 		// feel free to add more
 	}
 
-	// todo test creation of clazzes with invalid generics
-
 	@SuppressWarnings("unused")
 	public static class CoverageTest {
 		public int hi;
