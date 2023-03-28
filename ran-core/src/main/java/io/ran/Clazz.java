@@ -51,7 +51,7 @@ public class Clazz<T> {
 
 	protected static Clazz of(Type type, Map<String, Clazz<?>> genericMap, Set<String> loopStop) {
 		if (type == null) {
-			return raw(null);
+			return new Clazz(null);
 		}
 		if (type instanceof Class) {
 			return of((Class<?>) type, loopStop);
@@ -74,7 +74,7 @@ public class Clazz<T> {
 	private static Clazz of(Class<?> clazz, Set<String> loopStop) {
 		if (clazz != null) {
 			String name = "ofClass " + clazz.getName();
-			if (loopStop.contains(name)) {
+			if (loopStop.contains(name) || clazz.getTypeParameters().length == 0) {
 				return raw(clazz);
 			}
 			Set<String> newLoopStop = new HashSet<>(loopStop);
@@ -82,7 +82,7 @@ public class Clazz<T> {
 
 			return new Clazz(clazz, Stream.of(clazz.getTypeParameters()).map(type -> Clazz.of(type, Collections.emptyMap(), newLoopStop)).collect(Collectors.toList()), newLoopStop);
 		}
-		return raw(null);
+		return new Clazz(null);
 	}
 
 	private static Clazz of(GenericArrayType genericArray, Map<String, Clazz<?>> genericMap, Set<String> loopStop) {
