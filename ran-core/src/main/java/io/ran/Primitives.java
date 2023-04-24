@@ -1,13 +1,23 @@
+/* Copyright 2021 PSQR
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 package io.ran;
 
 import org.objectweb.asm.Opcodes;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class Primitives {
-	private static int DEFAULT_BOOLEAN;
+	private static boolean DEFAULT_BOOLEAN;
 	private static byte DEFAULT_BYTE;
 	private static short DEFAULT_SHORT;
 	private static int DEFAULT_INT;
@@ -16,8 +26,8 @@ public class Primitives {
 	private static double DEFAULT_DOUBLE;
 	private static char DEFAULT_CHAR = Character.MIN_VALUE;
 
-	private static final Map<Class,Primitive> primitives = new HashMap<>();
-	private static final Map<Class,Class> boxedToPrimitive = new HashMap<>();
+	private static final Map<Class, Primitive> primitives = new HashMap<>();
+	private static final Map<Class, Class> boxedToPrimitive = new HashMap<>();
 
 	private static void add(Primitive primitive) {
 		primitives.put(primitive.primitive, primitive);
@@ -49,15 +59,15 @@ public class Primitives {
 
 	static {
 		try {
-			add(new Primitive(boolean.class, Boolean.class, "Z", Boolean.class.getMethod("booleanValue"),0));
-			add(new Primitive(byte.class, Byte.class, "B", Byte.class.getMethod("byteValue"),0));
-			add(new Primitive(char.class, Character.class, "C", Character.class.getMethod("charValue"),0));
-			add(new Primitive(double.class, Double.class, "D", Double.class.getMethod("doubleValue"),(Opcodes.DALOAD - Opcodes.IALOAD)));
-			add(new Primitive(float.class, Float.class, "F", Float.class.getMethod("floatValue"),(Opcodes.FALOAD - Opcodes.IALOAD)));
-			add(new Primitive(int.class, Integer.class, "I", Integer.class.getMethod("intValue"),0));
-			add(new Primitive(long.class, Long.class, "J", Long.class.getMethod("longValue"),(Opcodes.LALOAD - Opcodes.IALOAD)));
-			add(new Primitive(short.class, Short.class, "S", Short.class.getMethod("shortValue"),0));
-			add(new Primitive(void.class, Void.class, "V", null,4));
+			add(new Primitive(boolean.class, Boolean.class, "Z", Boolean.class.getMethod("booleanValue"), 0, false));
+			add(new Primitive(byte.class, Byte.class, "B", Byte.class.getMethod("byteValue"), 0, true));
+			add(new Primitive(char.class, Character.class, "C", Character.class.getMethod("charValue"), 0, false));
+			add(new Primitive(double.class, Double.class, "D", Double.class.getMethod("doubleValue"), (Opcodes.DALOAD - Opcodes.IALOAD), true));
+			add(new Primitive(float.class, Float.class, "F", Float.class.getMethod("floatValue"), (Opcodes.FALOAD - Opcodes.IALOAD), true));
+			add(new Primitive(int.class, Integer.class, "I", Integer.class.getMethod("intValue"), 0, true));
+			add(new Primitive(long.class, Long.class, "J", Long.class.getMethod("longValue"), (Opcodes.LALOAD - Opcodes.IALOAD), true));
+			add(new Primitive(short.class, Short.class, "S", Short.class.getMethod("shortValue"), 0, true));
+			add(new Primitive(void.class, Void.class, "V", null, 4, false));
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -74,23 +84,29 @@ public class Primitives {
 		return primitives.get(working);
 	}
 
+	public static List<Primitive> getNumbers() {
+		return primitives.values().stream().filter(p -> p.isNumber).collect(Collectors.toList());
+	}
+
 	public static boolean isBoxedPrimitive(Class clazz) {
 		return boxedToPrimitive.containsKey(clazz);
 	}
 
 	public static class Primitive {
 		private int primitiveOffset;
+		private boolean isNumber;
 		private Class primitive;
 		private Class boxed;
 		private String descriptor;
 		private Method constructorSignature;
 
-		public Primitive(Class primitive, Class boxed, String descriptor, Method constructorSignature, int primitiveOffset) {
+		public Primitive(Class primitive, Class boxed, String descriptor, Method constructorSignature, int primitiveOffset, boolean isNumber) {
 			this.primitive = primitive;
 			this.boxed = boxed;
 			this.descriptor = descriptor;
 			this.constructorSignature = constructorSignature;
 			this.primitiveOffset = primitiveOffset;
+			this.isNumber = isNumber;
 		}
 
 		public int getPrimitiveOffset() {
@@ -105,6 +121,10 @@ public class Primitives {
 			return boxed;
 		}
 
+		public Class getUnboxed() {
+			return Clazz.of(boxed).getUnBoxed().clazz;
+		}
+
 		public String getDescriptor() {
 			return descriptor;
 		}
@@ -116,11 +136,15 @@ public class Primitives {
 		public Object getDefaultValue() {
 			return Primitives.getDefaultValue(primitive);
 		}
+
+		public boolean isNumber() {
+			return isNumber;
+		}
 	}
 
 	public static class NonExistingPrimitiveException extends RuntimeException {
 		public NonExistingPrimitiveException(Class clazz) {
-			super("Could not find primitive by: "+clazz.getName()+". This is a coding error.");
+			super("Could not find primitive by: " + clazz.getName() + ". This is a coding error.");
 		}
 	}
 }

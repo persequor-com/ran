@@ -1,3 +1,11 @@
+/* Copyright 2021 PSQR
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 package io.ran;
 
 import io.ran.testclasses.Brand;
@@ -12,8 +20,6 @@ import org.junit.runners.MethodSorters;
 
 import java.util.function.Consumer;
 import java.util.stream.Stream;
-
-import static org.junit.Assert.assertEquals;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class CrudRepoBaseQueryTest {
@@ -33,7 +39,7 @@ public class CrudRepoBaseQueryTest {
 	@Test
 	public void awarmup() {
 		long s = System.currentTimeMillis();
-		for(int i=0;i<1000;i++) {
+		for (int i = 0; i < 1000; i++) {
 			TestRepoQuery<Car> query = new TestRepoQuery<>(Car.class, helper.factory)
 					.eq(Car::getBrand, Brand.Hyundai)
 //					.subQuery(Car::getEngine, sq -> {
@@ -48,7 +54,7 @@ public class CrudRepoBaseQueryTest {
 	@Test
 	public void performance() {
 		long s = System.currentTimeMillis();
-		for(int i=0;i<1000;i++) {
+		for (int i = 0; i < 1000; i++) {
 			TestRepoQuery<Car> query = new TestRepoQuery<>(Car.class, helper.factory)
 					.eq(Car::getBrand, Brand.Hyundai)
 //					.subQuery(Car::getEngine, sq -> {
@@ -56,13 +62,13 @@ public class CrudRepoBaseQueryTest {
 //					})
 					.isNull(Car::getCrashRating);
 		}
-		System.out.println("time cglib: "+(System.currentTimeMillis()-s));
+		System.out.println("time cglib: " + (System.currentTimeMillis() - s));
 	}
 
 	@Test
 	public void performanceGenerated() {
 		long s = System.currentTimeMillis();
-		for(int i=0;i<1000;i++) {
+		for (int i = 0; i < 1000; i++) {
 			TestRepoQuery<Car> query = new TestRepoQuery<>(Car.class, helper.factory)
 					.eq(Car::getBrand, Brand.Hyundai)
 //					.subQuery(Car::getEngine, sq -> {
@@ -70,7 +76,7 @@ public class CrudRepoBaseQueryTest {
 //					})
 					.isNull(Car::getCrashRating);
 		}
-		System.out.println("time generated: "+(System.currentTimeMillis()-s));
+		System.out.println("time generated: " + (System.currentTimeMillis() - s));
 	}
 
 	class TestRepoQuery<T> extends CrudRepoBaseQuery<T, TestRepoQuery<T>> {
@@ -258,7 +264,7 @@ public class CrudRepoBaseQueryTest {
 
 			@Override
 			public Double getCrashRating() {
-				property.setToken(Token.of("crash","rating"));
+				property.setToken(Token.of("crash", "rating"));
 				return null;
 			}
 		}

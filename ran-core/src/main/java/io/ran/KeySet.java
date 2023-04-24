@@ -1,8 +1,21 @@
+/* Copyright 2021 PSQR
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 package io.ran;
 
 import io.ran.token.Token;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import java.util.TreeSet;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -33,8 +46,8 @@ public class KeySet {
 		return new KeySet(Arrays.stream(fields).collect(Collectors.toList()));
 	}
 
-	public Field get(Token token)  {
-		return parts.stream().filter(f -> f.getToken().equals(token)).findFirst().orElseThrow(() -> new RuntimeException("Non existing field in key: "+token.toString()));
+	public Field get(Token token) {
+		return parts.stream().filter(f -> f.getToken().equals(token)).findFirst().orElseThrow(() -> new RuntimeException("Non existing field in key: " + token.toString()));
 	}
 
 	public KeySet add(KeySet keys) {
@@ -43,8 +56,8 @@ public class KeySet {
 	}
 
 	public KeySet add(Field field) {
-		if(field.order == -1) {
-			field.order = parts.size()-1;
+		if (field.order == -1) {
+			field.order = parts.size() - 1;
 		}
 		parts.add(field);
 		return this;
@@ -64,7 +77,7 @@ public class KeySet {
 
 	public KeySet add(Property<?> property, String name, int order) {
 		if (this.name != null && name != null && !this.name.equals(name)) {
-			throw new RuntimeException("Adding a key part with name: "+name+" to a key with name: "+this.name+" is invalid");
+			throw new RuntimeException("Adding a key part with name: " + name + " to a key with name: " + this.name + " is invalid");
 		}
 		if (name != null) {
 			this.name = name;
@@ -72,7 +85,7 @@ public class KeySet {
 
 		Field field = new Field(property, order == -1 ? parts.size() : order);
 		if (parts.contains(field)) {
-			throw new RuntimeException(order+" position was already used in key. Ensure your key orders are unique.");
+			throw new RuntimeException(order + " position was already used in key. Ensure your key orders are unique.");
 		}
 		parts.add(field);
 		return this;
@@ -87,7 +100,7 @@ public class KeySet {
 	}
 
 	public Field get(int i) {
-		return parts.stream().skip(i).findFirst().orElseThrow(() -> new RuntimeException("Could not find  index"+i+" in key set"));
+		return parts.stream().skip(i).findFirst().orElseThrow(() -> new RuntimeException("Could not find  index" + i + " in key set"));
 	}
 
 	public Stream<Field> stream() {
@@ -118,7 +131,7 @@ public class KeySet {
 		return name;
 	}
 
-	public  boolean isPrimary() {
+	public boolean isPrimary() {
 		return primary;
 	}
 
@@ -129,7 +142,7 @@ public class KeySet {
 		if (parts.size() != keySet.parts.size()) return false;
 		Iterator<Field> itt1 = parts.iterator();
 		Iterator<Field> itt2 = keySet.parts.iterator();
-		while(itt1.hasNext()) {
+		while (itt1.hasNext()) {
 			if (!itt1.next().equals(itt2.next())) return false;
 		}
 		return true;

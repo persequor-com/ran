@@ -1,3 +1,11 @@
+/* Copyright 2021 PSQR
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 package io.ran;
 
 import io.ran.testclasses.Brand;
@@ -47,7 +55,7 @@ public class MappingHelperTest {
 
 		ObjectMap map = new ObjectMap();
 		map.put(Token.of("id"), "my id");
-		map.put(Token.of("the","boolean"), true);
+		map.put(Token.of("the", "boolean"), true);
 		mappingHelper.hydrate(car, map);
 
 		assertEquals("my id", car.getId());
@@ -59,7 +67,7 @@ public class MappingHelperTest {
 
 		ObjectMap map = new ObjectMap();
 		map.put(Token.of("id"), "my id");
-		map.put(Token.of("the","boolean"), true);
+		map.put(Token.of("the", "boolean"), true);
 		mappingHelper.hydrate(car, map);
 
 		assertEquals("my id", car.getId());
@@ -84,6 +92,23 @@ public class MappingHelperTest {
 		assertEquals(car.getCrashRating(), newCar.getCrashRating());
 		assertEquals(car.getEngineId(), newCar.getEngineId());
 		assertEquals(car.getTitle(), newCar.getTitle());
+	}
 
+	@Test
+	public void getAndSetValue() {
+		Car car = new Car();
+		TypeDescriber<Car> typeDescriber = TypeDescriberImpl.getTypeDescriber(Car.class);
+		mappingHelper.setValue(car, typeDescriber.getPropertyFromSnakeCase("id"), "my id");
+		assertEquals("my id", mappingHelper.getValue(car, typeDescriber.getPropertyFromSnakeCase("id")));
+		mappingHelper.setValue(car, typeDescriber.getPropertyFromSnakeCase("brand"), Brand.Porsche);
+		assertEquals(Brand.Porsche, mappingHelper.getValue(car, typeDescriber.getPropertyFromSnakeCase("brand")));
+		mappingHelper.setValue(car, typeDescriber.getPropertyFromSnakeCase("can_be_sold_in_eu"), true);
+		assertEquals(true, mappingHelper.getValue(car, typeDescriber.getPropertyFromSnakeCase("can_be_sold_in_eu")));
+		mappingHelper.setValue(car, typeDescriber.getPropertyFromSnakeCase("construction_date"), ZonedDateTime.parse("2022-01-01T12:15:45Z"));
+		assertEquals(ZonedDateTime.parse("2022-01-01T12:15:45Z"), mappingHelper.getValue(car, typeDescriber.getPropertyFromSnakeCase("construction_date")));
+		mappingHelper.setValue(car, typeDescriber.getPropertyFromSnakeCase("engine_id"), UUID.fromString("170b8575-9885-40dc-82a2-7ab49fcd6579"));
+		assertEquals(UUID.fromString("170b8575-9885-40dc-82a2-7ab49fcd6579"), mappingHelper.getValue(car, typeDescriber.getPropertyFromSnakeCase("engine_id")));
+		mappingHelper.setValue(car, typeDescriber.getPropertyFromSnakeCase("crash_rating"), 12.34);
+		assertEquals(12.34, mappingHelper.getValue(car, typeDescriber.getPropertyFromSnakeCase("crash_rating")));
 	}
 }
