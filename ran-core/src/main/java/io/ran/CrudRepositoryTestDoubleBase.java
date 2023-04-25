@@ -8,7 +8,10 @@
  */
 package io.ran;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 public abstract class CrudRepositoryTestDoubleBase<T, K> implements CrudRepository<T, K> {
@@ -77,12 +80,7 @@ public abstract class CrudRepositoryTestDoubleBase<T, K> implements CrudReposito
 		keys.addAll(typeDescriber.indexes());
 		Z existing = thisStore.put(key, mappingCopy(t, zClass), keys);
 
-		return new CrudRepository.CrudUpdateResult() {
-			@Override
-			public int affectedRows() {
-				return existing != null && !existing.equals(t) ? 1 : 0;
-			}
-		};
+		return () -> existing != null && !existing.equals(t) ? 1 : 0;
 	}
 
 	private Object getKeyFromKey(K key) {
@@ -99,7 +97,7 @@ public abstract class CrudRepositoryTestDoubleBase<T, K> implements CrudReposito
 		if (keyType.equals(modelType)) {
 			key = mappingHelper.getKey(t);
 		} else {
-			key = (K) ((Property.PropertyValueList<?>) k.getValues()).get(0).getValue();
+			key = ((Property.PropertyValueList<?>) k.getValues()).get(0).getValue();
 		}
 		return key;
 	}

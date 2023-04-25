@@ -1,56 +1,60 @@
 package io.ran;
 
 import javax.inject.Inject;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-public class Store<K,V> {
-    private final Map<K,V> map = Collections.synchronizedMap(new HashMap<K, V>());
-    public final TestDoubleIndex index = new TestDoubleIndex();
-    private MappingHelper mappingHelper;
+public class Store<K, V> {
+	private final Map<K, V> map = Collections.synchronizedMap(new HashMap<>());
+	public final TestDoubleIndex index = new TestDoubleIndex();
+	private final MappingHelper mappingHelper;
 
-    @Inject
-    public Store(MappingHelper mappingHelper) {
-        this.mappingHelper = mappingHelper;
-    }
+	@Inject
+	public Store(MappingHelper mappingHelper) {
+		this.mappingHelper = mappingHelper;
+	}
 
-    public TestDoubleIndex getIndex() {
-        return index;
-    }
+	public TestDoubleIndex getIndex() {
+		return index;
+	}
 
-    public void index(KeySet keySet, V obj, Object key) {
-        for(KeySet.Field field : keySet.parts) {
-            index.add(field.getProperty(), getValueUntyped(field.getProperty(), obj), key);
-        }
-    }
+	public void index(KeySet keySet, V obj, Object key) {
+		for (KeySet.Field field : keySet.parts) {
+			index.add(field.getProperty(), getValueUntyped(field.getProperty(), obj), key);
+		}
+	}
 
-    public Collection<V> values() {
-        return map.values();
-    }
+	public Collection<V> values() {
+		return map.values();
+	}
 
-    public Set<Map.Entry<K, V>> entrySet() {
-        return map.entrySet();
-    }
+	public Set<Map.Entry<K, V>> entrySet() {
+		return map.entrySet();
+	}
 
-    public V remove(K d) {
-        return map.remove(d);
-    }
+	public V remove(K d) {
+		return map.remove(d);
+	}
 
-    public V get(K keyFromKey) {
-        return map.get(keyFromKey);
-    }
+	public V get(K keyFromKey) {
+		return map.get(keyFromKey);
+	}
 
-    public V put(K key, V mappingCopy, List<KeySet> indexes) {
+	public V put(K key, V mappingCopy, List<KeySet> indexes) {
 
-        for (KeySet keySet : indexes) {
-            index(keySet, mappingCopy, key);
-        }
-        return map.put(key, mappingCopy);
-    }
+		for (KeySet keySet : indexes) {
+			index(keySet, mappingCopy, key);
+		}
+		return map.put(key, mappingCopy);
+	}
 
 
-    private Object getValueUntyped(Property property, Object t) {
-        return mappingHelper.getValue(t, property);
-    }
+	private Object getValueUntyped(Property property, Object t) {
+		return mappingHelper.getValue(t, property);
+	}
 
 }

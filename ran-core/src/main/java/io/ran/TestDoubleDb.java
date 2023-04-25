@@ -17,7 +17,7 @@ import java.util.Map;
 @Singleton
 public class TestDoubleDb {
 	public Map<Class<?>, Store<Object, Object>> store = Collections.synchronizedMap(new HashMap<>());
-	private MappingHelper mappingHelper;
+	private final MappingHelper mappingHelper;
 
 	@Inject
 	public TestDoubleDb(MappingHelper mappingHelper) {
@@ -25,6 +25,6 @@ public class TestDoubleDb {
 	}
 
 	public <T> Store<Object, T> getStore(Class<T> modelType) {
-		return (Store<Object, T>)store.computeIfAbsent(modelType, t -> (Store)new Store<>(mappingHelper));
+		return (Store<Object, T>) store.computeIfAbsent(modelType, t -> new Store<>(mappingHelper));
 	}
 }

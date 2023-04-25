@@ -5,7 +5,11 @@
  */
 package io.ran.testclasses;
 
-import io.ran.*;
+import io.ran.Key;
+import io.ran.Mapper;
+import io.ran.PrimaryKey;
+import io.ran.Relation;
+import io.ran.TestDbType;
 
 import java.util.Collection;
 import java.util.UUID;

@@ -5,13 +5,17 @@
  */
 package io.ran.testclasses;
 
-import io.ran.*;
+import io.ran.HeadLights;
+import io.ran.Key;
+import io.ran.Mapper;
+import io.ran.PrimaryKey;
+import io.ran.Relation;
+import io.ran.TestDbType;
 
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 
-@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 @Mapper(dbType = TestDbType.class)
 public class IndexedCar {
 
@@ -64,7 +68,7 @@ public class IndexedCar {
 	}
 
 	public void setEngine(IndexedEngine engine) {
-		if(engine != null) {
+		if (engine != null) {
 			this.engineId = engine.getId();
 		}
 		this.engine = engine;

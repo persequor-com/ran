@@ -1,8 +1,6 @@
 package io.ran;
 
 import io.ran.testclasses.Brand;
-import io.ran.testclasses.Car;
-import io.ran.testclasses.Engine;
 import io.ran.testclasses.IndexedCar;
 import org.junit.Before;
 import org.junit.Test;
@@ -10,7 +8,10 @@ import org.junit.Test;
 import javax.inject.Inject;
 import java.time.Duration;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -22,24 +23,23 @@ public class TestDoublePerfTest {
 
 	public static final int NUMBER_OF_SUVS = 50;
 	public static final int NUMBER_OF_CARS = 2000;
-	private GuiceHelper helper;
 	private TestCarRepo carRepo;
 	List<String> carIds = new ArrayList<>();
 
 	@Before
 	public void setup() {
-		helper = new GuiceHelper();
+		GuiceHelper helper = new GuiceHelper();
 
 		carRepo = helper.injector.getInstance(TestCarRepo.class);
 
 
-		for(int i = 0; i< NUMBER_OF_CARS; i++) {
+		for (int i = 0; i < NUMBER_OF_CARS; i++) {
 			IndexedCar car = new IndexedCar();
 			car.setBrand(Brand.Porsche);
 			car.setConstructionDate(ZonedDateTime.now().minus(Duration.ofDays(2)));
 			car.setCrashRating(2.0);
 			car.setId(UUID.randomUUID().toString());
-			car.setTitle("SUV "+((int)(Math.random()* NUMBER_OF_SUVS)));
+			car.setTitle("SUV " + ((int) (Math.random() * NUMBER_OF_SUVS)));
 
 			carRepo.save(car);
 			carIds.add(car.getId());
@@ -50,22 +50,22 @@ public class TestDoublePerfTest {
 	@Test
 	public void perf() {
 		long s = System.currentTimeMillis();
-		for(int i =0;i<1000;i++) {
+		for (int i = 0; i < 1000; i++) {
 			Optional<IndexedCar> foundCar = carRepo.query().eq(IndexedCar::getId, carIds.get(((int) (Math.random() * NUMBER_OF_CARS)))).execute().findFirst();
 			assertTrue(foundCar.isPresent());
 		}
-		System.out.println(System.currentTimeMillis()-s+"ms for pk");
+		System.out.println(System.currentTimeMillis() - s + "ms for pk");
 	}
 
 
 	@Test
 	public void perfsdf() {
 		long s = System.currentTimeMillis();
-		for(int i =0;i<1000;i++) {
-			List<IndexedCar> foundCar = carRepo.query().eq(IndexedCar::getTitle, "SUV "+((int)(Math.random()*NUMBER_OF_SUVS))).execute().collect(Collectors.toList());
+		for (int i = 0; i < 1000; i++) {
+			List<IndexedCar> foundCar = carRepo.query().eq(IndexedCar::getTitle, "SUV " + ((int) (Math.random() * NUMBER_OF_SUVS))).execute().collect(Collectors.toList());
 			assertFalse(foundCar.isEmpty());
 		}
-		System.out.println(System.currentTimeMillis()-s+"ms");
+		System.out.println(System.currentTimeMillis() - s + "ms");
 	}
 
 	public static class TestCarRepo extends CrudRepositoryTestDoubleBase<IndexedCar, String> {
@@ -75,7 +75,7 @@ public class TestDoublePerfTest {
 		}
 
 		public TestQuery<IndexedCar> query() {
-			return new TestQuery<IndexedCar>(modelType, genericFactory, mappingHelper, store);
+			return new TestQuery<>(modelType, genericFactory, mappingHelper, store);
 		}
 	}
 
