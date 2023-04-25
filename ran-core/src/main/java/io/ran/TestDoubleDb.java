@@ -10,12 +10,12 @@ package io.ran;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 @Singleton
 public class TestDoubleDb {
-	public ConcurrentMap<Class<?>, TestDoubleStore<Object, Object>> store = new ConcurrentHashMap<>();
+	public Map<Class<?>, TestDoubleStore<Object, Object>> store = new ConcurrentHashMap<>();
 	private final MappingHelper mappingHelper;
 
 	@Inject

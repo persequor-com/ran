@@ -20,7 +20,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -151,7 +150,7 @@ public class Property<T> {
 	}
 
 	public static class PropertyList extends ArrayList<Property> {
-		private ConcurrentMap<String, Property> propertyMap = new ConcurrentHashMap<>();
+		private final Map<String, Property> propertyMap = new ConcurrentHashMap<>();
 
 		public PropertyList(List<Property> properties) {
 			addAll(properties);

@@ -4,14 +4,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentNavigableMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.stream.Collectors;
 
 public class TestDoubleIndex {
-	private final ConcurrentMap<String, IndexResult> index = new ConcurrentHashMap<>();
+	private final Map<String, IndexResult> index = new ConcurrentHashMap<>();
 
 	public boolean contains(Property<?> property) {
 		return index.containsKey(property.getSnakeCase());

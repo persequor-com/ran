@@ -6,10 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 public class TestDoubleStore<K, V> {
-	private final ConcurrentMap<K, V> map = new ConcurrentHashMap<>();
+	private final Map<K, V> map = new ConcurrentHashMap<>();
 	public final TestDoubleIndex index = new TestDoubleIndex();
 	private final MappingHelper mappingHelper;
 
