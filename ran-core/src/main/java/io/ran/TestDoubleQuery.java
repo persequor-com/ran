@@ -224,8 +224,10 @@ public abstract class TestDoubleQuery<T, Z extends CrudRepository.InlineQuery<T,
 			}
 			values = values.sorted(c);
 		}
+
+		values = values.skip(offset);
 		if (limit != null) {
-			values = values.skip(offset).limit(limit); // todo is it possible to have offset but not limit?
+			values = values.limit(limit);
 		}
 		return values;
 	}
