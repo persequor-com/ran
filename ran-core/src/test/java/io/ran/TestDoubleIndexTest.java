@@ -75,7 +75,7 @@ public class TestDoubleIndexTest {
 
 	@Test
 	public void useIndexOnPrimaryKeyLookup() {
-		String id = carIds.get(((int) (Math.random() * 4)));
+		String id = carIds.get(2);
 		Optional<IndexedCar> foundCar = carRepo.query().eq(IndexedCar::getId, id).execute().findFirst();
 		assertTrue(foundCar.isPresent());
 		carDescriber = TypeDescriberImpl.getTypeDescriber(IndexedCar.class);
