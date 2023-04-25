@@ -14,14 +14,13 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class Property<T> {
@@ -151,7 +150,7 @@ public class Property<T> {
 	}
 
 	public static class PropertyList extends ArrayList<Property> {
-		private Map<String, Property> propertyMap = Collections.synchronizedMap(new HashMap<>());
+		private final Map<String, Property> propertyMap = new ConcurrentHashMap<>();
 
 		public PropertyList(List<Property> properties) {
 			addAll(properties);

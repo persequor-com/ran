@@ -18,12 +18,11 @@ import static org.junit.Assert.assertEquals;
 public class IsItsOwnKeyTest {
 	private GuiceHelper helper;
 	private IsItsOwnKeyRepository repo;
-	private TestDoubleDb store;
 
 	@Before
 	public void setup() {
-		store = new TestDoubleDb();
 		helper = new GuiceHelper();
+		TestDoubleDb store = new TestDoubleDb(new MappingHelper(helper.factory));
 		repo = new IsItsOwnKeyRepository(helper.factory, new MappingHelper(helper.factory), store);
 	}
 
@@ -34,7 +33,7 @@ public class IsItsOwnKeyTest {
 		o.setKey2("k2");
 		repo.save(o);
 
-		IsItsOwnKey res = repo.get(o).orElseThrow(() -> new RuntimeException());
+		IsItsOwnKey res = repo.get(o).orElseThrow(RuntimeException::new);
 		assertEquals("k1", res.getKey1());
 		assertEquals("k2", res.getKey2());
 	}
