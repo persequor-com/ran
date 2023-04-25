@@ -3,15 +3,15 @@ package io.ran;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.NavigableMap;
-import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ConcurrentNavigableMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.stream.Collectors;
 
 public class TestDoubleIndex {
-	private final Map<String, IndexResult> index = new HashMap<>();
+	private final ConcurrentMap<String, IndexResult> index = new ConcurrentHashMap<>();
 
 	public boolean contains(Property<?> property) {
 		return index.containsKey(property.getSnakeCase());
@@ -51,7 +51,7 @@ public class TestDoubleIndex {
 	}
 
 	public static class IndexResult {
-		NavigableMap<Object, List<Object>> result = new TreeMap<>();
+		ConcurrentNavigableMap<Object, List<Object>> result = new ConcurrentSkipListMap<>();
 
 		public void add(Object indexValue, Object primaryKeyValue) {
 			result.computeIfAbsent(indexValue, iv -> new ArrayList<>()).add(primaryKeyValue);
