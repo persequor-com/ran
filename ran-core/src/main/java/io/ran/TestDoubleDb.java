@@ -10,13 +10,12 @@ package io.ran;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 @Singleton
 public class TestDoubleDb {
-	public Map<Class<?>, Store<Object, Object>> store = Collections.synchronizedMap(new HashMap<>());
+	public ConcurrentMap<Class<?>, TestDoubleStore<Object, Object>> store = new ConcurrentHashMap<>();
 	private final MappingHelper mappingHelper;
 
 	@Inject
@@ -24,7 +23,7 @@ public class TestDoubleDb {
 		this.mappingHelper = mappingHelper;
 	}
 
-	public <T> Store<Object, T> getStore(Class<T> modelType) {
-		return (Store<Object, T>) store.computeIfAbsent(modelType, t -> new Store<>(mappingHelper));
+	public <T> TestDoubleStore<Object, T> getStore(Class<T> modelType) {
+		return (TestDoubleStore<Object, T>) store.computeIfAbsent(modelType, t -> new TestDoubleStore<>(mappingHelper));
 	}
 }

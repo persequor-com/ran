@@ -18,8 +18,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -35,12 +34,12 @@ public class TestDoubleIndexTest {
 	public void setup() {
 		GuiceHelper helper = new GuiceHelper();
 		TestDoubleDb testDoubleDb = helper.injector.getInstance(TestDoubleDb.class);
-		Store<Object, IndexedCar> carStore = Mockito.spy(testDoubleDb.getStore(IndexedCar.class));
+		TestDoubleStore<Object, IndexedCar> carStore = Mockito.spy(testDoubleDb.getStore(IndexedCar.class));
 		when(testDoubleDb.getStore(IndexedCar.class)).thenReturn(carStore);
 		carIndex = Mockito.spy(carStore.index);
 		when(carStore.getIndex()).thenReturn(carIndex);
 
-		Store<Object, IndexedEngine> engineStore = Mockito.spy(testDoubleDb.getStore(IndexedEngine.class));
+		TestDoubleStore<Object, IndexedEngine> engineStore = Mockito.spy(testDoubleDb.getStore(IndexedEngine.class));
 		when(testDoubleDb.getStore(IndexedEngine.class)).thenReturn(engineStore);
 		engineIndex = Mockito.spy(engineStore.index);
 		when(engineStore.getIndex()).thenReturn(engineIndex);
@@ -63,7 +62,7 @@ public class TestDoubleIndexTest {
 			IndexedCar car = new IndexedCar();
 			car.setBrand(i % 2 == 1 ? Brand.Hyundai : Brand.Porsche);
 			car.setConstructionDate(ZonedDateTime.now().minus(Duration.ofDays(2)));
-			car.setCrashRating(2.0);
+			car.setCrashRating((double) i);
 			car.setId(UUID.randomUUID().toString());
 			car.setEngine(i % 2 == 0 ? engine1 : engine2);
 			car.setTitle("SUV " + i);
@@ -116,30 +115,26 @@ public class TestDoubleIndexTest {
 
 	@Test
 	public void useIndexOnLessThan() {
-		Optional<IndexedCar> foundCar = carRepo.query().lt(IndexedCar::getCrashRating, 5.0).execute().findFirst();
-		assertTrue(foundCar.isPresent());
-		verify(carIndex).lt(eq(carDescriber.getPropertyFromSnakeCase("crash_rating")), eq(5.0));
+		assertEquals(3, carRepo.query().lt(IndexedCar::getCrashRating, 3.0).execute().count());
+		verify(carIndex).lt(eq(carDescriber.getPropertyFromSnakeCase("crash_rating")), eq(3.0));
 	}
 
 	@Test
 	public void useIndexOnLessThanOrEqual() {
-		Optional<IndexedCar> foundCar = carRepo.query().lte(IndexedCar::getCrashRating, 2.0).execute().findFirst();
-		assertTrue(foundCar.isPresent());
-		verify(carIndex).lte(eq(carDescriber.getPropertyFromSnakeCase("crash_rating")), eq(2.0));
+		assertEquals(4, carRepo.query().lte(IndexedCar::getCrashRating, 3.0).execute().count());
+		verify(carIndex).lte(eq(carDescriber.getPropertyFromSnakeCase("crash_rating")), eq(3.0));
 	}
 
 	@Test
 	public void useIndexOnGreaterThan() {
-		Optional<IndexedCar> foundCar = carRepo.query().gt(IndexedCar::getCrashRating, 1.0).execute().findFirst();
-		assertTrue(foundCar.isPresent());
-		verify(carIndex).gt(eq(carDescriber.getPropertyFromSnakeCase("crash_rating")), eq(1.0));
+		assertEquals(1, carRepo.query().gt(IndexedCar::getCrashRating, 3.0).execute().count());
+		verify(carIndex).gt(eq(carDescriber.getPropertyFromSnakeCase("crash_rating")), eq(3.0));
 	}
 
 	@Test
 	public void useIndexOnGreaterThanOrEqual() {
-		Optional<IndexedCar> foundCar = carRepo.query().gte(IndexedCar::getCrashRating, 2.0).execute().findFirst();
-		assertTrue(foundCar.isPresent());
-		verify(carIndex).gte(eq(carDescriber.getPropertyFromSnakeCase("crash_rating")), eq(2.0));
+		assertEquals(2, carRepo.query().gte(IndexedCar::getCrashRating, 3.0).execute().count());
+		verify(carIndex).gte(eq(carDescriber.getPropertyFromSnakeCase("crash_rating")), eq(3.0));
 	}
 
 	public static class TestCarRepo extends CrudRepositoryTestDoubleBase<IndexedCar, String> {

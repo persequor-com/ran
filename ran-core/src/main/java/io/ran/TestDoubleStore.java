@@ -2,19 +2,19 @@ package io.ran;
 
 import javax.inject.Inject;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
-public class Store<K, V> {
-	private final Map<K, V> map = Collections.synchronizedMap(new HashMap<>());
+public class TestDoubleStore<K, V> {
+	private final ConcurrentMap<K, V> map = new ConcurrentHashMap<>();
 	public final TestDoubleIndex index = new TestDoubleIndex();
 	private final MappingHelper mappingHelper;
 
 	@Inject
-	public Store(MappingHelper mappingHelper) {
+	public TestDoubleStore(MappingHelper mappingHelper) {
 		this.mappingHelper = mappingHelper;
 	}
 
@@ -45,13 +45,11 @@ public class Store<K, V> {
 	}
 
 	public V put(K key, V mappingCopy, List<KeySet> indexes) {
-
 		for (KeySet keySet : indexes) {
 			index(keySet, mappingCopy, key);
 		}
 		return map.put(key, mappingCopy);
 	}
-
 
 	private Object getValueUntyped(Property property, Object t) {
 		return mappingHelper.getValue(t, property);

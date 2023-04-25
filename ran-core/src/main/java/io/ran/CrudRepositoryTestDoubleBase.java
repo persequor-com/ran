@@ -32,7 +32,7 @@ public abstract class CrudRepositoryTestDoubleBase<T, K> implements CrudReposito
 		this.mappingHelper = mappingHelper;
 	}
 
-	<Z> Store<Object, Z> getStore(Class<Z> modelType) {
+	<Z> TestDoubleStore<Object, Z> getStore(Class<Z> modelType) {
 		return store.getStore(modelType);
 	}
 
@@ -74,7 +74,7 @@ public abstract class CrudRepositoryTestDoubleBase<T, K> implements CrudReposito
 
 	protected <Z> CrudRepository.CrudUpdateResult save(Z t, Class<Z> zClass) {
 		Object key = getKey(t);
-		Store<Object, Z> thisStore = getStore(zClass);
+		TestDoubleStore<Object, Z> thisStore = getStore(zClass);
 		List<KeySet> keys = new ArrayList<>();
 		keys.add(typeDescriber.primaryKeys());
 		keys.addAll(typeDescriber.indexes());
