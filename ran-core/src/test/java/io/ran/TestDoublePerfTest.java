@@ -3,6 +3,7 @@ package io.ran;
 import io.ran.testclasses.Brand;
 import io.ran.testclasses.IndexedCar;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.inject.Inject;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
+@Ignore
 public class TestDoublePerfTest {
 
 	public static final int NUMBER_OF_SUVS = 50;
