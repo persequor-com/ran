@@ -1,6 +1,7 @@
 package io.ran.instancemapper;
 
 import javax.inject.Inject;
+import java.util.function.BiConsumer;
 
 public class InstanceMapper {
     private final InstanceMappingRegistry instanceMappingRegistry;
@@ -11,14 +12,14 @@ public class InstanceMapper {
     }
 
     public <FROM, TO> void map(FROM from, TO to) {
-        for (InstanceFieldMapper<FROM, TO> instanceFieldMapper : instanceMappingRegistry.getMappers((Class<FROM>)from.getClass(), (Class<TO>)to.getClass())) {
-            instanceFieldMapper.map(from, to);
+        for (BiConsumer<? super FROM, ? super TO> mapper : instanceMappingRegistry.getMappers(from.getClass(), to.getClass())) {
+	        mapper.accept(from, to);
         }
     }
 
     public <FROM, TO> void map(Class<?> context, FROM from, TO to) {
-        for (InstanceFieldMapper<FROM, TO> instanceFieldMapper : instanceMappingRegistry.getMappers(context, (Class<FROM>)from.getClass(), (Class<TO>)to.getClass())) {
-            instanceFieldMapper.map(from, to);
+        for (BiConsumer<? super FROM, ? super TO> mapper : instanceMappingRegistry.getMappers(context, from.getClass(), to.getClass())) {
+	        mapper.accept(from, to);
         }
     }
 }

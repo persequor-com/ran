@@ -15,8 +15,8 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 public class InstanceMappingRegistry {
-	Map<Class<?>, Map<Class<?>, Map<Class<?>, Map<Token, InstanceFieldMapper<?, ?>>>>> classSpecificMappings = new ConcurrentHashMap<>(); // todo use CacheTriple?
-	Map<CacheTriple, List<InstanceFieldMapper<?, ?>>> mappingsCache = new ConcurrentHashMap<>();
+	Map<CacheTriple, Map<Token, BiConsumer<?, ?>>> classSpecificMappings = new ConcurrentHashMap<>();
+	Map<CacheTriple, List<BiConsumer<?, ?>>> mappingsCache = new ConcurrentHashMap<>();
 	private final GenericFactory genericFactory;
 
 	@Inject
@@ -24,66 +24,57 @@ public class InstanceMappingRegistry {
 		this.genericFactory = genericFactory;
 	}
 
-	public <FROM, TO, V> void putIfAbsent(Class<FROM> fromClass, Class<TO> toClass, Function<TO, V> field, InstanceFieldMapper<FROM, TO> mapper) {
+	public <FROM, TO> void putIfAbsent(Class<FROM> fromClass, Class<TO> toClass, Function<TO, ?> field, BiConsumer<FROM, TO> mapper) {
 		getMapForWriting(Object.class, fromClass, toClass).putIfAbsent(getToken(toClass, field), mapper);
 	}
 
-	public <FROM, TO, V> void putIfAbsent(Class<?> context, Class<FROM> fromClass, Class<TO> toClass, Function<TO, V> field, InstanceFieldMapper<FROM, TO> mapper) {
+	public <FROM, TO> void putIfAbsent(Class<?> context, Class<FROM> fromClass, Class<TO> toClass, Function<TO, ?> field, BiConsumer<FROM, TO> mapper) {
 		getMapForWriting(context, fromClass, toClass).putIfAbsent(getToken(toClass, field), mapper);
 	}
 
-	public <FROM, TO, V> void putIfAbsent(Class<FROM> fromClass, Class<TO> toClass, BiConsumer<TO, V> field, InstanceFieldMapper<FROM, TO> mapper) {
+	public <FROM, TO, FIELD> void putIfAbsent(Class<FROM> fromClass, Class<TO> toClass, BiConsumer<TO, FIELD> field, BiConsumer<FROM, TO> mapper) {
 		getMapForWriting(Object.class, fromClass, toClass).putIfAbsent(getToken(toClass, field), mapper);
 	}
 
-	public <FROM, TO, V> void putIfAbsent(Class<?> context, Class<FROM> fromClass, Class<TO> toClass, BiConsumer<TO, V> field, InstanceFieldMapper<FROM, TO> mapper) {
+	public <FROM, TO, FIELD> void putIfAbsent(Class<?> context, Class<FROM> fromClass, Class<TO> toClass, BiConsumer<TO, FIELD> field, BiConsumer<FROM, TO> mapper) {
 		getMapForWriting(context, fromClass, toClass).putIfAbsent(getToken(toClass, field), mapper);
 	}
 
-	public <FROM, TO, V> void put(Class<FROM> fromClass, Class<TO> toClass, Function<TO, V> field, InstanceFieldMapper<FROM, TO> mapper) {
+	public <FROM, TO> void put(Class<FROM> fromClass, Class<TO> toClass, Function<TO, ?> field, BiConsumer<FROM, TO> mapper) {
 		getMapForWriting(Object.class, fromClass, toClass).put(getToken(toClass, field), mapper);
 	}
 
-	public <FROM, TO, V> void put(Class<?> context, Class<FROM> fromClass, Class<TO> toClass, Function<TO, V> field, InstanceFieldMapper<FROM, TO> mapper) {
+	public <FROM, TO> void put(Class<?> context, Class<FROM> fromClass, Class<TO> toClass, Function<TO, ?> field, BiConsumer<FROM, TO> mapper) {
 		getMapForWriting(context, fromClass, toClass).put(getToken(toClass, field), mapper);
 	}
 
-	public <FROM, TO, V> void put(Class<FROM> fromClass, Class<TO> toClass, BiConsumer<TO, V> field, InstanceFieldMapper<FROM, TO> mapper) {
+	public <FROM, TO, FIELD> void put(Class<FROM> fromClass, Class<TO> toClass, BiConsumer<TO, FIELD> field, BiConsumer<FROM, TO> mapper) {
 		getMapForWriting(Object.class, fromClass, toClass).put(getToken(toClass, field), mapper);
 	}
 
-	public <FROM, TO, V> void put(Class<?> context, Class<FROM> fromClass, Class<TO> toClass, BiConsumer<TO, V> field, InstanceFieldMapper<FROM, TO> mapper) {
+	public <FROM, TO, FIELD> void put(Class<?> context, Class<FROM> fromClass, Class<TO> toClass, BiConsumer<TO, FIELD> field, BiConsumer<FROM, TO> mapper) {
 		getMapForWriting(context, fromClass, toClass).put(getToken(toClass, field), mapper);
 	}
 
-	public <FROM, TO> List<InstanceFieldMapper<FROM, TO>> getMappers(Class<FROM> fromClass, Class<TO> toClass) {
+	public <FROM, TO> List<BiConsumer<? super FROM, ? super TO>> getMappers(Class<?> fromClass, Class<?> toClass) {
 		return getMappers(Object.class, fromClass, toClass);
 	}
 
-	public <FROM, TO> List<InstanceFieldMapper<FROM, TO>> getMappers(Class<?> context, Class<FROM> fromClass, Class<TO> toClass) {
+	public <FROM, TO> List<BiConsumer<? super FROM, ? super TO>> getMappers(Class<?> context, Class<?> fromClass, Class<?> toClass) {
 		//noinspection unchecked,rawtypes
 		return (List) mappingsCache.computeIfAbsent(new CacheTriple(context, fromClass, toClass), t -> {
-			LinkedHashMap<Token, InstanceFieldMapper<?, ?>> result = new LinkedHashMap<>();
+			LinkedHashMap<Token, BiConsumer<?, ?>> result = new LinkedHashMap<>();
 			List<Class<?>> contextHierarchy = getSortedClassHierarchy(context);
 			List<Class<?>> toHierarchy = getSortedClassHierarchy(toClass);
 			List<Class<?>> fromHierarchy = getSortedClassHierarchy(fromClass);
 
 			for (Class<?> ctx : contextHierarchy) {
-				Map<Class<?>, Map<Class<?>, Map<Token, InstanceFieldMapper<?, ?>>>> contextMappings = classSpecificMappings.get(ctx);
-				if (contextMappings == null) {
-					continue;
-				}
 				for (Class<?> to : toHierarchy) {
-					Map<Class<?>, Map<Token, InstanceFieldMapper<?, ?>>> toMappings = classSpecificMappings.get(ctx).get(to);
-					if (toMappings == null) {
-						continue;
-					}
 					for (Class<?> from : fromHierarchy) {
-						Map<Token, InstanceFieldMapper<?, ?>> mappings = toMappings.get(from);
-						if (mappings == null) {
-							continue;
+						Map<Token, BiConsumer<?, ?>> mappings = classSpecificMappings.get(new CacheTriple(ctx, to, from));
+						if (mappings != null) {
+							mappings.forEach(result::putIfAbsent);
 						}
-						mappings.forEach(result::putIfAbsent);
 					}
 				}
 			}
@@ -100,24 +91,21 @@ public class InstanceMappingRegistry {
 		return sortedHierarchy;
 	}
 
-	private <TO, V> Token getToken(Class<TO> toClass, BiConsumer<TO, V> field) {
+	private <TO> Token getToken(Class<TO> toClass, BiConsumer<TO, ?> field) {
 		TO qi = genericFactory.getQueryInstance(toClass);
 		field.accept(qi, null);
 		return ((QueryWrapper) qi).getCurrentProperty().getToken();
 	}
 
-	private <TO, V> Token getToken(Class<TO> toClass, Function<TO, V> field) {
+	private <TO> Token getToken(Class<TO> toClass, Function<TO, ?> field) {
 		TO qi = genericFactory.getQueryInstance(toClass);
 		field.apply(qi);
 		return ((QueryWrapper) qi).getCurrentProperty().getToken();
 	}
 
-	private <FROM, TO> Map<Token, InstanceFieldMapper<?, ?>> getMapForWriting(Class<?> context, Class<FROM> fromClass, Class<TO> toClass) {
+	private <FROM, TO> Map<Token, BiConsumer<?,?>> getMapForWriting(Class<?> context, Class<FROM> fromClass, Class<TO> toClass) {
 		mappingsCache.clear();
-		return classSpecificMappings
-				.computeIfAbsent(context, cc -> new ConcurrentHashMap<>())
-				.computeIfAbsent(toClass, cc -> new ConcurrentHashMap<>())
-				.computeIfAbsent(fromClass, cc -> new ConcurrentHashMap<>());
+		return classSpecificMappings.computeIfAbsent(new CacheTriple(context, toClass, fromClass), cc -> new ConcurrentHashMap<>());
 	}
 
 	private static class CacheTriple {
