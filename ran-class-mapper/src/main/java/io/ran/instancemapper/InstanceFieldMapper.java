@@ -1,8 +1,5 @@
 package io.ran.instancemapper;
 
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-
-public interface InstanceFieldMapper<FROM, TO, VALUETYPE> {
+public interface InstanceFieldMapper<FROM, TO> {
      void map(FROM from, TO to);
 }

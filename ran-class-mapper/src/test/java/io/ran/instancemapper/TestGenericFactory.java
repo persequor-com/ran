@@ -1,9 +1,9 @@
 package io.ran.instancemapper;
 
-import com.google.inject.Inject;
-import com.google.inject.Injector;
-import com.google.inject.Key;
-import io.ran.*;
+import io.ran.AutoMapper;
+import io.ran.DbResolver;
+import io.ran.DbType;
+import io.ran.GenericFactory;
 
 public class TestGenericFactory implements GenericFactory {
 
@@ -30,11 +30,4 @@ public class TestGenericFactory implements GenericFactory {
 	public DbResolver<DbType> getResolver(Class<? extends DbType> dbTypeClass) {
 		return null;
 	}
-
-	@Override
-	public <T> T wrapped(Class<T> aClass) {
-		return null;
-	}
-
-
 }
