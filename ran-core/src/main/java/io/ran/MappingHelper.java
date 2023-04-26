@@ -1,3 +1,11 @@
+/* Copyright 2021 PSQR
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 package io.ran;
 
 import io.ran.token.Token;
@@ -18,7 +26,7 @@ public class MappingHelper {
 		if (toHydrate instanceof Mapping) {
 			((Mapping) toHydrate).hydrate(hydrator);
 		} else {
-			((Mapping)genericFactory.get(toHydrate.getClass())).hydrate(toHydrate, hydrator);
+			((Mapping) genericFactory.get(toHydrate.getClass())).hydrate(toHydrate, hydrator);
 		}
 	}
 
@@ -26,7 +34,7 @@ public class MappingHelper {
 		if (toColumnize instanceof Mapping) {
 			((Mapping) toColumnize).columnize(columnizer);
 		} else {
-			((Mapping)genericFactory.get(toColumnize.getClass())).columnize(toColumnize, columnizer);
+			((Mapping) genericFactory.get(toColumnize.getClass())).columnize(toColumnize, columnizer);
 		}
 	}
 
@@ -34,15 +42,33 @@ public class MappingHelper {
 		if (obj instanceof Mapping) {
 			return ((Mapping) obj)._getKey();
 		} else {
-			return ((Mapping)genericFactory.get(obj.getClass()))._getKey(obj);
+			return ((Mapping) genericFactory.get(obj.getClass()))._getKey(obj);
 		}
 	}
 
 	public Object getValue(Object obj, Property property) {
+		return getValue(obj, property, null);
+	}
+
+	public Object getValue(Object obj, Property property, Object defaultValue) {
+		Object value;
 		if (obj instanceof Mapping) {
-			return ((Mapping) obj)._getValue(property);
+			value = ((Mapping) obj)._getValue(property);
 		} else {
-			return ((Mapping)genericFactory.get(obj.getClass()))._getValue(obj, property);
+			value = ((Mapping) genericFactory.get(obj.getClass()))._getValue(obj, property);
+		}
+		if (value == null && !property.getType().isPrimitive()) {
+			return defaultValue;
+		} else {
+			return value;
+		}
+	}
+
+	public void setValue(Object obj, Property property, Object value) {
+		if (obj instanceof Mapping) {
+			((Mapping) obj)._setValue(property, value);
+		} else {
+			((Mapping) genericFactory.get(obj.getClass()))._setValue(obj, property, value);
 		}
 	}
 
@@ -50,7 +76,7 @@ public class MappingHelper {
 		if (obj instanceof Mapping) {
 			return ((Mapping) obj)._getRelation(describer);
 		} else {
-			return ((Mapping)genericFactory.get(obj.getClass()))._getRelation(obj, describer);
+			return ((Mapping) genericFactory.get(obj.getClass()))._getRelation(obj, describer);
 		}
 	}
 
@@ -58,7 +84,7 @@ public class MappingHelper {
 		if (obj instanceof Mapping) {
 			return ((Mapping) obj)._getRelation(fieldToken);
 		} else {
-			return ((Mapping)genericFactory.get(obj.getClass()))._getRelation(obj, fieldToken);
+			return ((Mapping) genericFactory.get(obj.getClass()))._getRelation(obj, fieldToken);
 		}
 	}
 
@@ -66,14 +92,14 @@ public class MappingHelper {
 		TypeDescriberImpl.getTypeDescriber(tClass);
 		T queryInstance = genericFactory.getQueryInstance(tClass);
 		methodReference.apply(queryInstance);
-		return ((QueryWrapper)queryInstance).getCurrentMethod();
+		return ((QueryWrapper) queryInstance).getCurrentMethod();
 	}
 
 	public <T> ClazzMethod getMethod(Class<T> tClass, Consumer<T> methodReference) {
 		TypeDescriberImpl.getTypeDescriber(tClass);
 		T queryInstance = genericFactory.getQueryInstance(tClass);
 		methodReference.accept(queryInstance);
-		return ((QueryWrapper)queryInstance).getCurrentMethod();
+		return ((QueryWrapper) queryInstance).getCurrentMethod();
 	}
 
 	public <T> void copyValues(Class<T> tClass, T from, T to) {
@@ -84,6 +110,6 @@ public class MappingHelper {
 	public <T> T makeCopy(Class<T> tClass, T t) {
 		Mapping mapping = (Mapping) genericFactory.get(tClass);
 		mapping.copy(t, mapping);
-		return (T)mapping;
+		return (T) mapping;
 	}
 }
