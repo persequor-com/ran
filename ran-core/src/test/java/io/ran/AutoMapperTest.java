@@ -22,10 +22,8 @@ import io.ran.testclasses.WithBinaryField;
 import io.ran.testclasses.WithCollections;
 import io.ran.token.Token;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collection;
@@ -40,7 +38,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class AutoMapperTest {
-	private AutoMapper mapper;
 	private GuiceHelper helper;
 
 	Resolver resolver = new Resolver() {
@@ -55,18 +52,13 @@ public class AutoMapperTest {
 		}
 	};
 
-	@BeforeClass
-	public static void beforeClass() throws IOException {
-
-	}
-
 	@Before
 	public void setup() {
 		helper = new GuiceHelper();
 	}
 
 	@Test
-	public void hydrate() throws IllegalAccessException, InstantiationException {
+	public void hydrate() {
 		ObjectMap map = new ObjectMap();
 		map.set("Id", "My id");
 		ZonedDateTime now = ZonedDateTime.now();
@@ -154,6 +146,15 @@ public class AutoMapperTest {
 	}
 
 	@Test
+	public void fieldsOnSuperClass() {
+		Property.PropertyList properties = Clazz.of(Regular.class).getProperties();
+
+		assertEquals(2, properties.size());
+		assertTrue(properties.stream().anyMatch(p -> p.getToken().equals(Token.of("reg"))));
+		assertTrue(properties.stream().anyMatch(p -> p.getToken().equals(Token.of("sup"))));
+	}
+
+	@Test
 	public void getSetFieldsOnSuper() {
 		Regular r = helper.factory.get(Regular.class);
 		r.setReg("reg");
@@ -205,7 +206,7 @@ public class AutoMapperTest {
 	}
 
 	@Test
-	public void compoundKeyRelation_typeDescriber() throws Throwable {
+	public void compoundKeyRelation_typeDescriber() {
 		TypeDescriber<Bike> typeDescriber = TypeDescriberImpl.getTypeDescriber(Bike.class);
 		RelationDescriber gearsRelation = typeDescriber.relations().get("gears");
 		assertEquals(2, gearsRelation.getVia().size());
@@ -224,13 +225,13 @@ public class AutoMapperTest {
 	}
 
 	@Test
-	public void objectWithoutPrimaryKey() throws Throwable {
+	public void objectWithoutPrimaryKey() {
 		TypeDescriberImpl.getTypeDescriber(ObjectWithoutPrimaryKey.class);
 	}
 
 
 	@Test
-	public void binaryData() throws IllegalAccessException, InstantiationException {
+	public void binaryData() {
 		ObjectMap map = new ObjectMap();
 
 		WithBinaryField withBinaryField = helper.factory.get(WithBinaryField.class);
@@ -247,7 +248,7 @@ public class AutoMapperTest {
 	}
 
 	@Test
-	public void setRelationForObject() throws IllegalAccessException, InstantiationException {
+	public void setRelationForObject() {
 		TypeDescriber<Car> describer = TypeDescriberImpl.getTypeDescriber(Car.class);
 		Car car = helper.factory.get(Car.class);
 		Mapping carMapping = (Mapping) car;

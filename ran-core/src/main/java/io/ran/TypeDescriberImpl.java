@@ -110,7 +110,7 @@ public class TypeDescriberImpl<T> implements TypeDescriber<T> {
 	}
 
 	public ClazzMethod method(String methodToken) {
-		return methods().stream().filter(cm -> cm.matches(methodToken)).findFirst().orElseThrow(() -> new RuntimeException("Could not find method bytoken " + methodToken + " on " + clazz.clazz.getName()));
+		return methods().stream().filter(cm -> cm.matches(methodToken)).findFirst().orElseThrow(() -> new RuntimeException("Could not find method by token " + methodToken + " on " + clazz.clazz.getName()));
 	}
 
 	@Override

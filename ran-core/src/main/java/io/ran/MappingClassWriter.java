@@ -783,7 +783,7 @@ public class MappingClassWriter extends AutoMapperClassWriter {
 						ce.ifNegateBoolean(c -> {
 							MethodSignature resolverMethod = null;
 							if (isCollection) {
-								resolverMethod = new MethodSignature(Clazz.ofClasses(Resolver.class, wrapperClass, elementType), "getCollection", Clazz.of(Collection.class), Clazz.of(Class.class), Clazz.of(String.class), Clazz.of(Object.class));
+								resolverMethod = new MethodSignature(Clazz.ofClasses(Resolver.class), "getCollection", Clazz.of(Collection.class), Clazz.of(Class.class), Clazz.of(String.class), Clazz.of(Object.class));
 							} else {
 								resolverMethod = new MethodSignature(Clazz.of(Resolver.class), "get", Clazz.of(Object.class), Clazz.of(Class.class), Clazz.of(String.class), Clazz.of(Object.class));
 							}

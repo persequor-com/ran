@@ -21,12 +21,15 @@ public class ClazzMethodList extends ArrayList<ClazzMethod> {
 	}
 
 	private Optional<ClazzMethod> findInternal(String method, Class<?> returnType, List<Class> parameterTypes) {
-		return stream().filter(cm -> cm.getName().equals(method)).filter(cm -> cm.getReturnType().clazz.equals(returnType)).filter(cm -> {
+		return stream()
+				.filter(cm -> cm.getName().equals(method))
+				.filter(cm -> cm.getReturnType().clazz.equals(returnType))
+				.filter(cm -> {
 			if (cm.parameters().size() != parameterTypes.size()) {
 				return false;
 			}
 			for (int i = 0; i < cm.parameters().size(); i++) {
-				if (!cm.parameters().get(i).getBestEffortClazz().clazz.equals(parameterTypes.get(i))) {
+				if (!cm.parameters().get(i).getClazz().clazz.equals(parameterTypes.get(i))) {
 					return false;
 				}
 			}
