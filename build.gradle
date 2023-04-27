@@ -1,3 +1,7 @@
+plugins {
+    id 'info.solidsoft.pitest' version '1.9.11' apply false
+}
+
 allprojects {
     apply plugin: 'java'
     apply plugin: 'maven-publish'
@@ -35,4 +39,12 @@ allprojects {
     }
     sourceCompatibility = '1.8'
 
+}
+
+subprojects {
+    apply plugin: 'info.solidsoft.pitest'
+
+    pitest {
+        threads = 4
+    }
 }
