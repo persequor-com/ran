@@ -1,5 +1,0 @@
-rootProject.name = 'ran'
-
-include ':ran-core'
-include ':ran-class-mapper'
-
